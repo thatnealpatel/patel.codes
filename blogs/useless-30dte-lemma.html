@@ -19,7 +19,7 @@
 			<h2 class="terminal" style="font-size:2em;color:gray;font-weight:normal">
         neal patel<sup><a class="terminal" style="font-size:0.5em" href="../index.html">homepage</a></sup>
       </h2>
-      <p>2025-01-11</p>
+      <p>2025-01-12</p>
 		</div>
 
 		<div class="container">
@@ -34,26 +34,202 @@
           the trader considers the following:
 
           <li>
-            * if presented with multiple options for expiry, how should the backtest and live trading
-            code handle such a situation?
+            \(\textit{if presented with multiple equivalent expiries on a given trading day,}\)
+            \(\textit{how should the backtest and live trading code handle selection?}\)
           </li>
           </p>
 
           <p>
-          in order to avoid adding complexity where unncessary, the trader starts to attack assumptions;
-          namely, "under what circumstances am I even offered a choice?"
+          in order to avoid adding complexity where unncessary, the trader starts to attack assumptions:
+          <li>
+            \(\textit{under what circumstances does such a choice even exist?}\)
+          </li>
           </p>
 
           <h2>use an llm!</h2>
+          <p>
+          through the selectively biased lens of my day-to-day experiences, it seems increasingly more
+          common to default to \(\textit{machine-first}\) thinking instead of \(\textit{human-first}\)
+          thinking. stated another way, there seems to be an upward trend of
+          \(\textit{outsourcing logic and reasoning}\).
+          </p>
 
           <p>
-          while LLMs are robust tools whose applications are numerous, the general attitude shift away from
-          attempting to grok problems human-first has sparked many conversations with friends, co-workers, etc.
+          for clarity, \(\textit{machine-first}\) thinking is <strong>not</strong> the same as
+          \(\textit{machine-aided}\) thinking. in my mental model, \(\textit{machine-aided}\)
+          is a subset of \(\textit{human-first}\):
+          <li>(h)uman-first&emsp;&emsp;&emsp;| \(\
+            \text{conjecture}^{\text{h}} \
+            \rightarrow \text{reasoning}^{\text{h}} \
+            \rightarrow \text{outcome}^{\text{h}} \
+            \)
+            <!-- <li>&emsp;&emsp;machine-aided&emsp;| \(\ -->
+            <!--   \text{conjecture}^{\text{h}} \ -->
+            <!--   \rightarrow \text{reasoning}^{\textbf{h}} \ -->
+            <!--   \rightarrow \text{outcome}^{\text{m|h}} \ -->
+            <!--   \) -->
+            <!-- </li> -->
+          </li>
+          <li>(m)achine-first&emsp;| \(\
+            \text{conjecture}^{\text{h}} \
+            \rightarrow \text{reasoning}^{\textbf{m}} \
+            \rightarrow \text{outcome}^{\text{m}} \
+            \)
+          </li>
+          </p>
+
+          <p>
+          of course, \(\textit{machine-first}\) thinking is represented in a reductive manner above; to
+          capture the notion that a human supervises the \(\textbf{reasoning}\), let us expand the
+          notation a bit:
+          <li>(m)achine-first&emsp;| \(\
+            \text{conjecture}^{\text{h}} \
+            \rightarrow \text{reasoning}^{C(1-\epsilon)\textbf{m}+\epsilon\text{h}} \
+            \rightarrow \text{outcome}^{\text{*}} \
+            \)
+          </li>
           </p>
           <p>
-          in no way are the results below meant to be cherrypicked, i do not pay for any LLM services. as such,
-          the results below are derived using the "smartest" free model i could select.
+          the expression of \({C(1-\epsilon)\text{m}+\epsilon\text{h}}\) simply captures:
+          <li>
+          if a human spends
+          \(\epsilon\) effort supervising, the machine spends \(1-\epsilon\) effort reasoning with
+          whatever catch-all constant \(C\) satisfies the inequality between human-to-machine reasoning.
+          </li>
           </p>
+          <p>
+          for example, one might say that someone who blindly accepts machine reasoning has \(\epsilon=0\):
+          <li>
+            \(\
+              \text{conjecture}^{\text{h}} \
+              \rightarrow \text{reasoning}^{C\textbf{m}} \
+              \rightarrow \text{outcome}^{\text{m}} \
+            \)
+          </li>
+          </p>
+          <p>
+          furthermore, by definition, \(\textit{human-first}\) thinking blindly rejects machine reasoning
+          i.e. \(\epsilon=1\):
+          <li>
+            \(\
+              \text{conjecture}^{\text{h}} \
+              \rightarrow \text{reasoning}^{\textbf{h}} \
+              \rightarrow \text{outcome}^{\text{h}} \
+            \)
+          </li>
+          </p>
+
+          <p>
+          while i am admittedly a staunch contrarian when it comes to the topic of LLMs, i do concede
+          they have realized utility in some applications. my intention is not to debate the utility curve
+          of LLMs; rather, i aim to invite deeper thinking about effects of human-LLM interactions.
+          </p>
+
+          <p>
+          <!-- (i.e. \(\frac{\mathop{d}}{\mathop{dt}}\epsilon \lt 0\)) -->
+          \(\textit{outsourcing logic and reasoning}\) may be perfectly valid in some contexts,
+          but not all contexts. what i worry about most is that
+          continuous exposure to \(\textit{outsourcing logic and reasoning}\) in valid contexts erodes the human
+          detection mechanism responsible for drawing that line in the first place.
+          </p>
+
+          <p>
+          as of writing, machines cannot reason from first-principles; therefore, humans must become more
+          resilient in explicitly protecting the spaces in which \(\textit{outsourcing logic and reasoning}\)
+          may lead to less than ideal outcomes. a serendipitous, cherry-picked personal example follows for
+          those interested in virtually useless proofs.
+          </p>
+
+					<h2>virtually useless proof</h2>
+					<p>
+            if one were to take trading days \(T\) and weekends \(W\) as such:
+            \begin{equation}
+                T = \{0, 1, 2, 3, 4\}
+            \end{equation}
+            \begin{equation}
+                W = \{5, 6\}
+            \end{equation}
+
+            if today \(t \in T\) and target DTE \(D\), one might observe that deriving day of the week
+            \(d \in \{T\cup{W}\}\) for \(D\) is simply:
+
+            \begin{equation}
+                (t + D)\mod{7} = d
+            \label{eq:dow}
+            \end{equation}
+
+            for 30\(\pm{1 DTE}\) strategies, one is never presented two equivalent choices for days-to-expiry in
+            non-holiday conditions.
+
+            using \eqref{eq:dow}, one observes when the possibility of a choice may arise:
+
+            \begin{equation}
+                d \in W \iff t \in \{3 , 4 \}
+            \label{eq:iff}
+            \end{equation}
+
+            that is to say, a choice may only happen on Thursday or Friday.
+            given, two choices: \(D_{-1}'\) and \(D_{+1}'\) representing 29 DTE and 31 DTE, respectively:
+
+            \begin{equation}
+            (3 + D_{-1}')\mod{7} = 4
+            \end{equation}
+            \begin{equation}
+            (3 + D_{+1}')\mod{7} = 6
+            \end{equation}
+            \begin{equation}
+            (4 + D_{-1}')\mod{7} = 5
+            \end{equation}
+            \begin{equation}
+            (4 + D_{+1}')\mod{7} = 0
+            \end{equation}
+
+            thus, \(t=3\) is always presented \(D_{-1}'\) while \(t=4\) is always presented \(D_{+1}'\).
+          </p>
+
+					<h2>visual proof</h2>
+					<p>
+            using \(0\) to indicate the current trading day,
+            there exists a nice visual proof; make note of when
+            \(t=3\) (thursday) is the current day \((0)\) and
+            \(t=4\) (friday) is the current day \((0)\).
+          </p>
+          <img
+              alt="calendar-based visual proof of written modular arithmetic proof"
+              style="width:10em;height:50em"
+              src="../assets/useless-30dte-lemma_visual-proof.png">
+          </img>
+
+          <br><br>
+					<h2>closing thoughts</h2>
+					<p>
+          questioning assumptions and re-stating base truths often can combat misguided efforts, such as
+          adding complexity where none is required. this is the essense of \(\textit{human-first}\) thinking 
+          that must continue to be protected in the age of \(\textit{outsourcing logic and reasoning}\).
+          </p>
+					<p>
+          as always, it is helpful to take a step back every now and then and ask,
+          </p>
+					<p>
+            \(\textit{why?}\)
+          </p>
+				</div>
+			</section>
+      <section id="appendix">
+          <br>
+					<h2>appendix: llm responses</h2>
+          <p>
+          note: in no way are the results below meant to be cherrypicked, i do not pay for any LLM services.
+          as such, the results below are derived using the "smartest" free model i could select.
+          </p>
+          <p>
+          additionally, there's usually more than one way to do the same thing;
+          i am sure there exists a "\(\textit{machine-first}\) power user" who could likely construct
+          the proof below (or some similarly acceptable proxy of the proof) in a similar amount of time
+          that i spent constructing it \(\textit{human-first}\)... perhaps even shorter?
+          </p>
+
+
 
           <div class="terminal-card">
             <header>Prompt</header>
@@ -113,82 +289,7 @@
             <li>Thursday: 30 DTE, 31 DTE</li>
             <li>Friday: 31 DTE, 30 DTE, 29 DTE</li>
           </div>
-          
-          <br><br>
-					<h2>proof</h2>
-					<p>
-            If one were to take trading days \(T\) and weekends \(W\) as such:
-            \begin{equation}
-                T = \{0, 1, 2, 3, 4\}
-            \end{equation}
-            \begin{equation}
-                W = \{5, 6\}
-            \end{equation}
-
-            If today \(t \in T\) and target DTE \(D\), one might observe that deriving day of the week
-            \(d \in \{T\cup{W}\}\) for \(D\) is simply:
-
-            \begin{equation}
-                (t + D)\mod{7} = d
-            \label{eq:dow}
-            \end{equation}
-
-            For 30\(\pm{1 DTE}\) strategies, one is never presented two equivalent choices for days-to-expiry in
-            non-holiday conditions.
-
-            Using \eqref{eq:dow}, one observes when the possibility of a choice may arise:
-
-            \begin{equation}
-                d \in W \iff t \in \{3 , 4 \}
-            \label{eq:iff}
-            \end{equation}
-
-            That is to say, a choice may only happen on Thursday or Friday.
-            Given, two choices: \(D_{-1}'\) and \(D_{+1}'\) representing 29 DTE and 31 DTE, respectively:
-
-            \begin{equation}
-            (3 + D_{-1}')\mod{7} = 4
-            \end{equation}
-            \begin{equation}
-            (3 + D_{+1}')\mod{7} = 6
-            \end{equation}
-            \begin{equation}
-            (4 + D_{-1}')\mod{7} = 5
-            \end{equation}
-            \begin{equation}
-            (4 + D_{+1}')\mod{7} = 0
-            \end{equation}
-
-            Thus, \(t=3\) is always presented \(D_{-1}'\) while \(t=4\) is always presented \(D_{+1}'\).
-          </p>
-
-          <br><br>
-					<h2>visual proof</h2>
-					<p>
-            using \(0\) to indicate the current trading day,
-            there exists a nice visual proof:
-          </p>
-          <img
-              alt="calendar-based visual proof of written modular arithmetic proof"
-              style="width:10em;height:50em"
-              src="https://cdn.discordapp.com/attachments/1086287589436305428/1264032482932555848/Screenshot_2024-07-19_at_21.33.38.png?ex=6783c4bc&is=6782733c&hm=6d446237ab658ff69a89ac040a858007a4b2ec84c4c6dfc1f2a9d464b8574854&">
-          </img>
-
-          <br><br>
-					<h2>closing thoughts</h2>
-					<p>
-            questioning assumptions and re-stating truths often can combat misguided efforts, such as
-            adding complexity where none is required.
-          </p>
-					<p>
-            as the usage of LLMs rises, it becomes increasingly important to ensure
-            that we do not forget to take a step back every once in a while and ask
-          </p>
-					<p>
-            \(\textit{why?}\)
-          </p>
-				</div>
-			</section>
+      </section>
 		</div>
 	</body>
 </html>
