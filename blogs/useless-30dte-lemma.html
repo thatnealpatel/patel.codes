@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+		<link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <script>
+      MathJax = {
+        tex: {
+          tags: 'ams'
+        }
+      };
+    </script>
+		<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+		<title>nealpatel</title>
+	</head>
+	<body>
+		<div class="container">
+			<h1 class="terminal-prompt">don't let LLMs erode first principles thinking</h1>
+			<h2 class="terminal" style="font-size:2em;color:gray;font-weight:normal">
+        neal patel<sup><a class="terminal" style="font-size:0.5em" href="../index.html">homepage</a></sup>
+      </h2>
+      <p>2025-01-11</p>
+		</div>
+
+		<div class="container">
+			<section id="content">
+				<div>
+					<h2>background</h2>
+					<p>
+          consider a trader who is backtesting a series of alphas that target the 30 DTE expiry on the
+          S&P 500 Index options chain. to increase samples, the trader uses a window of +/- one day.
+          </p>
+					<p>
+          the trader considers the following:
+
+          <li>
+            * if presented with multiple options for expiry, how should the backtest and live trading
+            code handle such a situation?
+          </li>
+          </p>
+
+          <p>
+          in order to avoid adding complexity where unncessary, the trader starts to attack assumptions;
+          namely, "under what circumstances am I even offered a choice?"
+          </p>
+
+          <h2>use an llm!</h2>
+
+          <p>
+          while LLMs are robust tools whose applications are numerous, the general attitude shift away from
+          attempting to grok problems human-first has sparked many conversations with friends, co-workers, etc.
+          </p>
+          <p>
+          in no way are the results below meant to be cherrypicked, i do not pay for any LLM services. as such,
+          the results below are derived using the "smartest" free model i could select.
+          </p>
+
+          <div class="terminal-card">
+            <header>Prompt</header>
+            SPXW options have 5 daily expirations (Monday-Friday)
+            I want to trade an options strategy that buys 30 DTE contracts, but I want to include +/-1 day
+            in my range (29-31 DTE) to ensure I get enough samples when 30 DTE isn't available.
+            <br><br>
+            Give me a list by weekday (Monday-Friday) of which expiries (29, 30, 31 DTE) are available.
+          </div>
+
+          <br><br>
+          <div class="terminal-card">
+            <header>ChatGPT Response</header>
+
+            Monday
+            <li> 29 DTE: Tuesday 4 weeks ahead</li>
+            <li> 30 DTE: Monday 4 weeks ahead</li>
+            <li> 31 DTE: Friday 5 weeks ahead</li>
+
+            Tuesday
+            <li> 29 DTE: Wednesday 4 weeks ahead</li>
+            <li> 30 DTE: Tuesday 4 weeks ahead</li>
+            <li> 31 DTE: Monday 4 weeks ahead</li>
+
+            Wednesday
+            <li> 29 DTE: Thursday 4 weeks ahead</li>
+            <li> 30 DTE: Wednesday 4 weeks ahead</li>
+            <li> 31 DTE: Tuesday 4 weeks ahead</li>
+
+            Thursday
+            <li> 29 DTE: Friday 4 weeks ahead</li>
+            <li> 30 DTE: Thursday 4 weeks ahead</li>
+            <li> 31 DTE: Wednesday 4 weeks ahead</li>
+
+            Friday
+            <li> 29 DTE: Monday 4 weeks ahead</li>
+            <li> 30 DTE: Friday 4 weeks ahead</li>
+            <li> 31 DTE: Thursday 4 weeks ahead</li>
+            <br>
+            Notes:
+            <li>
+              *  SPXW options expire daily, so you will always have an expiration available for 29, 30, or 31 DTE.
+            </li>
+            <li>
+              *  Adjusting your strategy to include this 3-day range ensures sufficient samples regardless
+              of your starting point in the week.
+            </li>
+          </div>
+          <br><br>
+          <div class="terminal-card">
+            <header>Gemini Response (2.0 Flash)</header>
+            Here's a breakdown of the available SPXW expirations (29, 30, and 31 days to expiry) by weekday:
+            <br>
+            <li>Monday: 31 DTE, 30 DTE, 29 DTE</li>
+            <li>Tuesday: 30 DTE, 29 DTE</li>
+            <li>Wednesday: 29 DTE, 30 DTE</li>
+            <li>Thursday: 30 DTE, 31 DTE</li>
+            <li>Friday: 31 DTE, 30 DTE, 29 DTE</li>
+          </div>
+          
+          <br><br>
+					<h2>proof</h2>
+					<p>
+            If one were to take trading days \(T\) and weekends \(W\) as such:
+            \begin{equation}
+                T = \{0, 1, 2, 3, 4\}
+            \end{equation}
+            \begin{equation}
+                W = \{5, 6\}
+            \end{equation}
+
+            If today \(t \in T\) and target DTE \(D\), one might observe that deriving day of the week
+            \(d \in \{T\cup{W}\}\) for \(D\) is simply:
+
+            \begin{equation}
+                (t + D)\mod{7} = d
+            \label{eq:dow}
+            \end{equation}
+
+            For 30\(\pm{1 DTE}\) strategies, one is never presented two equivalent choices for days-to-expiry in
+            non-holiday conditions.
+
+            Using \eqref{eq:dow}, one observes when the possibility of a choice may arise:
+
+            \begin{equation}
+                d \in W \iff t \in \{3 , 4 \}
+            \label{eq:iff}
+            \end{equation}
+
+            That is to say, a choice may only happen on Thursday or Friday.
+            Given, two choices: \(D_{-1}'\) and \(D_{+1}'\) representing 29 DTE and 31 DTE, respectively:
+
+            \begin{equation}
+            (3 + D_{-1}')\mod{7} = 4
+            \end{equation}
+            \begin{equation}
+            (3 + D_{+1}')\mod{7} = 6
+            \end{equation}
+            \begin{equation}
+            (4 + D_{-1}')\mod{7} = 5
+            \end{equation}
+            \begin{equation}
+            (4 + D_{+1}')\mod{7} = 0
+            \end{equation}
+
+            Thus, \(t=3\) is always presented \(D_{-1}'\) while \(t=4\) is always presented \(D_{+1}'\).
+          </p>
+
+          <br><br>
+					<h2>visual proof</h2>
+					<p>
+            using \(0\) to indicate the current trading day,
+            there exists a nice visual proof:
+          </p>
+          <img
+              alt="calendar-based visual proof of written modular arithmetic proof"
+              style="width:10em;height:50em"
+              src="https://cdn.discordapp.com/attachments/1086287589436305428/1264032482932555848/Screenshot_2024-07-19_at_21.33.38.png?ex=6783c4bc&is=6782733c&hm=6d446237ab658ff69a89ac040a858007a4b2ec84c4c6dfc1f2a9d464b8574854&">
+          </img>
+
+          <br><br>
+					<h2>closing thoughts</h2>
+					<p>
+            questioning assumptions and re-stating truths often can combat misguided efforts, such as
+            adding complexity where none is required.
+          </p>
+					<p>
+            as the usage of LLMs rises, it becomes increasingly important to ensure
+            that we do not forget to take a step back every once in a while and ask
+          </p>
+					<p>
+            \(\textit{why?}\)
+          </p>
+				</div>
+			</section>
+		</div>
+	</body>
+</html>
