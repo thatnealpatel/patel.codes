@@ -27,20 +27,21 @@
 				<div>
 					<h2>background</h2>
 					<p>
-          consider a trader who is backtesting a series of alphas that target the 30 DTE expiry on the
-          S&P 500 Index options chain. to increase samples, the trader uses a window of +/- one day.
+          consider a trader who is backtesting a series of alphas that target the 30 DTE contracts on the
+          S&P 500 Index options chain. to increase sample size, the trader uses a window of +/- one day from
+          the target.
           </p>
+
 					<p>
           the trader considers the following:
-
           <li>
-            \(\textit{if presented with multiple equivalent expiries on a given trading day,}\)
-            \(\textit{how should the backtest and live trading code handle selection?}\)
+            \(\textit{if presented with multiple equivalent contracts on a given trading day,}\)
+            \(\textit{how should the backtest and live trading code handle DTE selection?}\)
           </li>
           </p>
 
           <p>
-          in order to avoid adding complexity where unncessary, the trader starts to attack assumptions:
+          in order to avoid adding complexity where unncessary, the trader starts question the premise:
           <li>
             \(\textit{under what circumstances does such a choice even exist?}\)
           </li>
@@ -56,8 +57,8 @@
 
           <p>
           for clarity, \(\textit{machine-first}\) thinking is <strong>not</strong> the same as
-          \(\textit{machine-aided}\) thinking. in my mental model, \(\textit{machine-aided}\)
-          is a subset of \(\textit{human-first}\):
+          \(\textit{machine-aided}\) thinking. in my mental model, \(\textit{machine-aided}\) thinking
+          is a subset of \(\textit{human-first}\) thinking:
           <li>(h)uman-first&emsp;&emsp;&emsp;| \(\
             \text{conjecture}^{\text{h}} \
             \rightarrow \text{reasoning}^{\text{h}} \
@@ -225,7 +226,7 @@
           <p>
           additionally, there's usually more than one way to do the same thing;
           i am sure there exists a "\(\textit{machine-first}\) power user" who could likely construct
-          the proof below (or some similarly acceptable proxy of the proof) in a similar amount of time
+          the proof above (or some similarly acceptable proxy of the proof) in a similar amount of time
           that i spent constructing it \(\textit{human-first}\)... perhaps even shorter?
           </p>
 
@@ -289,6 +290,7 @@
             <li>Thursday: 30 DTE, 31 DTE</li>
             <li>Friday: 31 DTE, 30 DTE, 29 DTE</li>
           </div>
+          <br><br>
       </section>
 		</div>
 	</body>
