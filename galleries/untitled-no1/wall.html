@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+		<link rel="stylesheet" href="https://unpkg.com/terminal.css@0.7.4/dist/terminal.min.css" />
+    <script>
+      MathJax = {
+        tex: {
+          tags: 'ams'
+        }
+      };
+    </script>
+		<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+    <style>
+      ::selection {
+        color: #f8d551;
+      }
+      .terminal-card header {
+        background-color: #f8d551;
+      }
+      .terminal-card header {
+        color: #000000;
+      }
+      .image-grid {
+        display: grid;
+        grid-template-rows: auto;
+        grid-gap: 1em;
+        grid-template-columns: repeat(auto-fit, minmax(calc(var(--page-width) / 4), 1fr));
+      }
+    </style>
+		<title>untitled #1 | nealpatel</title>
+	</head>
+	<body>
+    <div class="container">
+      <h1 class="terminal-prompt">untitled #1</h1>
+      <h2 class="terminal" style="font-size:2em;color:gray;font-weight:normal">
+        neal patel<sup><a class="terminal" style="font-size:0.5em" href="../../index.html">homepage</a></sup>
+      </h2>
+      <section style="box-sizing: border-box; text-rendering: geometricprecision; display: block;
+      unicode-bidi: isolate;">
+        <p>2025-01-18</p>
+        <br>
+        <p>intended viewing grid: 3x3 [<a id="zoomie">zoom</a>]</p>
+        <div id="gallery" class="image-grid">
+          <!-- <a href="20n10_port.png" style="border: none;"><img src="20n10_port.png" width="auto" height="auto" alt="random image"></a> -->
+          <a href="x-25n11_sharp.png" style="border: none;"><img src="x-25n11_sharp.png" width="auto" height="auto" alt="random image"></a>
+          <a href="x-dante_menu.png" style="border: none;"><img src="x-dante_menu.png" width="auto" height="auto" alt="random image"></a>
+          <a href="x-security_guards_xmas.png" style="border: none;"><img src="x-security_guards_xmas.png" width="auto" height="auto" alt="random image"></a>
+          <a href="x-nypd_pizza.png" style="border: none;"><img src="x-nypd_pizza.png" width="auto" height="auto" alt="random image"></a>
+          <a href="x-sehaj_punjabi_deli.png" style="border: none;"><img src="x-sehaj_punjabi_deli.png" width="auto" height="auto" alt="random image"></a>
+          <!-- <a href="x-taxi_7th_ave_xmas.png" style="border: none;"><img src="x-taxi_7th_ave_xmas.png" width="auto" height="auto" alt="random image"></a> -->
+          <a href="x-w4_station.png" style="border: none;"><img src="x-w4_station.png" width="auto" height="auto" alt="random image"></a>
+          <a href="x-w4_basketball.png" style="border: none;"><img src="x-w4_basketball.png" width="auto" height="auto" alt="random image"></a>
+          <!-- <a href="x-water_fountain_highline.png" style="border: none;"><img src="x-water_fountain_highline.png" width="auto" height="auto" alt="random image"></a> -->
+          <a href="x-stg_23n11_highline_overpass.png" style="border: none;"><img src="x-stg_23n11_highline_overpass.png" width="auto" height="auto" alt="random image"></a>
+          <a href="x-birds_7th_ave_xmas.png" style="border: none;"><img src="x-birds_7th_ave_xmas.png" width="auto" height="auto" alt="random image"></a>
+        </div>
+        <br>
+        <p>(c) 2025 neal patel</p>
+      </section>
+    </div>
+    <script>
+      document.getElementById("zoomie").onclick = function () {
+        if (document.body.style.zoom === "1.5") {
+          document.body.style.zoom = 1.0;
+          document.getElementById("zoomie").textContent = "zoom"
+        } else {
+          document.body.style.zoom = 1.5;
+          document.getElementById("zoomie").textContent = "unzoom"
+        }
+      };
+    </script>
+	</body>
+</html>
