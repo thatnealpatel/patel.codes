@@ -1,0 +1,4 @@
+User-Agent: *
+Disallow:
+
+Sitemap: https://patel.codes/sitemap.xml

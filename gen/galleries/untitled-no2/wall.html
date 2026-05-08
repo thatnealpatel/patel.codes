@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
+<title>untitled #2 | nealpatel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --font-family: "PT Mono", monospace;
+    --page-width: 60em;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: var(--page-width); margin: 3rem auto; padding: 0 1.5rem; }
+  ::selection { color: var(--accent); }
+  h1 { margin-bottom: 0; }
+  .byline { font-size: 2em; color: var(--ink-faint); font-weight: normal; }
+  .byline a { font-size: 0.5em; }
+  .image-grid { display: grid; grid-template-rows: auto; grid-gap: 1em; grid-template-columns: repeat(auto-fit, minmax(calc(var(--page-width) / 4), 1fr)); }
+  .image-grid a { border: none; }
+  .image-grid img { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+<h1>untitled #2</h1>
+<h2 class="byline">neal patel<sup><a href="../../index.html">homepage</a></sup></h2>
+<p>2025-05-31</p>
+<br>
+<p>intended viewing grid: 3x3 [<a id="zoomie">zoom</a>]</p>
+<div class="image-grid">
+<a href="stealth.png" style="border: none;"><img src="stealth.png" width="auto" height="auto" alt="stealth.png"></a>
+<a href="22n10_hang_prints.png" style="border: none;"><img src="22n10_hang_prints.png" width="auto" height="auto" alt="22n10_hang_prints.png"></a>
+<a href="neal.png" style="border: none;"><img src="neal.png" width="auto" height="auto" alt="neal.png"></a>
+<a href="blossom_1.png" style="border: none;"><img src="blossom_1.png" width="auto" height="auto" alt="blossom_1.png"></a>
+<a href="rebecca.png" style="border: none;"><img src="rebecca.png" width="auto" height="auto" alt="rebecca.png"></a>
+<a href="blossom_2.png" style="border: none;"><img src="blossom_2.png" width="auto" height="auto" alt="blossom_2.png"></a>
+<a href="fof_guy.png" style="border: none;"><img src="fof_guy.png" width="auto" height="auto" alt="fof_guy.png"></a>
+<a href="xstreet.png" style="border: none;"><img src="xstreet.png" width="auto" height="auto" alt="xstreet.png"></a>
+<a href="reena.png" style="border: none;"><img src="reena.png" width="auto" height="auto" alt="reena.png"></a>
+</div>
+<br>
+<p>(c) 2025 neal patel</p>
+<script>
+var z = document.getElementById("zoomie");
+if (z) z.onclick = function () {
+  if (document.body.style.zoom === "1.5") {
+    document.body.style.zoom = 1.0;
+    z.textContent = "zoom";
+  } else {
+    document.body.style.zoom = 1.5;
+    z.textContent = "unzoom";
+  }
+};
+</script>
+</body>
+</html>

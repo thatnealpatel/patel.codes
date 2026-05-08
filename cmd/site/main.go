@@ -117,7 +117,7 @@ func generate() {
 	}
 	fmt.Println("wrote gen/static/")
 
-	copyFile(filepath.Join(root, "favicon.ico"), filepath.Join(out, "favicon.ico"))
+	copyFile(filepath.Join(staticDir, "favicon.ico"), filepath.Join(out, "favicon.ico"))
 	fmt.Println("wrote gen/favicon.ico")
 
 	if err := os.WriteFile(filepath.Join(out, "robots.txt"), []byte(robotsTxt), 0o644); err != nil {
