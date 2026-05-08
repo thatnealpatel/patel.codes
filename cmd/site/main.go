@@ -50,8 +50,8 @@ func generate() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	blogsDir := filepath.Join(out, "blogs")
-	if err := os.MkdirAll(blogsDir, 0o755); err != nil {
+	wordsOutDir := filepath.Join(out, "words")
+	if err := os.MkdirAll(wordsOutDir, 0o755); err != nil {
 		log.Fatal(err)
 	}
 	for _, e := range entries {
@@ -67,10 +67,10 @@ func generate() {
 			log.Fatalf("building %s: %v", e.Name(), err)
 		}
 		outName := strings.TrimSuffix(e.Name(), ".md") + ".html"
-		if err := os.WriteFile(filepath.Join(blogsDir, outName), []byte(html), 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(wordsOutDir, outName), []byte(html), 0o644); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("wrote gen/blogs/%s\n", outName)
+		fmt.Printf("wrote gen/words/%s\n", outName)
 	}
 
 	galleriesDataDir := filepath.Join(data, "galleries")
@@ -108,17 +108,33 @@ func generate() {
 	}
 
 	staticDir := filepath.Join(data, "static")
-	assetsDir := filepath.Join(out, "assets")
-	if err := os.MkdirAll(assetsDir, 0o755); err != nil {
+	staticOutDir := filepath.Join(out, "static")
+	if err := os.MkdirAll(staticOutDir, 0o755); err != nil {
 		log.Fatal(err)
 	}
-	if err := copyDir(staticDir, assetsDir); err != nil {
+	if err := copyDir(staticDir, staticOutDir); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("wrote gen/assets/")
+	fmt.Println("wrote gen/static/")
 
 	copyFile(filepath.Join(root, "favicon.ico"), filepath.Join(out, "favicon.ico"))
 	fmt.Println("wrote gen/favicon.ico")
+
+	if err := os.WriteFile(filepath.Join(out, "robots.txt"), []byte(robotsTxt), 0o644); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("wrote gen/robots.txt")
+
+	if err := os.WriteFile(filepath.Join(out, "CNAME"), []byte("patel.codes\n"), 0o644); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("wrote gen/CNAME")
+
+	sitemap := buildSitemap(entries, gallerySlugs)
+	if err := os.WriteFile(filepath.Join(out, "sitemap.xml"), []byte(sitemap), 0o644); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("wrote gen/sitemap.xml")
 }
 
 func serve() {
@@ -127,8 +143,8 @@ func serve() {
 		log.Fatal(err)
 	}
 	out := filepath.Join(root, "gen")
-	const addr = "http://localhost:9876"
-	fmt.Println("serving on", addr)
+	const addr = "localhost:9876"
+	fmt.Println("serving on", "http://"+addr)
 	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(out))))
 }
 
@@ -148,6 +164,38 @@ func copyFile(src, dst string) {
 	if _, err := io.Copy(out, in); err != nil {
 		log.Fatal(err)
 	}
+}
+
+const robotsTxt = `User-Agent: *
+Disallow:
+
+Sitemap: https://patel.codes/sitemap.xml
+`
+
+func buildSitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
+	var b strings.Builder
+	b.WriteString(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://patel.codes/</loc></url>
+`)
+	for _, e := range blogEntries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		name := strings.TrimSuffix(e.Name(), ".md") + ".html"
+		fmt.Fprintf(&b, "<url><loc>https://patel.codes/words/%s</loc></url>\n", name)
+	}
+	for _, s := range gallerySlugs {
+		if !s.IsDir() {
+			continue
+		}
+		if _, ok := galleryIndex[s.Name()]; !ok {
+			continue
+		}
+		fmt.Fprintf(&b, "<url><loc>https://patel.codes/galleries/%s/wall.html</loc></url>\n", s.Name())
+	}
+	b.WriteString("</urlset>\n")
+	return b.String()
 }
 
 func copyDir(src, dst string) error {
