@@ -1,3 +1,5 @@
+// Package parser implements a naive, recursive
+// descent LaTeX parser for inclusion in md2html.
 package parser
 
 import (
