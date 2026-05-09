@@ -1,7 +1,7 @@
 package main
 
 import (
-	"strings"
+	"bytes"
 	"testing"
 )
 
@@ -58,14 +58,14 @@ func TestLatexToMathML(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := latexToMathML(tc.expr, false)
+			result, err := latexToMathML([]byte(tc.expr), false)
 			if err != nil {
 				t.Fatalf("latexToMathML(%q): %v", tc.expr, err)
 			}
-			if !strings.HasPrefix(result, "<math>") {
+			if !bytes.HasPrefix(result, []byte("<math>")) {
 				t.Fatalf("expected <math> prefix, got %s", result)
 			}
-			if !strings.HasSuffix(result, "</math>") {
+			if !bytes.HasSuffix(result, []byte("</math>")) {
 				t.Fatalf("expected </math> suffix, got %s", result)
 			}
 			t.Logf("%s", result)
@@ -74,47 +74,47 @@ func TestLatexToMathML(t *testing.T) {
 }
 
 func TestLatexToMathMLDisplay(t *testing.T) {
-	result, err := latexToMathML(`x = 1`, true)
+	result, err := latexToMathML([]byte(`x = 1`), true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasPrefix(result, `<math display="block">`) {
+	if !bytes.HasPrefix(result, []byte(`<math display="block">`)) {
 		t.Fatalf("expected display block, got %s", result)
 	}
 }
 
 func TestLatexToMathMLTextSpace(t *testing.T) {
-	result, err := latexToMathML(`\textit{hello world}`, false)
+	result, err := latexToMathML([]byte(`\textit{hello world}`), false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(result, "hello world") {
+	if !bytes.Contains(result, []byte("hello world")) {
 		t.Fatalf("space in \\textit lost: %s", result)
 	}
 }
 
 func TestLatexToMathMLSupStructure(t *testing.T) {
-	result, err := latexToMathML(`b^2`, false)
+	result, err := latexToMathML([]byte(`b^2`), false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(result, "<msup>") {
+	if !bytes.Contains(result, []byte("<msup>")) {
 		t.Fatalf("expected <msup> in output: %s", result)
 	}
-	if !strings.Contains(result, "<mi>b</mi>") {
+	if !bytes.Contains(result, []byte("<mi>b</mi>")) {
 		t.Fatalf("expected <mi>b</mi> as base: %s", result)
 	}
-	if !strings.Contains(result, "<mn>2</mn>") {
+	if !bytes.Contains(result, []byte("<mn>2</mn>")) {
 		t.Fatalf("expected <mn>2</mn> as script: %s", result)
 	}
 }
 
 func TestLatexToMathMLFracStructure(t *testing.T) {
-	result, err := latexToMathML(`\frac{x+1}{y}`, false)
+	result, err := latexToMathML([]byte(`\frac{x+1}{y}`), false)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(result, "<mfrac>") {
+	if !bytes.Contains(result, []byte("<mfrac>")) {
 		t.Fatalf("expected <mfrac>: %s", result)
 	}
 }

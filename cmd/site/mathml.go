@@ -37,10 +37,10 @@ var specialChars = map[string]string{
 	`\\`: "\n",
 }
 
-func latexToMathML(expr string, display bool) (string, error) {
-	nodes, err := parser.Parse(expr)
+func latexToMathML(expr []byte, display bool) ([]byte, error) {
+	nodes, err := parser.Parse(string(expr))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var buf bytes.Buffer
@@ -51,7 +51,7 @@ func latexToMathML(expr string, display bool) (string, error) {
 	}
 	writeNodes(&buf, nodes)
 	buf.WriteString(`</math>`)
-	return buf.String(), nil
+	return buf.Bytes(), nil
 }
 
 func writeNodes(buf *bytes.Buffer, nodes []parser.Node) {

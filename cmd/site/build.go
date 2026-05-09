@@ -5,7 +5,6 @@ import (
 	"embed"
 	"html/template"
 	"regexp"
-	"strings"
 
 	"rsc.io/markdown"
 )
@@ -19,15 +18,14 @@ var galleryTmpl = template.Must(template.ParseFS(templateFS, "templates/gallery.
 var reDisplay = regexp.MustCompile(`\$\$(.+?)\$\$`)
 var reInline = regexp.MustCompile(`\$(.+?)\$`)
 
-// buildPage should return ([]byte, error)
-func buildPage(src string) (string, error) {
+func buildPage(src []byte) ([]byte, error) {
 	var renderErr error
 
-	src = reDisplay.ReplaceAllStringFunc(src, func(m string) string {
+	src = reDisplay.ReplaceAllFunc(src, func(m []byte) []byte {
 		if renderErr != nil {
 			return m
 		}
-		expr := strings.TrimSpace(reDisplay.FindStringSubmatch(m)[1])
+		expr := bytes.TrimSpace(reDisplay.FindSubmatch(m)[1])
 		mathml, err := latexToMathML(expr, true)
 		if err != nil {
 			renderErr = err
@@ -36,14 +34,14 @@ func buildPage(src string) (string, error) {
 		return mathml
 	})
 	if renderErr != nil {
-		return "", renderErr
+		return nil, renderErr
 	}
 
-	src = reInline.ReplaceAllStringFunc(src, func(m string) string {
+	src = reInline.ReplaceAllFunc(src, func(m []byte) []byte {
 		if renderErr != nil {
 			return m
 		}
-		expr := strings.TrimSpace(reInline.FindStringSubmatch(m)[1])
+		expr := bytes.TrimSpace(reInline.FindSubmatch(m)[1])
 		mathml, err := latexToMathML(expr, false)
 		if err != nil {
 			renderErr = err
@@ -52,11 +50,11 @@ func buildPage(src string) (string, error) {
 		return mathml
 	})
 	if renderErr != nil {
-		return "", renderErr
+		return nil, renderErr
 	}
 
 	var p markdown.Parser
-	doc := p.Parse(src)
+	doc := p.Parse(string(src))
 	body := markdown.ToHTML(doc)
 
 	var buf bytes.Buffer
@@ -66,9 +64,9 @@ func buildPage(src string) (string, error) {
 		Body: template.HTML(body),
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return buf.String(), nil
+	return buf.Bytes(), nil
 }
 
 func buildGalleryWall(g gallery) (string, error) {

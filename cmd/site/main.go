@@ -27,12 +27,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	html, err := buildPage(string(src))
+	html, err := buildPage(src)
 	if err != nil {
 		log.Fatalf("building index: %v", err)
 	}
 
-	if err = os.WriteFile(filepath.Join(gen, "index.html"), []byte(html), 0o644); err != nil {
+	if err = os.WriteFile(filepath.Join(gen, "index.html"), html, 0o644); err != nil {
 		log.Fatal(err)
 	}
 
@@ -57,12 +57,12 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		html, err := buildPage(string(src))
+		html, err := buildPage(src)
 		if err != nil {
 			log.Fatalf("building %s: %v", e.Name(), err)
 		}
 		outName := strings.TrimSuffix(e.Name(), ".md") + ".html"
-		if err := os.WriteFile(filepath.Join(wordsOutDir, outName), []byte(html), 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(wordsOutDir, outName), html, 0o644); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Printf("wrote gen/words/%s\n", outName)
