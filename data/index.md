@@ -14,13 +14,14 @@ other than maths and programming, i enjoy:
 - **#f8d551**
 - piano
 
-currently, i am software engineer at google \
+currently, i am programmer at google \
 working on go cryptography and security.
 
 ## words
 
 - [don't let LLMs erode first principles thinking](./words/useless-30dte-lemma.html)
 - [yet another "final" configuration spec](./words/marytrees.html)
+- [the human experience is nonlinear](./words/humanexperienceisnonlinear.html)
 
 ## galleries
 

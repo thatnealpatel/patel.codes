@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>nealpatel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  a { color: var(--ink); }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>the human experience is nonlinear</h1>
+<p>2025-08-07</p>
+<h2>&quot;on a scale from 1 to 10...&quot;</h2>
+<p>&quot;what do you rate it on a scale from one to ten?&quot; is a question
+that we all have heard at least once in our lives, likely more.</p>
+<p>i have had a quixotic fixation with disliking this scale: why
+is it linear?!</p>
+<p>so many facts of daily life from compound growth to getting out of
+bed and to the grocery store are all nonlinear experiences. yet,
+when communicating with each other, the de-facto scaling factor is
+always linear!</p>
+<h2>my understanding</h2>
+<p>for example, a common interpretation of this scale is that one (1)
+represents the worst thing one has ever experienced and ten (10)
+represents the best thing one has ever experienced in that context.</p>
+<p>the best fish and chips you have ever experienced does not impact
+one's ability to rate the best birthday you have ever experienced.</p>
+<p>in my opinion, these questions are simply trying to ascertain the
+following:</p>
+<blockquote>
+<p>compared to your average experience, how many standard deviations
+from the mean does the following fall?</p>
+</blockquote>
+<p>the linear 1-to-10 scale breaks down. if i am to take 5 as being my
+average experience; it only allows me to express that something was
+twice as good/bad as my average experience. however, i am sure that
+many individuals can think of ways to rate experiences that would
+easily break this domain. furthermore, each new experience informs the
+scale; that is to say that the average experience in a given taxonomy
+changes with respect to each new experience you may have.</p>
+<h2>my intuition</h2>
+<p>as a programmer, it seems more natural to think about these things
+in base-2. in an ideal world, the question would take the form:</p>
+<blockquote>
+<p>what do you rate it on <em>the</em> scale?</p>
+</blockquote>
+<p>there are two reasons for this particular choice in grammer:</p>
+<ol>
+<li>
+<p>the scale colloquially mentioned is almost always &quot;one to ten&quot;
+which means that there's room to compress the question.</p>
+</li>
+<li>
+<p>leaving the scale unbounded means that there's room for a
+truly representative domain for the human experience.</p>
+</li>
+</ol>
+<h2>semantics</h2>
+<p>i think it makes sense to use 1 as the natural description for an
+average experience. using <em>the scale</em>, i am limited by only my own
+experiences in ascribing scores to my experiences.</p>
+<p>while my definition of &quot;average&quot; might differ from yours in a given
+taxonomy, it still communicates as &quot;average.&quot; relatively scaling up
+or down is now meaningful across different experiences.</p>
+<p>i don't need to understand <em>what</em> makes something +2^4 better for you,
+just that it is. we have other words to convey what things are; use them.</p>
+<p>the domain expands from <math><mrow><mo>[</mo><mn>1</mn><mo>,</mo><mn>10</mn></mrow></math> to <math><mrow><mo>(</mo><mo>-</mo><mo>∞</mo><mo>,</mo><mo>+</mo><mo>∞</mo><mo>)</mo></mrow></math>, capturing the
+true breadth of every day life.</p>
+<p>for any given experience <math><mrow><mi>e</mi><mo>∈</mo><mi>E</mi></mrow></math>, if my <math><mrow><mi>A</mi><mi>v</mi><mi>g</mi><mo>[</mo><mi>E</mi></mrow></math> is, by convention,
+equal to one, then any experience a half, fourth, or eighth as good can be
+indicated by the ratings 0.5, 0.25, 0.125.</p>
+<p>now, i know what you are thinking: <em>introducing reals is unrealistic!?</em></p>
+<p>as an american that grew up on the inferior system of standard measurement
+that proliferated the concept of three-sixteenths of two-point-five-four
+centimenters, there exists room for reals.</p>
+
+</body>
+</html>
