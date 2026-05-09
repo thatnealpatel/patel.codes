@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"io"
 	"io/fs"
@@ -12,37 +11,31 @@ import (
 	"strings"
 )
 
-var genFlag = flag.Bool("gen", false, "generate static site for GitHub Pages")
-
 func main() {
-	flag.Parse()
-
-	if *genFlag {
-		generate()
-	} else {
-		serve()
-	}
-}
-
-func generate() {
-	root, err := os.Getwd()
-	if err != nil {
+	var (
+		root, data, gen string
+		err             error
+	)
+	if root, err = os.Getwd(); err != nil {
 		log.Fatal(err)
 	}
-	data := filepath.Join(root, "data")
-	out := filepath.Join(root, "gen")
+	data = filepath.Join(root, "data")
+	gen = filepath.Join(root, "gen")
 
 	src, err := os.ReadFile(filepath.Join(data, "index.md"))
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	html, err := buildPage(string(src))
 	if err != nil {
 		log.Fatalf("building index: %v", err)
 	}
-	if err := os.WriteFile(filepath.Join(out, "index.html"), []byte(html), 0o644); err != nil {
+
+	if err = os.WriteFile(filepath.Join(gen, "index.html"), []byte(html), 0o644); err != nil {
 		log.Fatal(err)
 	}
+
 	fmt.Println("wrote gen/index.html")
 
 	wordsDir := filepath.Join(data, "words")
@@ -50,10 +43,12 @@ func generate() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	wordsOutDir := filepath.Join(out, "words")
+
+	wordsOutDir := filepath.Join(gen, "words")
 	if err := os.MkdirAll(wordsOutDir, 0o755); err != nil {
 		log.Fatal(err)
 	}
+
 	for _, e := range entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
 			continue
@@ -78,6 +73,7 @@ func generate() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	for _, slug := range gallerySlugs {
 		if !slug.IsDir() {
 			continue
@@ -89,11 +85,11 @@ func generate() {
 		}
 
 		srcDir := filepath.Join(galleriesDataDir, slug.Name())
-		dstDir := filepath.Join(out, "galleries", slug.Name())
+		dstDir := filepath.Join(gen, "galleries", slug.Name())
 		if err := os.MkdirAll(dstDir, 0o755); err != nil {
 			log.Fatal(err)
 		}
-		if err := copyDir(srcDir, dstDir); err != nil {
+		if err := cpdir(srcDir, dstDir); err != nil {
 			log.Fatal(err)
 		}
 
@@ -108,47 +104,40 @@ func generate() {
 	}
 
 	staticDir := filepath.Join(data, "static")
-	staticOutDir := filepath.Join(out, "static")
+	staticOutDir := filepath.Join(gen, "static")
 	if err := os.MkdirAll(staticOutDir, 0o755); err != nil {
 		log.Fatal(err)
 	}
-	if err := copyDir(staticDir, staticOutDir); err != nil {
+	if err := cpdir(staticDir, staticOutDir); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("wrote gen/static/")
 
-	copyFile(filepath.Join(staticDir, "favicon.ico"), filepath.Join(out, "favicon.ico"))
+	cp(filepath.Join(staticDir, "favicon.ico"), filepath.Join(gen, "favicon.ico"))
 	fmt.Println("wrote gen/favicon.ico")
 
-	if err := os.WriteFile(filepath.Join(out, "robots.txt"), []byte(robotsTxt), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(gen, "robots.txt"), []byte(robotsTxt), 0o644); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("wrote gen/robots.txt")
 
-	if err := os.WriteFile(filepath.Join(out, "CNAME"), []byte("patel.codes\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(gen, "CNAME"), []byte("patel.codes\n"), 0o644); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("wrote gen/CNAME")
 
-	sitemap := buildSitemap(entries, gallerySlugs)
-	if err := os.WriteFile(filepath.Join(out, "sitemap.xml"), []byte(sitemap), 0o644); err != nil {
+	sitemap := sitemap(entries, gallerySlugs)
+	if err := os.WriteFile(filepath.Join(gen, "sitemap.xml"), []byte(sitemap), 0o644); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println("wrote gen/sitemap.xml")
-}
 
-func serve() {
-	root, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	out := filepath.Join(root, "gen")
 	const addr = "localhost:9876"
 	fmt.Println("serving on", "http://"+addr)
-	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(out))))
+	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(gen))))
 }
 
-func copyFile(src, dst string) {
+func cp(src, dst string) {
 	in, err := os.Open(src)
 	if err != nil {
 		log.Fatal(err)
@@ -172,7 +161,7 @@ Disallow:
 Sitemap: https://patel.codes/sitemap.xml
 `
 
-func buildSitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
+func sitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
 	var b strings.Builder
 	b.WriteString(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -198,7 +187,7 @@ func buildSitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string 
 	return b.String()
 }
 
-func copyDir(src, dst string) error {
+func cpdir(src, dst string) error {
 	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err

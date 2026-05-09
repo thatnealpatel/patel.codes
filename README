@@ -1,9 +1,6 @@
 Source code for my personal website: https://patel.codes
 
-Build: 
-  go run ./cmd/site -gen
-
-Preview:
+Build and Preview: 
   go run ./cmd/site
 
 Deploy:

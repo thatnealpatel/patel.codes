@@ -19,14 +19,11 @@ var galleryTmpl = template.Must(template.ParseFS(templateFS, "templates/gallery.
 var reDisplay = regexp.MustCompile(`\$\$(.+?)\$\$`)
 var reInline = regexp.MustCompile(`\$(.+?)\$`)
 
+// buildPage should return ([]byte, error)
 func buildPage(src string) (string, error) {
-	var p markdown.Parser
-	doc := p.Parse(src)
-	body := markdown.ToHTML(doc)
-
 	var renderErr error
 
-	body = reDisplay.ReplaceAllStringFunc(body, func(m string) string {
+	src = reDisplay.ReplaceAllStringFunc(src, func(m string) string {
 		if renderErr != nil {
 			return m
 		}
@@ -42,7 +39,7 @@ func buildPage(src string) (string, error) {
 		return "", renderErr
 	}
 
-	body = reInline.ReplaceAllStringFunc(body, func(m string) string {
+	src = reInline.ReplaceAllStringFunc(src, func(m string) string {
 		if renderErr != nil {
 			return m
 		}
@@ -57,6 +54,10 @@ func buildPage(src string) (string, error) {
 	if renderErr != nil {
 		return "", renderErr
 	}
+
+	var p markdown.Parser
+	doc := p.Parse(src)
+	body := markdown.ToHTML(doc)
 
 	var buf bytes.Buffer
 	err := pageTmpl.ExecuteTemplate(&buf, "page.html", struct {
