@@ -66,10 +66,10 @@ or down is now meaningful across different experiences.
 i don't need to understand *what* makes something +2^4 better for you,
 just that it is. we have other words to convey what things are; use them.
 
-the domain expands from $\[1, 10\]$ to $(-\infty, +\infty)$, capturing the
+the domain expands from $[1, 10]$ to $(-\infty, +\infty)$, capturing the
 true breadth of every day life.
 
-for any given experience $e \in E$, if my $Avg\[E\]$ is, by convention,
+for any given experience $e \in E$, if my $Avg[E]$ is, by convention,
 equal to one, then any experience a half, fourth, or eighth as good can be 
 indicated by the ratings 0.5, 0.25, 0.125.
 

@@ -79,10 +79,14 @@ func Parse(expr string) ([]Node, error) {
 }
 
 func (p *parser) parseExpr() ([]Node, error) {
+	return p.parseUntil('}')
+}
+
+func (p *parser) parseUntil(stop rune) ([]Node, error) {
 	var nodes []Node
 	for p.pos < len(p.input) {
 		ch := p.input[p.pos]
-		if ch == '}' || ch == ']' {
+		if ch == stop {
 			break
 		}
 
@@ -205,7 +209,7 @@ func (p *parser) parseCommand() (Node, error) {
 
 	if hasOptArg[name] && p.pos < len(p.input) && p.input[p.pos] == '[' {
 		p.pos++ // skip '['
-		optNodes, err := p.parseExpr()
+		optNodes, err := p.parseUntil(']')
 		if err != nil {
 			return nil, err
 		}

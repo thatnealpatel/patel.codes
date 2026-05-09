@@ -232,6 +232,28 @@ func TestParseBackslashSymbols(t *testing.T) {
 	}
 }
 
+func TestParseBrackets(t *testing.T) {
+	nodes, err := Parse(`[1, 10]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hasOpen := false
+	hasClose := false
+	for _, n := range nodes {
+		if op, ok := n.(Operator); ok {
+			switch string(op) {
+			case "[":
+				hasOpen = true
+			case "]":
+				hasClose = true
+			}
+		}
+	}
+	if !hasOpen || !hasClose {
+		t.Fatalf("expected both [ and ] as operators, got nodes: %+v", nodes)
+	}
+}
+
 func TestParseSupWithSpace(t *testing.T) {
 	nodes, err := Parse(`x ^2`)
 	if err != nil {
