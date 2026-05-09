@@ -20,6 +20,7 @@ working on go cryptography and security.
 ## words
 
 - [don't let LLMs erode first principles thinking](./words/useless-30dte-lemma.html)
+- [yet another "final" configuration spec](./words/marytrees.html)
 
 ## galleries
 

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>nealpatel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  a { color: var(--ink); }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>yet another &quot;final&quot; configuration spec</h1>
+<p>2025-08-05</p>
+<h2>update (2026)</h2>
+<p>i sunsetted the project that this was particularly central to;
+however, from time of writing (aug 2025) to present (may 2026),
+this configuration spec remained unchanged.</p>
+<h2>motivations</h2>
+<p>i have a large personal project whose central dependency
+is a configuration spec that dictactes events at runtime.
+in this project, it is extremely important that the spec
+is trivially evolvable to address unknown unknowns.</p>
+<h2>config v0 (2021)</h2>
+<p>the first iteration of my spec was simply json; everything
+was completely adhoc. arguably, this is where one should
+start. there was no need to prematurely optimize.</p>
+<p>this quickly become unmanagable; however, being naive
+and without any practical design experience, i doubled
+down and introduced mountains tech debt to compensate.</p>
+<p>two years of string parsing and esoteric semantics later,
+it was time for a change.</p>
+<h2>config v1 (2023)</h2>
+<p>the second time around, i thought i had such a deep
+understanding of my requirements that i could finally
+write the &quot;final version&quot; of my configuration spec.</p>
+<p>initially, i was very excited by the simplicity in
+using native structs and doing away with messy string
+comparisons and untyped invarants baked into the existing
+json schema.</p>
+<p>for a while, this sufficed. when i needed new features
+or invariants, i simply extended the configuration;
+however, this config became complex, verbose, and
+repetitive:</p>
+<pre><code>type config struct {
+    condition1 []struct {
+        enabled bool
+        type string
+        minval float64
+        val    float64
+        maxval float64
+    }
+    option1a struct {
+        enabled bool
+        type string
+        minval float64
+        val    float64
+        maxval float64
+    }
+    option1b struct {
+        enabled bool
+        type string
+        minval float64
+        val    float64
+        maxval float64
+    }
+    condition2 []struct {
+        enabled bool
+        type string
+        minval float64
+        val    float64
+        maxval float64
+    }
+}
+</code></pre>
+<p>there were many conditions which forced duplications of
+application logic  this also made parsing out the config
+in application logic extremely convoluted.</p>
+<p>parsing code eventually took the following form:</p>
+<pre><code>if config.option1a.enabled {
+    var met bool
+    for _, cond := range condition1 {
+        if !cond.enabled {
+            break
+        }
+        if cond.type == &quot;qux&quot; {
+        } else if cond.type == &quot;quux&quot; {
+        } else {
+        }
+    }
+    if !met {
+        return
+    }
+    // do something with option1a
+    if options1b.enabled {
+        // do something with option1b
+        // in relation to option1
+    }
+}
+
+if len(config.condition2) &gt; 0 {
+    for _, cond := range condition2 {
+        if !cond.enabled {
+            break
+        }
+        if cond.type == &quot;qux&quot; {
+        } else if cond.type == &quot;quux&quot; {
+        } else {
+        }
+    }
+}
+</code></pre>
+<h2>config v2 (2025)</h2>
+<p>i took a step back and started thinking more deeply
+about my requirements; i had a configuration whose
+purpose is to define the invariants over which dynamic
+runtime inputs would be evaluated. it took me nearly 3
+years to realize that i was writing a suboptimal SAT
+parser.</p>
+<p>seeing as how i needed to involve the configuration
+language to be more arbitrarily expressive anyways,
+i realized that a great fit for my use case were m-ary
+trees with a somewhat odd convention:</p>
+<pre><code>type config struct {
+    enabled bool
+    crit    *criteria
+}
+
+type criteria struct {
+    type criteriaT
+    val  any
+    and  *criteria
+    or   []*criteria
+}
+
+// example of a `val`
+type lvh struct { lo, val, hi float64 }
+
+type criteriaT string
+
+const(
+    // a criteria for which using
+    // lvh is a natural choice of
+    // expression.
+    boundedCriteria criteriaT = &quot;BOUNDED_CRITERIA&quot;
+)
+</code></pre>
+<p>conceptually, the left-most node in the tree would be
+the <code>and</code> node; the rest of the nodes, if any, would be
+the <code>or</code> nodes. a root <code>criteria</code> (present in the <code>config</code>)
+is said to be met iff its tree evalutes to true.</p>
+<p>this lends itself to the very nice implementation:</p>
+<pre><code class="language-go">func walk(c *criteria, fn (*critiera) bool) (sat bool) {
+    if c == nil {
+        return true
+    }
+    sat = fn(c.val)
+    for _, o := range c.or {
+        sat = sat || fn(o)
+    }
+    return sat &amp;&amp; fn(c.and)
+}
+</code></pre>
+<p>with a little extra thinking, this implementation both reduced
+the amount of esoteric code in my codebase and made reasoning
+about new changes to my configuration spec extremely easy. the
+power i found in this design lies in how call-sites neatly
+call <code>walk</code> in the following manner:</p>
+<pre><code>walk(config, func(c *criteria) bool {
+    switch val := c.val.(type) {
+    case foo:
+
+    case bar:
+
+    case baz:
+        switch c.type {
+        case &quot;qux&quot;:
+        case &quot;quux&quot;:
+        }
+    }
+})
+</code></pre>
+<p>this allowed for call-sites, regardless of their purpose,
+to instrument the logic plainly without additional parsing
+or sematic interpretation. some call-sites actually desire
+to walk the entire tree in which case the original <code>walk</code>
+function is modified to contain no invariant tracking:</p>
+<pre><code>func walkall(c *criteria, fn (*critiera)) {
+    if c == nil {
+        return
+    }
+    fn(c.val)
+    for _, o := range c.or {
+        fn(o)
+    }
+    fn(c.and)
+    return
+}
+</code></pre>
+<p>though i found myself saying this in the past, i am slightly
+more convinced this time that this design will remain a
+fixture for me. it's already proven to be as ubiquitous
+and extensible as i had hoped. that being said, in writing this
+it occurred to me that it may be better to simply use <code>val</code>
+with some repetitive, named types instead of shared types
+distingushed by <code>criteriaT</code> enums.</p>
+<pre><code>type config struct {
+    enabled bool
+    crit    *criteria
+}
+
+type criteria struct {
+    val  any
+    and  *criteria
+    or   []*criteria
+}
+
+type boundedLVH struct { lo, val, hi float64 }
+type anotherBoundedLVH struct { lo, val, hi float64 }
+</code></pre>
+<h2>final thoughts</h2>
+<p>as always, the code you wrote a year ago was written by a fool;
+it's fun to be able to look back and laugh at the mistakes
+you've made without realizing that you are only setting
+yourself up for a future punchline.</p>
+
+</body>
+</html>

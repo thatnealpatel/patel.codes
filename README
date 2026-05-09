@@ -1,3 +1,14 @@
 Source code for my personal website: https://patel.codes
 
-There is no promise anything in here will be maintained, will keep compiling, or ever compiled.
+Build: 
+  go run ./cmd/site -gen
+
+Preview:
+  go run ./cmd/site
+
+Deploy:
+  git push
+
+---
+
+There is no promise anything here will be maintained, will continue compiling, or ever compiled.
