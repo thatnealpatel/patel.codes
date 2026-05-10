@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/fs"
@@ -8,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -21,6 +23,10 @@ func main() {
 	}
 	data = filepath.Join(root, "data")
 	gen = filepath.Join(root, "gen")
+
+	if err := generateWordsIndex(data); err != nil {
+		log.Fatal(err)
+	}
 
 	src, err := os.ReadFile(filepath.Join(data, "index.md"))
 	if err != nil {
@@ -185,6 +191,80 @@ func sitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
 	}
 	b.WriteString("</urlset>\n")
 	return b.String()
+}
+
+type wordEntry struct {
+	title string
+	file  string
+	date  string
+}
+
+func generateWordsIndex(dataDir string) error {
+	wordsDir := filepath.Join(dataDir, "words")
+	entries, err := os.ReadDir(wordsDir)
+	if err != nil {
+		return err
+	}
+
+	var words []wordEntry
+	for _, e := range entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		title, date, err := readTitleAndDate(filepath.Join(wordsDir, e.Name()))
+		if err != nil {
+			return err
+		}
+		words = append(words, wordEntry{title: title, file: e.Name(), date: date})
+	}
+
+	sort.Slice(words, func(i, j int) bool {
+		return words[i].date > words[j].date
+	})
+
+	indexPath := filepath.Join(dataDir, "index.md")
+	src, err := os.ReadFile(indexPath)
+	if err != nil {
+		return err
+	}
+
+	header := []byte("## words\n")
+	start := bytes.Index(src, header)
+	if start == -1 {
+		return fmt.Errorf("index.md: missing ## words section")
+	}
+	start += len(header)
+
+	rest := src[start:]
+	end := bytes.Index(rest, []byte("\n## "))
+	if end == -1 {
+		return fmt.Errorf("index.md: missing section after ## words")
+	}
+
+	var buf bytes.Buffer
+	buf.Write(src[:start])
+	buf.WriteByte('\n')
+	for _, w := range words {
+		htmlName := strings.TrimSuffix(w.file, ".md") + ".html"
+		fmt.Fprintf(&buf, "- [%s](./words/%s)\n", w.title, htmlName)
+	}
+	buf.Write(rest[end:])
+
+	return os.WriteFile(indexPath, buf.Bytes(), 0o644)
+}
+
+func readTitleAndDate(path string) (title, date string, err error) {
+	src, err := os.ReadFile(path)
+	if err != nil {
+		return "", "", err
+	}
+	lines := bytes.SplitN(src, []byte("\n"), 4)
+	if len(lines) < 3 {
+		return "", "", fmt.Errorf("%s: expected at least 3 lines", path)
+	}
+	title = string(bytes.TrimPrefix(lines[0], []byte("# ")))
+	date = string(bytes.TrimSpace(lines[2]))
+	return title, date, nil
 }
 
 func cpdir(src, dst string) error {
