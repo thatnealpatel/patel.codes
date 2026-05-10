@@ -1,4 +1,4 @@
-# don't let LLMs erode first principles thinking
+# don't let llms erode first principles thinking
 
 2025-01-12
 

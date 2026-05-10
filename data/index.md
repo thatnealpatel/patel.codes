@@ -19,9 +19,10 @@ working on go cryptography and security.
 
 ## words
 
-- [don't let LLMs erode first principles thinking](./words/useless-30dte-lemma.html)
-- [yet another "final" configuration spec](./words/marytrees.html)
+- [patel.codes is now `<noscript>`](./words/rewritingpatelcodes.html)
 - [the human experience is nonlinear](./words/humanexperienceisnonlinear.html)
+- [yet another "final" configuration spec](./words/marytrees.html)
+- [don't let llms erode first principles thinking](./words/useless-30dte-lemma.html)
 
 ## galleries
 

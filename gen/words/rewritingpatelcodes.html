@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>nealpatel</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  a { color: var(--ink); }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>patel.codes is now <code>&lt;noscript&gt;</code></h1>
+<p>2026-05-10</p>
+<h2>motivations</h2>
+<p>recently, i set a goal to more actively write content
+for my website. in coming back to the repository, the
+friction for writing content was unbearable. while i
+initially set out for simplicity, i somehow landed in
+the worst of all worlds:</p>
+<ol>
+<li>javascript dependencies (mathjax)</li>
+<li>handwriting html files</li>
+<li>handwriting galleries</li>
+<li>forgetting to update sitemap.xml</li>
+</ol>
+<p>i wanted to keep everything minimal but functional.</p>
+<h2>sprinkle in a little bit of slop</h2>
+<p>as a go programmer, i immediately reached for a minimal
+binary that would use <code>rsc.io/markdown</code> to convert my
+writing into html. similarly, a single go html template
+solves the gallery toil.</p>
+<p>i also wanted to remove mathjax. this seemed like the
+perfect task for an llm:</p>
+<ol>
+<li>self-contained</li>
+<li>easily verifiable</li>
+<li>replaced typing burden</li>
+</ol>
+<p>i booted up claude code. after exploring a few go LaTeX
+parsers, i simply told it to generate a recursive descent
+parser for LaTeX to preprocess before converting to html
+with mathml. it happily did so with two bugs in all of 83
+seconds. another couple minutes of active thought and a
+usable parser eliminated both my writing friction and gave
+me a <code>&lt;noscript&gt;</code> website.</p>
+<p>the only downside here is that i felt the need to write
+the following into my README:</p>
+<blockquote>
+<p><em>There is no promise anything here will be maintained,</em>
+<em>will continue compiling, or ever compiled.</em></p>
+</blockquote>
+<h2><code>./gen</code></h2>
+<p>now, it is easier than ever for me to write content and
+modify my site. i can simply stream my consciousness into
+<code>.drafts/</code> and programmatically generate and preview my
+site before launching: <code>go run ./cmd/site</code>.</p>
+<p>i really tried to avoid github actions for various reasons;
+however, i settled for the following, notably excluding any
+execution of the go binary for deployment:</p>
+<ol>
+<li>checkout</li>
+<li>copy <code>gen</code> dir</li>
+<li>deploy the site</li>
+</ol>
+<p><a href="https://github.com/thatnealpatel/patel.codes">source code for patel.codes is on my github.</a></p>
+
+</body>
+</html>
