@@ -18,7 +18,12 @@ var galleryTmpl = template.Must(template.ParseFS(templateFS, "templates/gallery.
 var reDisplay = regexp.MustCompile(`\$\$(.+?)\$\$`)
 var reInline = regexp.MustCompile(`\$(.+?)\$`)
 
-func buildPage(src []byte) ([]byte, error) {
+type pageMeta struct {
+	Title string
+	URL   string
+}
+
+func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 	var renderErr error
 
 	src = reDisplay.ReplaceAllFunc(src, func(m []byte) []byte {
@@ -60,8 +65,10 @@ func buildPage(src []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	err := pageTmpl.ExecuteTemplate(&buf, "page.html", struct {
 		Body template.HTML
+		OG   pageMeta
 	}{
 		Body: template.HTML(body),
+		OG:   meta,
 	})
 	if err != nil {
 		return nil, err

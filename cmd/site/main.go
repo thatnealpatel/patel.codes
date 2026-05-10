@@ -33,7 +33,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	html, err := buildPage(src)
+	html, err := buildPage(src, pageMeta{
+		Title: "patel.codes",
+		URL:   "https://patel.codes/",
+	})
 	if err != nil {
 		log.Fatalf("building index: %v", err)
 	}
@@ -63,11 +66,18 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		html, err := buildPage(src)
+		title, _, err := readTitleAndDate(filepath.Join(wordsDir, e.Name()))
+		if err != nil {
+			log.Fatal(err)
+		}
+		outName := strings.TrimSuffix(e.Name(), ".md") + ".html"
+		html, err := buildPage(src, pageMeta{
+			Title: title,
+			URL:   "https://patel.codes/words/" + outName,
+		})
 		if err != nil {
 			log.Fatalf("building %s: %v", e.Name(), err)
 		}
-		outName := strings.TrimSuffix(e.Name(), ".md") + ".html"
 		if err := os.WriteFile(filepath.Join(wordsOutDir, outName), html, 0o644); err != nil {
 			log.Fatal(err)
 		}
