@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
@@ -148,6 +149,10 @@ func main() {
 	}
 	fmt.Println("wrote gen/sitemap.xml")
 
+	if err := generateGoImports(gen); err != nil {
+		log.Fatal(err)
+	}
+
 	const addr = "localhost:9876"
 	fmt.Println("serving on", "http://"+addr)
 	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(gen))))
@@ -275,6 +280,58 @@ func readTitleAndDate(path string) (title, date string, err error) {
 	title = string(bytes.TrimPrefix(lines[0], []byte("# ")))
 	date = string(bytes.TrimSpace(lines[2]))
 	return title, date, nil
+}
+
+func generateGoImports(gen string) error {
+	resp, err := http.Get("https://api.github.com/users/thatnealpatel/repos?per_page=100")
+	if err != nil {
+		return fmt.Errorf("fetching github repos: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("github api: %s", resp.Status)
+	}
+
+	var repos []struct {
+		Name     string      `json:"name"`
+		Fork     bool        `json:"fork"`
+		Language string      `json:"language"`
+		License  interface{} `json:"license"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
+		return fmt.Errorf("decoding github repos: %w", err)
+	}
+
+	for _, repo := range repos {
+		if repo.Fork || (repo.Language != "Go" && repo.Language != "Go Template") || repo.License == nil {
+			continue
+		}
+		dir := filepath.Join(gen, repo.Name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+		html := goImportPage(repo.Name)
+		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte(html), 0o644); err != nil {
+			return err
+		}
+		fmt.Printf("wrote gen/%s/index.html (go-import)\n", repo.Name)
+	}
+	return nil
+}
+
+func goImportPage(repo string) string {
+	return `<!DOCTYPE html>
+<html>
+<head>
+<meta name="go-import" content="patel.codes/` + repo + ` git https://github.com/thatnealpatel/` + repo + `">
+<meta http-equiv="refresh" content="0; url=https://pkg.go.dev/patel.codes/` + repo + `">
+</head>
+<body>
+Redirecting to <a href="https://pkg.go.dev/patel.codes/` + repo + `">pkg.go.dev/patel.codes/` + repo + `</a>...
+</body>
+</html>
+`
 }
 
 func cpdir(src, dst string) error {
