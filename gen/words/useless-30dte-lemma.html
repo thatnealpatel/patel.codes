@@ -67,18 +67,18 @@
 <p>as of writing, machines cannot reason from first-principles; therefore, humans must become more resilient in explicitly protecting the spaces in which <math><mtext mathvariant="italic">outsourcing logic and reasoning</mtext></math> may lead to less than ideal outcomes. a serendipitous, cherry-picked personal example follows for those interested in virtually useless proofs.</p>
 <h2>virtually useless proof</h2>
 <p>if one were to take trading days <math><mi>T</mi></math> and weekends <math><mi>W</mi></math> as such:</p>
-<p><math display="block"><mrow><mi>T</mi><mo>=</mo><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math></p>
-<p><math display="block"><mrow><mi>W</mi><mo>=</mo><mo>{</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>}</mo></mrow></math></p>
+<math display="block"><mrow><mi>T</mi><mo>=</mo><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math>
+<math display="block"><mrow><mi>W</mi><mo>=</mo><mo>{</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>}</mo></mrow></math>
 <p>if today <math><mrow><mi>t</mi><mo>∈</mo><mi>T</mi></mrow></math> and target DTE <math><mi>D</mi></math>, one might observe that deriving day of the week <math><mrow><mi>d</mi><mo>∈</mo><mo>{</mo><mi>T</mi><mo>∪</mo><mi>W</mi><mo>}</mo></mrow></math> for <math><mi>D</mi></math> is simply:</p>
-<p><math display="block"><mrow><mo>(</mo><mi>t</mi><mo>+</mo><mi>D</mi><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mi>d</mi></mrow></math></p>
+<math display="block"><mrow><mo>(</mo><mi>t</mi><mo>+</mo><mi>D</mi><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mi>d</mi></mrow></math>
 <p>for 30<math><mrow><mo>±</mo><mn>1</mn></mrow></math> DTE strategies, one is never presented two equivalent choices for days-to-expiry in non-holiday conditions.</p>
 <p>using the above, one observes when the possibility of a choice may arise:</p>
-<p><math display="block"><mrow><mi>d</mi><mo>∈</mo><mi>W</mi><mo>⟺</mo><mi>t</mi><mo>∈</mo><mo>{</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math></p>
+<math display="block"><mrow><mi>d</mi><mo>∈</mo><mi>W</mi><mo>⟺</mo><mi>t</mi><mo>∈</mo><mo>{</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math>
 <p>that is to say, a choice may only happen on Thursday or Friday. given, two choices: <math><mrow><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math> and <math><mrow><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math> representing 29 DTE and 31 DTE, respectively:</p>
-<p><math display="block"><mrow><mo>(</mo><mn>3</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>4</mn></mrow></math></p>
-<p><math display="block"><mrow><mo>(</mo><mn>3</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>6</mn></mrow></math></p>
-<p><math display="block"><mrow><mo>(</mo><mn>4</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>5</mn></mrow></math></p>
-<p><math display="block"><mrow><mo>(</mo><mn>4</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>0</mn></mrow></math></p>
+<math display="block"><mrow><mo>(</mo><mn>3</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>4</mn></mrow></math>
+<math display="block"><mrow><mo>(</mo><mn>3</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>6</mn></mrow></math>
+<math display="block"><mrow><mo>(</mo><mn>4</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>5</mn></mrow></math>
+<math display="block"><mrow><mo>(</mo><mn>4</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>0</mn></mrow></math>
 <p>thus, <math><mrow><mi>t</mi><mo>=</mo><mn>3</mn></mrow></math> is always presented <math><mrow><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math> while <math><mrow><mi>t</mi><mo>=</mo><mn>4</mn></mrow></math> is always presented <math><mrow><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math>.</p>
 <h2>visual proof</h2>
 <p>using <math><mn>0</mn></math> to indicate the current trading day, there exists a nice visual proof; make note of when <math><mrow><mi>t</mi><mo>=</mo><mn>3</mn></mrow></math> (thursday) is the current day <math><mrow><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math> and <math><mrow><mi>t</mi><mo>=</mo><mn>4</mn></mrow></math> (friday) is the current day <math><mrow><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math>.</p>

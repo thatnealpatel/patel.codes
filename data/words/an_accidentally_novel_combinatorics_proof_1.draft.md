@@ -1,0 +1,369 @@
+# an accidentally novel combinatorics proof
+
+2026-05-25
+
+## disclaimer
+
+i did not touch any generative ai or agentic
+llm tools prior to february 2026. i had tried
+them many times over the years, and i always
+kept running into the same frustrations. this
+vehemently fueled my contrarian attitudes
+towards llms. while i still largely hold these
+attitudes, it is increasingly more difficult
+to deny the utility of these tools.
+
+all written opinions are my own.
+
+## motivations
+
+for the past few weeks, i have been doing a little
+r&d on a maths harness that uses claude code.
+
+its maiden voyage was in a review of [Go's new floating
+point parsing and printing algorithm](https://go.dev/cl/743860)
+where i tested its ability to function as an aide when
+reading reading [russ' proofs](https://research.swtch.com/fp-proof).
+in doing so, i [uncovered a material edge case that diverged from the
+proof](https://go-review.googlesource.com/c/go/+/743860/comment/6d1eaaf7_a0b4274e/).
+
+over the weekend, a friend showed me a
+tweet about [AlphaProof](https://github.com/google-deepmind/alphaproof-nexus-results)'s
+recent publications. my brain lit up; i asked my
+friend to just how me one of the titles. this was
+a great opportunity to benchmark my little project
+with only one clear bias: i knew that whatever it
+was, it was almost certainly provable.
+
+## set up
+
+one program i have been tinkering on recently is a
+computational framework in Go that allows an agent
+to guess at how difficult a proof may be. the
+classifications are ternary:
+
+- elementary --> worth trying
+- hard --> likely not worth trying
+- infeasible --> definitely not worth trying
+
+<!-- todo: describe types of problems in each? -->
+
+the only problem i had formally pointed it at was
+an erdos problem that was deemed 'hard' by the
+framework; after running it on A051293, it deemed
+the problem 'elementary,' which is a bit funny.
+
+i do not have the ability to concisely and neatly
+present the topics in my own voice; therefore, i
+have marked the sections **[gen]erated** by claude
+from the [lean proof](https://github.com/thatnealpatel/proofs/tree/main/Proofs/Proofs).
+
+if i have time to review and understand these topics
+more deeply, i will revise this in a part 2. also,
+it remains possible that this is indeed a bunk proof.
+a part 2 will similarly cover the validity of these
+results.
+
+## the theorem
+
+cloitre conjectured in 2002 that the number of nonempty
+subsets of `{1,...,n}` with integer mean satisfies
+
+$$a(n) = \frac{2^{n+1}}{n} \sum_{k=0}^{M} \frac{F(k)}{n^k} + o\left(\frac{2^n}{n^{M+1}}\right)$$
+
+for all `M`, where `F(k)` are the ordered [Bell Numbers](https://en.wikipedia.org/wiki/Bell_number):
+
+(1, 1, 3, 13, 75, 541, ...).
+
+the proof decomposes into three independent modules
+sketched below for brevity.
+
+## module a: counting with frequencies [gen]
+
+the first task is counting subsets of `{1,...,k}` whose
+elements sum to $0 \mod{k}$. this is a discrete fourier
+transform on cyclic groups.
+
+### the roots of unity filter [gen]
+
+let $\zeta$ be a primitive k-th root of unity.
+character orthogonality gives
+
+$$\sum_{r=0}^{k-1} \zeta^{rn} = \begin{cases} k & \text{if } k \mid n \\ 0 & \text{otherwise} \end{cases}$$
+
+applying this to indicator-sum over all subsets
+$S \subseteq \{1,\ldots,k\}$:
+
+```
+b(k):
+    zeta = primitive k-th root of unity
+    total = 0
+    for r in {0, ..., k-1}:
+        total += product over m in {1,...,k} of (1 + zeta^(r*m))
+    return total / k
+```
+
+the product $\prod_{m=1}^{k}(1 + \zeta^{rm})$ expands
+via `Finset.prod_add` into exactly
+$\sum_{S \subseteq \{1,\ldots,k\}} \zeta^{r \cdot \text{sum}(S)}$.
+averaging over r applies the orthogonality filter,
+extracting the count of subsets with
+$k \mid \text{sum}(S)$.
+
+### evaluating the product [gen]
+
+for a given r, the values $\zeta^{rm}$ for
+$m = 1,\ldots,k$ cycle through the q-th roots of unity
+with multiplicity $k/q$, where $q = k / \gcd(r,k)$.
+the product reduces to
+
+$$\left(\prod_{j=0}^{q-1}(1 + \omega^j)\right)^{k/q}$$
+
+where $\omega$ is a primitive q-th root of unity.
+evaluating $x^q - 1 = \prod_{j}(x - \omega^j)$ at
+$x = -1$ gives $(-1)^q - 1 = \prod_{j}(-1-\omega^j)$.
+factoring out $(-1)^q$:
+
+$$\prod_{j=0}^{q-1}(1+\omega^j) = \begin{cases} 2 & q \text{ odd} \\ 0 & q \text{ even} \end{cases}$$
+
+### collecting by gcd [gen]
+
+for each divisor $d$ of $k$, exactly $\varphi(k/d)$
+values of $r \in \{0,\ldots,k-1\}$ satisfy
+$\gcd(r,k) = d$. the corresponding $q = k/d$
+contributes $2^d$ when $k/d$ is odd (i.e., $d$ is an
+odd divisor of $k$) and 0 otherwise. summing:
+
+$$b(k) = \frac{1}{k}\sum_{\substack{d \mid k \\ d \text{ odd}}} \varphi(d) \cdot 2^{k/d}$$
+
+this is stanley's exercise 1.105. the lean proof uses
+`IsPrimitiveRoot`, `Polynomial.nthRootsFinset`, and
+`Nat.totient`.
+
+## module b: the zumkeller identity [gen]
+
+this module proves the per-k identity connecting two
+counts:
+
+- $L(k) = |\{S \subseteq \{1,\ldots,k\} : S \neq \emptyset, \; k \mid \text{sum}(S)\}|$
+- $R(k) = |\{S \subseteq \{1,\ldots,k\} : k \in S, \; |S| \mid \text{sum}(S)\}|$
+
+the claim is $L(k) = R(k)$. this was observed without
+proof by zumkeller (2006, OEIS A082550) and wiseman
+(2019, OEIS A063776). as of may 2026, no proof exists
+in the published literature. the proof below is the
+first, formal or informal.
+
+### setup [gen]
+
+work in $\{0,\ldots,k-1\}$ (representing
+$\{1,\ldots,k\}$ shifted by 1). for a nonempty subset
+$S$, define
+
+$$\alpha(k, S) = |\{r \in \{0,\ldots,k-1\} : k \mid (\sigma + r \cdot |S|)\}|$$
+
+$$\beta(k, S) = |\{j \in \{0,\ldots,|S|-1\} : |S| \mid (\sigma + k \cdot j)\}|$$
+
+where $\sigma = \sum_{s \in S}(s+1)$.
+
+### $\alpha = \beta$ (the key lemma) [gen]
+
+both $\alpha$ and $\beta$ count solutions to a linear
+congruence of the form $m \mid (b + a \cdot x)$ over
+$x \in \{0,\ldots,m-1\}$. the solution count is:
+
+```
+count_solutions(b, a, m):
+    g = gcd(a, m)
+    if g divides b: return g
+    else:           return 0
+```
+
+$\alpha$ has $(a, m) = (|S|, k)$;
+$\beta$ has $(a, m) = (k, |S|)$.
+since $\gcd(|S|, k) = \gcd(k, |S|)$ and the
+divisibility condition on $b = \sigma$ is the same,
+$\alpha(k, S) = \beta(k, S)$ for every nonempty $S$.
+
+### $\sum \alpha = k \cdot L(k)$ [gen]
+
+define $\text{rotate}(S, r) = \{(s+r) \bmod k : s \in S\}$.
+rotation preserves cardinality and is a bijection on
+the powerset of $\{0,\ldots,k-1\}$.
+
+the divisibility condition rewrites as:
+$k \mid (\sigma + r \cdot |S|)$ iff
+$k \mid \text{sum}(\text{rotate}(S, r))$, where the
+sum uses the $(s+1)$-shift convention. so $\alpha(k,S)$
+counts exactly how many of $S$'s $k$ rotations land in
+the set $\{T : k \mid \text{sum}(T)\}$.
+
+swapping summation order --- sum over $r$ first, then
+over $S$ --- each rotation $r$ is a bijection on
+nonempty subsets, so each $r$ contributes $L(k)$.
+but the set counted by $L(k)$ excludes $\emptyset$
+(which always satisfies the divisibility), so:
+
+$$\sum_{S \neq \emptyset} \alpha(k, S) = k \cdot L(k)$$
+
+### $\sum \beta = k \cdot R(k)$ [gen]
+
+$\beta(k,S)$ admits a host-element decomposition:
+rewrite it as the number of elements $e \in S$ such
+that $|S| \mid (\sigma + k \cdot \text{rank}(e, S))$,
+where $\text{rank}(e, S) = |\{s \in S : s < e\}|$.
+
+define $\text{hostSet}(k, e) = \{S : e \in S, \;
+|S| \mid (\sigma + k \cdot \text{rank}(e, S))\}$.
+swapping the sum over $S$ with the sum over
+$e \in \{0,\ldots,k-1\}$:
+
+$$\sum_{S \neq \emptyset} \beta(k, S) = \sum_{e=0}^{k-1} |\text{hostSet}(k, e)|$$
+
+the key structural fact is that rotation by 1 bijects
+$\text{hostSet}(k, e)$ onto $\text{hostSet}(k, (e+1) \bmod k)$.
+the forward direction (rotation preserves membership
+and divisibility, shifting the host element) is proved
+by case analysis on whether $e = k-1$ (wrapping) or
+$e < k-1$ (no wrapping). the backward direction uses
+rotation by $k-1$. since rotation gives
+$\le$ in both directions, equality holds:
+
+$$|\text{hostSet}(k, e)| = |\text{hostSet}(k, 0)| \quad \forall e$$
+
+finally, a reflection bijection $s \mapsto k-1-s$
+establishes $|\text{hostSet}(k, 0)| = R(k)$. reflection
+maps element 0 to element $k-1$ (the representation of
+$k$ in the shifted indexing) and preserves the
+divisibility condition since
+$\text{sum}(\text{reflect}(S)) + \text{sum}(S) = (k+1) \cdot |S|$.
+
+therefore:
+
+$$\sum_{S \neq \emptyset} \beta(k, S) = k \cdot R(k)$$
+
+### the identity [gen]
+
+$\alpha = \beta$ term-by-term implies
+$k \cdot L(k) = k \cdot R(k)$. dividing by $k$:
+
+$$L(k) = R(k) \quad \forall k \geq 1$$
+
+## module c: the discrete laplace method [gen]
+
+the d = 1 term in $b(k)$ contributes $2^k/k$. every
+odd divisor $d \geq 3$ contributes at most
+$2^{k/3} \cdot d/k$, since $k/d \leq k/3$ and
+$\varphi(d) < d$. summing this tail over $k = 1,\ldots,n$
+gives $O(n^2 \cdot 2^{n/3})$, which is
+$o(2^n/n^{M+1})$ for any $M$. so
+
+$$a(n) = S(n) - n + o(2^n/n^{M+1}), \quad S(n) = \sum_{k=1}^n \frac{2^k}{k}$$
+
+### reindexing [gen]
+
+substituting $j = n - k$:
+
+$$S(n) = 2^n \sum_{j=0}^{n-1} \frac{1}{2^j(n-j)}$$
+
+the $1/2^j$ factor ensures the sum is dominated by
+small $j$.
+
+### geometric expansion [gen]
+
+the standard identity for a geometric partial sum gives
+
+$$\frac{1}{n-j} = \frac{1}{n}\sum_{i=0}^{M}\left(\frac{j}{n}\right)^i + \frac{(j/n)^{M+1}}{n-j}$$
+
+substituting and exchanging the finite sums
+($j$ first, then $i$):
+
+$$S(n) = \frac{2^n}{n} \sum_{i=0}^{M}\frac{1}{n^i}\sum_{j=0}^{n-1}\frac{j^i}{2^j} \;+\; 2^n \sum_{j=0}^{n-1}\frac{(j/n)^{M+1}}{2^j(n-j)}$$
+
+the remainder term is $o(1/n^{M+1})$ after splitting
+the $j$-sum at $n/2$: the low half is bounded by the
+polylogarithmic tsum, the high half decays as
+$O(1/2^{n/2})$.
+
+### the coefficient identity [gen]
+
+the inner partial sum converges to the polylogarithmic
+series:
+
+$$\sum_{j=0}^{\infty}\frac{j^m}{2^j} = 2 \cdot F(m)$$
+
+proved by strong induction on $m$. the base case
+$m = 0$ is the geometric series $\sum 1/2^j = 2$.
+for the inductive step, the shift identity
+$\sum (j+1)^m / 2^j = 2 \sum j^m / 2^j$ (valid for
+$m \geq 1$) combined with the binomial expansion
+$(j+1)^{m+1} - j^{m+1} = \sum_{k<m+1}\binom{m+1}{k}j^k$
+and the fubini recurrence
+
+$$F(m+1) = \sum_{k=0}^{m}\binom{m+1}{k}F(k)$$
+
+pins the value.
+
+### error budget [gen]
+
+| source | bound | absorbed by |
+|---|---|---|
+| non-dominant divisors | $O(n^2 \cdot 2^{n/3})$ | $o(2^n/n^{M+2})$ |
+| geometric remainder | $O(1/n^{M+2})$ after $\times 2^n$ | $o(2^n/n^{M+1})$ |
+| partial-sum truncation | $O(n^i/2^n)$ per coefficient | $o(1/n)$ after $\times 2^n/n$ |
+
+all three are $o(2^n/n^{M+1})$.
+
+## the bridge [gen]
+
+`A051293_counting.lean` links the three modules:
+
+```
+// module A: the DFT formula matches the combinatorial count
+b_comb_eq_b(k):    b_comb(k) == b(k)    for all k >= 1
+
+// module B: per-k identity via zumkeller
+zumkeller_identity(k):    b_comb(k) - 1 == |maxKIntMeanSubsets(k)|
+
+// summation: partition integer-mean subsets by max element
+a_comb_eq_sum(n):    a_comb(n) == sum_{k=1}^{n} (b_comb(k) - 1)
+
+// bridge: combinatorial count equals analytic formula
+a_comb_eq_a(n):    a_comb(n) == a(n)    for all n >= 1
+
+// module C: asymptotic expansion of a(n)
+asymptotic_expansion(M):    a(n) = fubini_expansion + o(2^n/n^{M+1})
+```
+
+composing `a_comb_eq_a` with `asymptotic_expansion`
+yields the final theorem:
+
+```
+cloitre_conjecture(M):
+    a_comb(n) = (2^{n+1}/n) * sum_{i=0}^{M} F(i)/n^i
+              + o(2^n / n^{M+1})
+```
+
+## closing thoughts
+
+from start to finish, it took approximately 6 hours and
+a few fresh sessions to grok the proof. i suspect that
+much of this time can be greatly reduced with better
+tooling which i am actively working on.
+
+as far as the results, `module a` and `module c` are what
+i believe would be called "standard analysis."
+
+`module b` is new as far as i am aware. the identity
+was observed empirically by zumkeller in 2006 and
+restated by wiseman in 2019. no proof, formal or
+informal, appears anywhere in the published literature
+or obvious websites. the lean formalization i "wrote"
+is the first to my knowledge.
+
+additionally, these results appear to be fundamentally
+different in at least two ways to those published by
+[AlphaProof Nexus](https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/NaturalLanguageProofs/OEIS/oeis_51293.pdf).
+
+the lean source code for the proof can be found [on my
+github](https://github.com/thatnealpatel/proofs/tree/main/Proofs/Proofs).
