@@ -1,4 +1,4 @@
-module github.com/thatnealpatel/patel.codes
+module patel.codes/patel.codes
 
 go 1.27
 

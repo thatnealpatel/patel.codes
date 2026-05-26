@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 
-	"github.com/thatnealpatel/patel.codes/internal/parser"
+	"patel.codes/patel.codes/internal/parser"
 )
 
 var greekLetters = map[string]string{

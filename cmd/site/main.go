@@ -305,6 +305,7 @@ func readTitleAndDate(path string) (title, date string, err error) {
 // get a vanity import page, regardless of the GitHub API heuristic.
 var goImportOverrides = map[string]string{
 	"proofs": "thatnealpatel/proofs",
+	"patel.codes": "thatnealpatel/patel.codes",
 }
 
 func generateGoImports(gen string) error {
