@@ -115,10 +115,10 @@ func TestParseSupBase(t *testing.T) {
 
 func TestParseCommands(t *testing.T) {
 	cases := []struct {
-		name     string
-		input    string
-		cmdName  string
-		numArgs  int
+		name    string
+		input   string
+		cmdName string
+		numArgs int
 	}{
 		{"frac", `\frac{a}{b}`, `\frac`, 2},
 		{"sqrt", `\sqrt{x}`, `\sqrt`, 1},
@@ -267,5 +267,160 @@ func TestParseSupWithSpace(t *testing.T) {
 	}
 	if !hasSup {
 		t.Fatalf("space before ^ should not prevent sup pairing: %+v", nodes)
+	}
+}
+
+func TestParseDelimited(t *testing.T) {
+	nodes, err := Parse(`\left(\frac{a}{b}\right)`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("expected 1 node, got %d: %+v", len(nodes), nodes)
+	}
+	d, ok := nodes[0].(Delimited)
+	if !ok {
+		t.Fatalf("expected Delimited, got %T", nodes[0])
+	}
+	if d.Open != "(" || d.Close != ")" {
+		t.Fatalf("expected ( ), got %q %q", d.Open, d.Close)
+	}
+}
+
+func TestParseDelimitedInvisible(t *testing.T) {
+	nodes, err := Parse(`\left.\frac{a}{b}\right|`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, ok := nodes[0].(Delimited)
+	if !ok {
+		t.Fatalf("expected Delimited, got %T", nodes[0])
+	}
+	if d.Open != "." || d.Close != "|" {
+		t.Fatalf("expected . |, got %q %q", d.Open, d.Close)
+	}
+}
+
+func TestParseDelimitedBrace(t *testing.T) {
+	nodes, err := Parse(`\left\{x\right\}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, ok := nodes[0].(Delimited)
+	if !ok {
+		t.Fatalf("expected Delimited, got %T", nodes[0])
+	}
+	if d.Open != `\{` || d.Close != `\}` {
+		t.Fatalf(`expected \{ \}, got %q %q`, d.Open, d.Close)
+	}
+}
+
+func TestParseEnvCases(t *testing.T) {
+	nodes, err := Parse(`\begin{cases} a & b \\ c & d \end{cases}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("expected 1 node, got %d: %+v", len(nodes), nodes)
+	}
+	env, ok := nodes[0].(Env)
+	if !ok {
+		t.Fatalf("expected Env, got %T", nodes[0])
+	}
+	if env.Name != "cases" {
+		t.Fatalf("expected cases, got %q", env.Name)
+	}
+}
+
+func TestParseSubstack(t *testing.T) {
+	nodes, err := Parse(`\sum_{\substack{d \mid k \\ d > 0}}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("expected 1 node, got %d: %+v", len(nodes), nodes)
+	}
+	sub, ok := nodes[0].(Sub)
+	if !ok {
+		t.Fatalf("expected Sub, got %T", nodes[0])
+	}
+	var hasSubstack bool
+	switch s := sub.Script.(type) {
+	case Command:
+		hasSubstack = s.Name == `\substack`
+	case List:
+		for _, n := range s {
+			if cmd, ok := n.(Command); ok && cmd.Name == `\substack` {
+				hasSubstack = true
+			}
+		}
+	}
+	if !hasSubstack {
+		t.Fatalf("expected \\substack in script, got %+v", sub.Script)
+	}
+}
+
+func TestParseDelimitedSup(t *testing.T) {
+	nodes, err := Parse(`\left(\frac{a}{b}\right)^2`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("expected 1 node (Sup), got %d: %+v", len(nodes), nodes)
+	}
+	sup, ok := nodes[0].(Sup)
+	if !ok {
+		t.Fatalf("expected Sup, got %T", nodes[0])
+	}
+	if _, ok := sup.Base.(Delimited); !ok {
+		t.Fatalf("expected Delimited base, got %T", sup.Base)
+	}
+}
+
+func TestParseSubSup(t *testing.T) {
+	nodes, err := Parse(`\sum_{r=0}^{k-1}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("expected 1 node (SubSup), got %d: %+v", len(nodes), nodes)
+	}
+	ss, ok := nodes[0].(SubSup)
+	if !ok {
+		t.Fatalf("expected SubSup, got %T", nodes[0])
+	}
+	cmd, ok := ss.Base.(Command)
+	if !ok {
+		t.Fatalf("expected Command base, got %T", ss.Base)
+	}
+	if cmd.Name != `\sum` {
+		t.Fatalf("expected \\sum, got %q", cmd.Name)
+	}
+}
+
+func TestParseSupThenSub(t *testing.T) {
+	nodes, err := Parse(`x^2_i`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(nodes) != 1 {
+		t.Fatalf("expected 1 node, got %d: %+v", len(nodes), nodes)
+	}
+	if _, ok := nodes[0].(SubSup); !ok {
+		t.Fatalf("expected SubSup, got %T", nodes[0])
+	}
+}
+
+func TestParseRightWithoutLeft(t *testing.T) {
+	_, err := Parse(`\right)`)
+	if err == nil {
+		t.Fatal("expected error for \\right without \\left")
+	}
+}
+
+func TestParseEndWithoutBegin(t *testing.T) {
+	_, err := Parse(`\end{cases}`)
+	if err == nil {
+		t.Fatal("expected error for \\end without \\begin")
 	}
 }

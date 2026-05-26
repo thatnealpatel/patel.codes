@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"embed"
+	"fmt"
 	"html/template"
 	"regexp"
+	"strings"
 
 	"rsc.io/markdown"
 )
@@ -15,8 +17,10 @@ var templateFS embed.FS
 var pageTmpl = template.Must(template.ParseFS(templateFS, "templates/page.html"))
 var galleryTmpl = template.Must(template.ParseFS(templateFS, "templates/gallery.html"))
 
-var reDisplay = regexp.MustCompile(`\$\$(.+?)\$\$`)
-var reInline = regexp.MustCompile(`\$(.+?)\$`)
+var reDisplay = regexp.MustCompile(`(?s)\$\$(.+?)\$\$`)
+var reInline = regexp.MustCompile(`\$([^\n]+?)\$`)
+var reCodeFence = regexp.MustCompile("(?s)```.*?```")
+var reCodeInline = regexp.MustCompile("`[^`]+`")
 
 type pageMeta struct {
 	Title string
@@ -24,6 +28,26 @@ type pageMeta struct {
 }
 
 func buildPage(src []byte, meta pageMeta) ([]byte, error) {
+	// Phase 1: protect code from dollar-sign matching.
+	var codeBlocks [][]byte
+	src = reCodeFence.ReplaceAllFunc(src, func(m []byte) []byte {
+		id := len(codeBlocks)
+		codeBlocks = append(codeBlocks, m)
+		return []byte(fmt.Sprintf("CODEPH%04d", id))
+	})
+	src = reCodeInline.ReplaceAllFunc(src, func(m []byte) []byte {
+		id := len(codeBlocks)
+		codeBlocks = append(codeBlocks, m)
+		return []byte(fmt.Sprintf("CODEPH%04d", id))
+	})
+
+	// Phase 2: convert LaTeX to MathML, store results, leave
+	// text placeholders that the markdown parser won't mangle.
+	type mathEntry struct {
+		html    []byte
+		display bool
+	}
+	var mathEntries []mathEntry
 	var renderErr error
 
 	src = reDisplay.ReplaceAllFunc(src, func(m []byte) []byte {
@@ -36,7 +60,9 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 			renderErr = err
 			return m
 		}
-		return mathml
+		id := len(mathEntries)
+		mathEntries = append(mathEntries, mathEntry{mathml, true})
+		return []byte(fmt.Sprintf("\n\nMATHPH%04d\n\n", id))
 	})
 	if renderErr != nil {
 		return nil, renderErr
@@ -52,15 +78,33 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 			renderErr = err
 			return m
 		}
-		return mathml
+		id := len(mathEntries)
+		mathEntries = append(mathEntries, mathEntry{mathml, false})
+		return []byte(fmt.Sprintf("MATHPH%04d", id))
 	})
 	if renderErr != nil {
 		return nil, renderErr
 	}
 
+	// Phase 3: restore code blocks so the markdown parser sees them.
+	for i, block := range codeBlocks {
+		ph := []byte(fmt.Sprintf("CODEPH%04d", i))
+		src = bytes.Replace(src, ph, block, 1)
+	}
+
+	// Phase 4: parse markdown.
 	var p markdown.Parser
 	doc := p.Parse(string(src))
 	body := markdown.ToHTML(doc)
+
+	// Phase 5: restore MathML in the HTML output.
+	for i, entry := range mathEntries {
+		ph := fmt.Sprintf("MATHPH%04d", i)
+		if entry.display {
+			body = strings.Replace(body, "<p>"+ph+"</p>\n", string(entry.html)+"\n", 1)
+		}
+		body = strings.Replace(body, ph, string(entry.html), 1)
+	}
 
 	var buf bytes.Buffer
 	err := pageTmpl.ExecuteTemplate(&buf, "page.html", struct {

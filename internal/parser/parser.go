@@ -51,6 +51,29 @@ type Sub struct {
 
 func (Sub) node() {}
 
+type SubSup struct {
+	Base Node
+	Sub  Node
+	Sup  Node
+}
+
+func (SubSup) node() {}
+
+type Delimited struct {
+	Open  string
+	Close string
+	Body  []Node
+}
+
+func (Delimited) node() {}
+
+type Env struct {
+	Name string
+	Body []Node
+}
+
+func (Env) node() {}
+
 var argCount = map[string]int{
 	`\frac`: 2, `\dfrac`: 2, `\tfrac`: 2, `\binom`: 2,
 	`\sqrt`: 1, `\overline`: 1, `\underline`: 1, `\hat`: 1,
@@ -60,6 +83,7 @@ var argCount = map[string]int{
 	`\mathcal`: 1, `\mathbb`: 1, `\mathfrak`: 1,
 	`\mod`: 1, `\pmod`: 1, `\bmod`: 1,
 	`\eqref`: 1, `\label`: 1, `\tag`: 1,
+	`\substack`: 1,
 }
 
 var hasOptArg = map[string]bool{
@@ -101,25 +125,7 @@ func (p *parser) parseUntil(stop rune) ([]Node, error) {
 			continue
 		}
 
-		saved := p.pos
-		p.skipSpaces()
-		if p.pos < len(p.input) && p.input[p.pos] == '^' {
-			p.pos++
-			script, err := p.parseAtom()
-			if err != nil {
-				return nil, err
-			}
-			node = Sup{Base: node, Script: script}
-		} else if p.pos < len(p.input) && p.input[p.pos] == '_' {
-			p.pos++
-			script, err := p.parseAtom()
-			if err != nil {
-				return nil, err
-			}
-			node = Sub{Base: node, Script: script}
-		} else {
-			p.pos = saved
-		}
+		node = p.parseScripts(node)
 
 		nodes = append(nodes, node)
 	}
@@ -202,6 +208,19 @@ func (p *parser) parseCommand() (Node, error) {
 	}
 	name := `\` + string(p.input[start:p.pos])
 
+	if name == `\left` {
+		return p.parseDelimited()
+	}
+	if name == `\right` {
+		return nil, fmt.Errorf("unexpected \\right without \\left")
+	}
+	if name == `\begin` {
+		return p.parseEnv()
+	}
+	if name == `\end` {
+		return nil, fmt.Errorf("unexpected \\end without \\begin")
+	}
+
 	nargs, known := argCount[name]
 	if !known {
 		return Command{Name: name}, nil
@@ -246,6 +265,136 @@ func (p *parser) parseNumber() Node {
 		p.pos++
 	}
 	return Number(string(p.input[start:p.pos]))
+}
+
+func (p *parser) parseDelimited() (Node, error) {
+	if p.pos >= len(p.input) {
+		return nil, fmt.Errorf("unexpected end after \\left")
+	}
+	open := p.readDelim()
+
+	var nodes []Node
+	for p.pos < len(p.input) {
+		if p.pos+5 <= len(p.input) && string(p.input[p.pos:p.pos+6]) == `\right` {
+			p.pos += 6
+			close := p.readDelim()
+			return Delimited{Open: open, Close: close, Body: nodes}, nil
+		}
+		node, err := p.parseItem()
+		if err != nil {
+			return nil, err
+		}
+		if _, ok := node.(Space); ok {
+			nodes = append(nodes, node)
+			continue
+		}
+
+		node = p.parseScripts(node)
+		nodes = append(nodes, node)
+	}
+	return nil, fmt.Errorf("\\left without matching \\right")
+}
+
+func (p *parser) readDelim() string {
+	if p.pos >= len(p.input) {
+		return "."
+	}
+	ch := p.input[p.pos]
+	if ch == '\\' && p.pos+1 < len(p.input) {
+		next := p.input[p.pos+1]
+		if next == '{' || next == '}' || next == '|' {
+			p.pos += 2
+			return string([]rune{'\\', next})
+		}
+	}
+	p.pos++
+	return string(ch)
+}
+
+func (p *parser) parseEnv() (Node, error) {
+	if p.pos >= len(p.input) || p.input[p.pos] != '{' {
+		return nil, fmt.Errorf("expected '{' after \\begin")
+	}
+	p.pos++
+	start := p.pos
+	for p.pos < len(p.input) && p.input[p.pos] != '}' {
+		p.pos++
+	}
+	name := string(p.input[start:p.pos])
+	if p.pos < len(p.input) {
+		p.pos++ // skip '}'
+	}
+
+	end := fmt.Sprintf(`\end{%s}`, name)
+	endRunes := []rune(end)
+
+	var nodes []Node
+	for p.pos < len(p.input) {
+		if p.pos+len(endRunes) <= len(p.input) && string(p.input[p.pos:p.pos+len(endRunes)]) == end {
+			p.pos += len(endRunes)
+			return Env{Name: name, Body: nodes}, nil
+		}
+		node, err := p.parseItem()
+		if err != nil {
+			return nil, err
+		}
+		if _, ok := node.(Space); ok {
+			nodes = append(nodes, node)
+			continue
+		}
+
+		node = p.parseScripts(node)
+		nodes = append(nodes, node)
+	}
+	return nil, fmt.Errorf("\\begin{%s} without matching \\end{%s}", name, name)
+}
+
+func (p *parser) parseScripts(node Node) Node {
+	saved := p.pos
+	p.skipSpaces()
+	if p.pos < len(p.input) && p.input[p.pos] == '^' {
+		p.pos++
+		sup, err := p.parseAtom()
+		if err != nil {
+			p.pos = saved
+			return node
+		}
+		saved2 := p.pos
+		p.skipSpaces()
+		if p.pos < len(p.input) && p.input[p.pos] == '_' {
+			p.pos++
+			sub, err := p.parseAtom()
+			if err != nil {
+				p.pos = saved2
+				return Sup{Base: node, Script: sup}
+			}
+			return SubSup{Base: node, Sub: sub, Sup: sup}
+		}
+		p.pos = saved2
+		return Sup{Base: node, Script: sup}
+	} else if p.pos < len(p.input) && p.input[p.pos] == '_' {
+		p.pos++
+		sub, err := p.parseAtom()
+		if err != nil {
+			p.pos = saved
+			return node
+		}
+		saved2 := p.pos
+		p.skipSpaces()
+		if p.pos < len(p.input) && p.input[p.pos] == '^' {
+			p.pos++
+			sup, err := p.parseAtom()
+			if err != nil {
+				p.pos = saved2
+				return Sub{Base: node, Script: sub}
+			}
+			return SubSup{Base: node, Sub: sub, Sup: sup}
+		}
+		p.pos = saved2
+		return Sub{Base: node, Script: sub}
+	}
+	p.pos = saved
+	return node
 }
 
 func (p *parser) skipSpaces() {

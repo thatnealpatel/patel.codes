@@ -26,6 +26,7 @@ var operators = map[string]string{
 	`\rightarrow`: "→", `\leftarrow`: "←", `\Rightarrow`: "⇒",
 	`\Leftarrow`: "⇐", `\iff`: "⟺",
 	`\infty`: "∞", `\partial`: "∂", `\nabla`: "∇",
+	`\forall`: "∀", `\exists`: "∃", `\mid`: "∣",
 	`\sum`: "∑", `\prod`: "∏", `\int`: "∫",
 	`\ldots`: "…", `\cdots`: "⋯", `\dots`: "…",
 	`\quad`: " ", `\qquad`: "  ",
@@ -99,7 +100,40 @@ func writeNode(buf *bytes.Buffer, n parser.Node) {
 		writeNode(buf, n.Script)
 		buf.WriteString("</msub>")
 
+	case parser.SubSup:
+		buf.WriteString("<msubsup>")
+		writeNode(buf, n.Base)
+		writeNode(buf, n.Sub)
+		writeNode(buf, n.Sup)
+		buf.WriteString("</msubsup>")
+
 	case parser.Space:
+
+	case parser.Delimited:
+		buf.WriteString("<mrow>")
+		open := n.Open
+		if repl, ok := specialChars[open]; ok {
+			open = repl
+		}
+		if open == "." {
+			buf.WriteString("<mo></mo>")
+		} else {
+			buf.WriteString("<mo>" + open + "</mo>")
+		}
+		writeNodes(buf, n.Body)
+		close := n.Close
+		if repl, ok := specialChars[close]; ok {
+			close = repl
+		}
+		if close == "." {
+			buf.WriteString("<mo></mo>")
+		} else {
+			buf.WriteString("<mo>" + close + "</mo>")
+		}
+		buf.WriteString("</mrow>")
+
+	case parser.Env:
+		writeEnv(buf, n)
 
 	case parser.Command:
 		writeCommand(buf, n)
@@ -114,6 +148,13 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 			writeNodes(buf, arg)
 		}
 		buf.WriteString("</mfrac>")
+
+	case `\binom`:
+		buf.WriteString("<mrow><mo>(</mo><mfrac linethickness=\"0\">")
+		for _, arg := range cmd.Args {
+			writeNodes(buf, arg)
+		}
+		buf.WriteString("</mfrac><mo>)</mo></mrow>")
 
 	case `\sqrt`:
 		if len(cmd.OptArgs) > 0 {
@@ -186,12 +227,19 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 		}
 		buf.WriteString("<mo>)</mo></mrow>")
 
+	case `\substack`:
+		if len(cmd.Args) > 0 {
+			writeSubstack(buf, cmd.Args[0])
+		}
+
 	case `\eqref`:
 		if len(cmd.Args) > 0 {
 			buf.WriteString("<mtext>(</mtext>")
 			writeArgText(buf, cmd.Args[0])
 			buf.WriteString("<mtext>)</mtext>")
 		}
+
+	case `\left`, `\right`:
 
 	default:
 		if s, ok := greekLetters[cmd.Name]; ok {
@@ -219,4 +267,71 @@ func writeArgText(buf *bytes.Buffer, nodes []parser.Node) {
 			writeNode(buf, n)
 		}
 	}
+}
+
+func writeEnv(buf *bytes.Buffer, env parser.Env) {
+	switch env.Name {
+	case "cases":
+		buf.WriteString("<mrow><mo>{</mo><mtable columnalign=\"left left\">")
+		rows := splitOnLineBreak(env.Body)
+		for _, row := range rows {
+			buf.WriteString("<mtr>")
+			cols := splitOnAmpersand(row)
+			for _, col := range cols {
+				buf.WriteString("<mtd>")
+				writeNodes(buf, col)
+				buf.WriteString("</mtd>")
+			}
+			buf.WriteString("</mtr>")
+		}
+		buf.WriteString("</mtable></mrow>")
+	default:
+		writeNodes(buf, env.Body)
+	}
+}
+
+func writeSubstack(buf *bytes.Buffer, nodes []parser.Node) {
+	buf.WriteString("<mtable rowspacing=\"0.1em\" columnalign=\"center\">")
+	rows := splitOnLineBreak(nodes)
+	for _, row := range rows {
+		buf.WriteString("<mtr><mtd>")
+		writeNodes(buf, row)
+		buf.WriteString("</mtd></mtr>")
+	}
+	buf.WriteString("</mtable>")
+}
+
+func splitOnAmpersand(nodes []parser.Node) [][]parser.Node {
+	var cols [][]parser.Node
+	var cur []parser.Node
+	for _, n := range nodes {
+		if op, ok := n.(parser.Operator); ok && string(op) == "&" {
+			cols = append(cols, cur)
+			cur = nil
+			continue
+		}
+		cur = append(cur, n)
+	}
+	cols = append(cols, cur)
+	return cols
+}
+
+func splitOnLineBreak(nodes []parser.Node) [][]parser.Node {
+	var rows [][]parser.Node
+	var cur []parser.Node
+	for i := 0; i < len(nodes); i++ {
+		if op, ok := nodes[i].(parser.Operator); ok && string(op) == `\\` {
+			rows = append(rows, cur)
+			cur = nil
+			continue
+		}
+		if _, ok := nodes[i].(parser.Space); ok && len(cur) == 0 {
+			continue
+		}
+		cur = append(cur, nodes[i])
+	}
+	if len(cur) > 0 {
+		rows = append(rows, cur)
+	}
+	return rows
 }

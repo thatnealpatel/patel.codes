@@ -55,7 +55,11 @@ func main() {
 	}
 
 	wordsOutDir := filepath.Join(gen, "words")
+	draftsOutDir := filepath.Join(wordsOutDir, "drafts")
 	if err := os.MkdirAll(wordsOutDir, 0o755); err != nil {
+		log.Fatal(err)
+	}
+	if err := os.MkdirAll(draftsOutDir, 0o755); err != nil {
 		log.Fatal(err)
 	}
 
@@ -71,18 +75,30 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		outName := strings.TrimSuffix(e.Name(), ".md") + ".html"
+
+		draft := strings.HasSuffix(e.Name(), ".draft.md")
+		var outName, outDir, urlPath string
+		if draft {
+			outName = strings.TrimSuffix(e.Name(), ".draft.md") + ".html"
+			outDir = draftsOutDir
+			urlPath = "words/drafts/" + outName
+		} else {
+			outName = strings.TrimSuffix(e.Name(), ".md") + ".html"
+			outDir = wordsOutDir
+			urlPath = "words/" + outName
+		}
+
 		html, err := buildPage(src, pageMeta{
 			Title: title,
-			URL:   "https://patel.codes/words/" + outName,
+			URL:   "https://patel.codes/" + urlPath,
 		})
 		if err != nil {
 			log.Fatalf("building %s: %v", e.Name(), err)
 		}
-		if err := os.WriteFile(filepath.Join(wordsOutDir, outName), html, 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(outDir, outName), html, 0o644); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("wrote gen/words/%s\n", outName)
+		fmt.Printf("wrote gen/%s\n", urlPath)
 	}
 
 	galleriesDataDir := filepath.Join(data, "galleries")
@@ -192,6 +208,9 @@ func sitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
 			continue
 		}
+		if strings.HasSuffix(e.Name(), ".draft.md") {
+			continue
+		}
 		name := strings.TrimSuffix(e.Name(), ".md") + ".html"
 		fmt.Fprintf(&b, "<url><loc>https://patel.codes/words/%s</loc></url>\n", name)
 	}
@@ -223,7 +242,7 @@ func generateWordsIndex(dataDir string) error {
 
 	var words []wordEntry
 	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") || strings.HasSuffix(e.Name(), ".draft.md") {
 			continue
 		}
 		title, date, err := readTitleAndDate(filepath.Join(wordsDir, e.Name()))
@@ -282,6 +301,12 @@ func readTitleAndDate(path string) (title, date string, err error) {
 	return title, date, nil
 }
 
+// goImportOverrides maps module names to GitHub repos that should always
+// get a vanity import page, regardless of the GitHub API heuristic.
+var goImportOverrides = map[string]string{
+	"proofs": "thatnealpatel/proofs",
+}
+
 func generateGoImports(gen string) error {
 	resp, err := http.Get("https://api.github.com/users/thatnealpatel/repos?per_page=100")
 	if err != nil {
@@ -303,7 +328,25 @@ func generateGoImports(gen string) error {
 		return fmt.Errorf("decoding github repos: %w", err)
 	}
 
+	written := make(map[string]bool)
+
+	for name, ghRepo := range goImportOverrides {
+		dir := filepath.Join(gen, name)
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return err
+		}
+		html := goImportPageGitHub(name, ghRepo)
+		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte(html), 0o644); err != nil {
+			return err
+		}
+		fmt.Printf("wrote gen/%s/index.html (go-import, override)\n", name)
+		written[name] = true
+	}
+
 	for _, repo := range repos {
+		if written[repo.Name] {
+			continue
+		}
 		if repo.Fork || (repo.Language != "Go" && repo.Language != "Go Template") || repo.License == nil {
 			continue
 		}
@@ -311,7 +354,7 @@ func generateGoImports(gen string) error {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return err
 		}
-		html := goImportPage(repo.Name)
+		html := goImportPageGitHub(repo.Name, "thatnealpatel/"+repo.Name)
 		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte(html), 0o644); err != nil {
 			return err
 		}
@@ -320,15 +363,15 @@ func generateGoImports(gen string) error {
 	return nil
 }
 
-func goImportPage(repo string) string {
+func goImportPageGitHub(module, ghRepo string) string {
 	return `<!DOCTYPE html>
 <html>
 <head>
-<meta name="go-import" content="patel.codes/` + repo + ` git https://github.com/thatnealpatel/` + repo + `">
-<meta http-equiv="refresh" content="0; url=https://pkg.go.dev/patel.codes/` + repo + `">
+<meta name="go-import" content="patel.codes/` + module + ` git https://github.com/` + ghRepo + `">
+<meta http-equiv="refresh" content="0; url=https://pkg.go.dev/patel.codes/` + module + `">
 </head>
 <body>
-Redirecting to <a href="https://pkg.go.dev/patel.codes/` + repo + `">pkg.go.dev/patel.codes/` + repo + `</a>...
+Redirecting to <a href="https://pkg.go.dev/patel.codes/` + module + `">pkg.go.dev/patel.codes/` + module + `</a>...
 </body>
 </html>
 `
