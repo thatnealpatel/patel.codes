@@ -18,7 +18,7 @@ var pageTmpl = template.Must(template.ParseFS(templateFS, "templates/page.html")
 var galleryTmpl = template.Must(template.ParseFS(templateFS, "templates/gallery.html"))
 
 var reDisplay = regexp.MustCompile(`(?s)\$\$(.+?)\$\$`)
-var reInline = regexp.MustCompile(`\$([^\n]+?)\$`)
+var reInline = regexp.MustCompile(`(?s)\$(.+?)\$`)
 var reCodeFence = regexp.MustCompile("(?s)```.*?```")
 var reCodeInline = regexp.MustCompile("`[^`]+`")
 
@@ -93,7 +93,7 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 	}
 
 	// Phase 4: parse markdown.
-	var p markdown.Parser
+	p := markdown.Parser{Table: true}
 	doc := p.Parse(string(src))
 	body := markdown.ToHTML(doc)
 

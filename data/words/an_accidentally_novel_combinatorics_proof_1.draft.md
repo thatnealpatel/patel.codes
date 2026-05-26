@@ -23,14 +23,14 @@ r&d on a maths harness that uses claude code.
 its maiden voyage was in a review of [Go's new floating
 point parsing and printing algorithm](https://go.dev/cl/743860)
 where i tested its ability to function as an aide when
-reading reading [russ' proofs](https://research.swtch.com/fp-proof).
+reading reading [Russ' proofs](https://research.swtch.com/fp-proof).
 in doing so, i [uncovered a material edge case that diverged from the
 proof](https://go-review.googlesource.com/c/go/+/743860/comment/6d1eaaf7_a0b4274e/).
 
 over the weekend, a friend showed me a
 tweet about [AlphaProof](https://github.com/google-deepmind/alphaproof-nexus-results)'s
 recent publications. my brain lit up; i asked my
-friend to just how me one of the titles. this was
+friend to just show me one of the titles. this was
 a great opportunity to benchmark my little project
 with only one clear bias: i knew that whatever it
 was, it was almost certainly provable.
@@ -50,7 +50,7 @@ classifications are ternary:
 
 the only problem i had formally pointed it at was
 an erdos problem that was deemed 'hard' by the
-framework; after running it on A051293, it deemed
+framework; after running it on a051293, it deemed
 the problem 'elementary,' which is a bit funny.
 
 i do not have the ability to concisely and neatly
@@ -59,21 +59,30 @@ have marked the sections **[gen]erated** by claude
 from the [lean proof](https://github.com/thatnealpatel/proofs/tree/main/Proofs/Proofs).
 
 if i have time to review and understand these topics
-more deeply, i will revise this in a part 2. also,
-it remains possible that this is indeed a bunk proof.
-a part 2 will similarly cover the validity of these
-results.
+more deeply, i will revise this in a follow up. my
+understanding is that the premise of the proof is
+expressed correctly, and the lack of any `axiom` or
+`sorry` in the lean proof indicate that it is
+computationally verified.
+
+my process was largely hands-off; i spent a majority
+of active time thinking about the meta strategy and
+documenting frictions the harness experienced and was
+incapable of self-documenting. i did interject a few
+key details that are otherwise not noteworthy when
+compared to how claude materialized them.
 
 ## the theorem
 
-cloitre conjectured in 2002 that the number of nonempty
+in 2002, Cloitre conjectured that the number of nonempty
 subsets of `{1,...,n}` with integer mean satisfies
 
 $$a(n) = \frac{2^{n+1}}{n} \sum_{k=0}^{M} \frac{F(k)}{n^k} + o\left(\frac{2^n}{n^{M+1}}\right)$$
 
-for all `M`, where `F(k)` are the ordered [Bell Numbers](https://en.wikipedia.org/wiki/Bell_number):
+for all `M`, where `F(k)` are exactly the ordered
+[Bell Numbers](https://en.wikipedia.org/wiki/Bell_number):
 
-(1, 1, 3, 13, 75, 541, ...).
+$$\{1, 1, 3, 13, 75, 541, \ldots\}$$
 
 the proof decomposes into three independent modules
 sketched below for brevity.
@@ -140,7 +149,7 @@ this is stanley's exercise 1.105. the lean proof uses
 `IsPrimitiveRoot`, `Polynomial.nthRootsFinset`, and
 `Nat.totient`.
 
-## module b: the zumkeller identity [gen]
+## module b: the Zumkeller identity [gen]
 
 this module proves the per-k identity connecting two
 counts:
@@ -149,10 +158,10 @@ counts:
 - $R(k) = |\{S \subseteq \{1,\ldots,k\} : k \in S, \; |S| \mid \text{sum}(S)\}|$
 
 the claim is $L(k) = R(k)$. this was observed without
-proof by zumkeller (2006, OEIS A082550) and wiseman
-(2019, OEIS A063776). as of may 2026, no proof exists
-in the published literature. the proof below is the
-first, formal or informal.
+proof by Zumkeller (2006, [oeis a082550](https://oeis.org/A082550))
+and Wiseman (2019, [oeis a063776](https://oeis.org/A063776)).
+as of may 2026, no proof exists in the published literature.
+to the best of my knowledge, the proof below is the first.
 
 ### setup [gen]
 
@@ -166,7 +175,9 @@ $$\beta(k, S) = |\{j \in \{0,\ldots,|S|-1\} : |S| \mid (\sigma + k \cdot j)\}|$$
 
 where $\sigma = \sum_{s \in S}(s+1)$.
 
-### $\alpha = \beta$ (the key lemma) [gen]
+### the key lemma [gen]
+
+$$\alpha = \beta$$
 
 both $\alpha$ and $\beta$ count solutions to a linear
 congruence of the form $m \mid (b + a \cdot x)$ over
@@ -185,7 +196,9 @@ since $\gcd(|S|, k) = \gcd(k, |S|)$ and the
 divisibility condition on $b = \sigma$ is the same,
 $\alpha(k, S) = \beta(k, S)$ for every nonempty $S$.
 
-### $\sum \alpha = k \cdot L(k)$ [gen]
+### another lemma [gen]
+
+$$\sum \alpha = k \cdot L(k)$$
 
 define $\text{rotate}(S, r) = \{(s+r) \bmod k : s \in S\}$.
 rotation preserves cardinality and is a bijection on
@@ -206,7 +219,9 @@ but the set counted by $L(k)$ excludes $\emptyset$
 
 $$\sum_{S \neq \emptyset} \alpha(k, S) = k \cdot L(k)$$
 
-### $\sum \beta = k \cdot R(k)$ [gen]
+### yet another lemma [gen]
+
+$$\sum \beta = k \cdot R(k)$$
 
 $\beta(k,S)$ admits a host-element decomposition:
 rewrite it as the number of elements $e \in S$ such
@@ -293,16 +308,24 @@ series:
 $$\sum_{j=0}^{\infty}\frac{j^m}{2^j} = 2 \cdot F(m)$$
 
 proved by strong induction on $m$. the base case
-$m = 0$ is the geometric series $\sum 1/2^j = 2$.
+$m = 0$ is the geometric series
+
+$$\sum 1/2^j = 2$$
+
 for the inductive step, the shift identity
-$\sum (j+1)^m / 2^j = 2 \sum j^m / 2^j$ (valid for
-$m \geq 1$) combined with the binomial expansion
-$(j+1)^{m+1} - j^{m+1} = \sum_{k<m+1}\binom{m+1}{k}j^k$
+
+$$\sum (j+1)^m / 2^j = 2 \sum j^m / 2^j$$
+
+is valid for $m \geq 1$, and when combined
+with the binomial expansion
+
+$$(j+1)^{m+1} - j^{m+1} = \sum_{k<m+1}\binom{m+1}{k}j^k$$
+
 and the fubini recurrence
 
 $$F(m+1) = \sum_{k=0}^{m}\binom{m+1}{k}F(k)$$
 
-pins the value.
+the value pins.
 
 ### error budget [gen]
 
@@ -316,13 +339,13 @@ all three are $o(2^n/n^{M+1})$.
 
 ## the bridge [gen]
 
-`A051293_counting.lean` links the three modules:
+`a051293_counting.lean` links the three modules:
 
 ```
 // module A: the DFT formula matches the combinatorial count
 b_comb_eq_b(k):    b_comb(k) == b(k)    for all k >= 1
 
-// module B: per-k identity via zumkeller
+// module B: per-k identity via Zumkeller
 zumkeller_identity(k):    b_comb(k) - 1 == |maxKIntMeanSubsets(k)|
 
 // summation: partition integer-mean subsets by max element
@@ -355,8 +378,8 @@ as far as the results, `module a` and `module c` are what
 i believe would be called "standard analysis."
 
 `module b` is new as far as i am aware. the identity
-was observed empirically by zumkeller in 2006 and
-restated by wiseman in 2019. no proof, formal or
+was observed empirically by Zumkeller in 2006 and
+restated by Wiseman in 2019. no proof, formal or
 informal, appears anywhere in the published literature
 or obvious websites. the lean formalization i "wrote"
 is the first to my knowledge.

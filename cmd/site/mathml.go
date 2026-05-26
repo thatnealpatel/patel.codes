@@ -20,13 +20,13 @@ var greekLetters = map[string]string{
 
 var operators = map[string]string{
 	`\pm`: "±", `\mp`: "∓", `\times`: "×", `\div`: "÷",
-	`\cdot`: "⋅", `\leq`: "≤", `\geq`: "≥", `\neq`: "≠",
+	`\cdot`: "⋅", `\leq`: "≤", `\le`: "≤", `\geq`: "≥", `\neq`: "≠",
 	`\approx`: "≈", `\equiv`: "≡", `\in`: "∈", `\notin`: "∉",
-	`\subset`: "⊂", `\supset`: "⊃", `\cup`: "∪", `\cap`: "∩",
-	`\rightarrow`: "→", `\leftarrow`: "←", `\Rightarrow`: "⇒",
+	`\subset`: "⊂", `\subseteq`: "⊆", `\supset`: "⊃", `\cup`: "∪", `\cap`: "∩",
+	`\rightarrow`: "→", `\leftarrow`: "←", `\mapsto`: "↦", `\Rightarrow`: "⇒",
 	`\Leftarrow`: "⇐", `\iff`: "⟺",
 	`\infty`: "∞", `\partial`: "∂", `\nabla`: "∇",
-	`\forall`: "∀", `\exists`: "∃", `\mid`: "∣",
+	`\forall`: "∀", `\exists`: "∃", `\emptyset`: "∅", `\mid`: "∣",
 	`\sum`: "∑", `\prod`: "∏", `\int`: "∫",
 	`\ldots`: "…", `\cdots`: "⋯", `\dots`: "…",
 	`\quad`: " ", `\qquad`: "  ",
@@ -84,6 +84,8 @@ func writeNode(buf *bytes.Buffer, n parser.Node) {
 			if repl != "" {
 				buf.WriteString("<mo>" + repl + "</mo>")
 			}
+		} else if s == "(" || s == ")" || s == "[" || s == "]" {
+			buf.WriteString(`<mo stretchy="false">` + s + "</mo>")
 		} else {
 			buf.WriteString("<mo>" + s + "</mo>")
 		}
@@ -108,6 +110,7 @@ func writeNode(buf *bytes.Buffer, n parser.Node) {
 		buf.WriteString("</msubsup>")
 
 	case parser.Space:
+		buf.WriteString(`<mspace width="0.25em"/>`)
 
 	case parser.Delimited:
 		buf.WriteString("<mrow>")
@@ -214,8 +217,14 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 		}
 		buf.WriteString("</mtext>")
 
-	case `\mod`:
+	case `\mod`, `\bmod`:
 		buf.WriteString("<mo>mod</mo>")
+		for _, arg := range cmd.Args {
+			writeNodes(buf, arg)
+		}
+
+	case `\gcd`:
+		buf.WriteString("<mo>gcd</mo>")
 		for _, arg := range cmd.Args {
 			writeNodes(buf, arg)
 		}

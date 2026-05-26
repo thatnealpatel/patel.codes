@@ -22,6 +22,9 @@
   h1 { color: var(--ink); }
   p, li { color: var(--ink-light); line-height: 1.7; }
   a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
   math { font-size: 1.1em; }
   math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
 </style>
@@ -43,45 +46,45 @@
 <p>through the selectively biased lens of my day-to-day experiences, it seems increasingly more common to default to <math><mtext mathvariant="italic">machine-first</mtext></math> thinking instead of <math><mtext mathvariant="italic">human-first</mtext></math> thinking. stated another way, there seems to be an upward trend of <math><mtext mathvariant="italic">outsourcing logic and reasoning</mtext></math>.</p>
 <p>for clarity, <math><mtext mathvariant="italic">machine-first</mtext></math> thinking is <strong>not</strong> the same as <math><mtext mathvariant="italic">machine-aided</mtext></math> thinking. in my mental model, <math><mtext mathvariant="italic">machine-aided</mtext></math> thinking is a subset of <math><mtext mathvariant="italic">human-first</mtext></math> thinking:</p>
 <ul>
-<li>(h)uman-first | <math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mo>→</mo><msup><mtext>reasoning</mtext><mtext>h</mtext></msup><mo>→</mo><msup><mtext>outcome</mtext><mtext>h</mtext></msup></mrow></math></li>
-<li>(m)achine-first | <math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mo>→</mo><msup><mtext>reasoning</mtext><mtext mathvariant="bold">m</mtext></msup><mo>→</mo><msup><mtext>outcome</mtext><mtext>m</mtext></msup></mrow></math></li>
+<li>(h)uman-first | <math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>reasoning</mtext><mtext>h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>outcome</mtext><mtext>h</mtext></msup></mrow></math></li>
+<li>(m)achine-first | <math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>reasoning</mtext><mtext mathvariant="bold">m</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>outcome</mtext><mtext>m</mtext></msup></mrow></math></li>
 </ul>
 <p>of course, <math><mtext mathvariant="italic">machine-first</mtext></math> thinking is represented in a reductive manner above; to capture the notion that a human supervises the <math><mtext mathvariant="bold">reasoning</mtext></math>, let us expand the notation a bit:</p>
 <ul>
-<li>(m)achine-first | <math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mo>→</mo><msup><mtext>reasoning</mtext><mrow><mi>C</mi><mo>(</mo><mn>1</mn><mo>-</mo><mi>ε</mi><mo>)</mo><mtext mathvariant="bold">m</mtext><mo>+</mo><mi>ε</mi><mtext>h</mtext></mrow></msup><mo>→</mo><msup><mtext>outcome</mtext><mtext>*</mtext></msup></mrow></math></li>
+<li>(m)achine-first | <math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>reasoning</mtext><mrow><mi>C</mi><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>ε</mi><mo stretchy="false">)</mo><mtext mathvariant="bold">m</mtext><mo>+</mo><mi>ε</mi><mtext>h</mtext></mrow></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>outcome</mtext><mtext>*</mtext></msup></mrow></math></li>
 </ul>
-<p>the expression of <math><mrow><mi>C</mi><mo>(</mo><mn>1</mn><mo>-</mo><mi>ε</mi><mo>)</mo><mtext>m</mtext><mo>+</mo><mi>ε</mi><mtext>h</mtext></mrow></math> simply captures:</p>
+<p>the expression of <math><mrow><mi>C</mi><mo stretchy="false">(</mo><mn>1</mn><mo>-</mo><mi>ε</mi><mo stretchy="false">)</mo><mtext>m</mtext><mo>+</mo><mi>ε</mi><mtext>h</mtext></mrow></math> simply captures:</p>
 <ul>
 <li>if a human spends <math><mi>ε</mi></math> effort supervising, the machine spends <math><mrow><mn>1</mn><mo>-</mo><mi>ε</mi></mrow></math> effort reasoning with whatever catch-all constant <math><mi>C</mi></math> satisfies the inequality between human-to-machine reasoning.</li>
 </ul>
 <p>for example, one might say that someone who blindly accepts machine reasoning has <math><mrow><mi>ε</mi><mo>=</mo><mn>0</mn></mrow></math>:</p>
 <ul>
-<li><math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mo>→</mo><msup><mtext>reasoning</mtext><mrow><mi>C</mi><mtext mathvariant="bold">m</mtext></mrow></msup><mo>→</mo><msup><mtext>outcome</mtext><mtext>m</mtext></msup></mrow></math></li>
+<li><math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>reasoning</mtext><mrow><mi>C</mi><mtext mathvariant="bold">m</mtext></mrow></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>outcome</mtext><mtext>m</mtext></msup></mrow></math></li>
 </ul>
 <p>furthermore, by definition, <math><mtext mathvariant="italic">human-first</mtext></math> thinking blindly rejects machine reasoning i.e. <math><mrow><mi>ε</mi><mo>=</mo><mn>1</mn></mrow></math>:</p>
 <ul>
-<li><math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mo>→</mo><msup><mtext>reasoning</mtext><mtext mathvariant="bold">h</mtext></msup><mo>→</mo><msup><mtext>outcome</mtext><mtext>h</mtext></msup></mrow></math></li>
+<li><math><mrow><msup><mtext>conjecture</mtext><mtext>h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>reasoning</mtext><mtext mathvariant="bold">h</mtext></msup><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><msup><mtext>outcome</mtext><mtext>h</mtext></msup></mrow></math></li>
 </ul>
 <p>while i am admittedly a staunch contrarian when it comes to the topic of LLMs, i do concede they have realized utility in some applications. my intention is not to debate the utility curve of LLMs; rather, i aim to invite deeper thinking about effects of human-LLM interactions.</p>
 <p><math><mtext mathvariant="italic">outsourcing logic and reasoning</mtext></math> may be perfectly valid in some contexts, but not all contexts. what i worry about most is that continuous exposure to <math><mtext mathvariant="italic">outsourcing logic and reasoning</mtext></math> in valid contexts erodes the human detection mechanism responsible for drawing that line in the first place.</p>
 <p>as of writing, machines cannot reason from first-principles; therefore, humans must become more resilient in explicitly protecting the spaces in which <math><mtext mathvariant="italic">outsourcing logic and reasoning</mtext></math> may lead to less than ideal outcomes. a serendipitous, cherry-picked personal example follows for those interested in virtually useless proofs.</p>
 <h2>virtually useless proof</h2>
 <p>if one were to take trading days <math><mi>T</mi></math> and weekends <math><mi>W</mi></math> as such:</p>
-<math display="block"><mrow><mi>T</mi><mo>=</mo><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math>
-<math display="block"><mrow><mi>W</mi><mo>=</mo><mo>{</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>}</mo></mrow></math>
-<p>if today <math><mrow><mi>t</mi><mo>∈</mo><mi>T</mi></mrow></math> and target DTE <math><mi>D</mi></math>, one might observe that deriving day of the week <math><mrow><mi>d</mi><mo>∈</mo><mo>{</mo><mi>T</mi><mo>∪</mo><mi>W</mi><mo>}</mo></mrow></math> for <math><mi>D</mi></math> is simply:</p>
-<math display="block"><mrow><mo>(</mo><mi>t</mi><mo>+</mo><mi>D</mi><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mi>d</mi></mrow></math>
+<math display="block"><mrow><mi>T</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>{</mo><mn>0</mn><mo>,</mo><mspace width="0.25em"/><mn>1</mn><mo>,</mo><mspace width="0.25em"/><mn>2</mn><mo>,</mo><mspace width="0.25em"/><mn>3</mn><mo>,</mo><mspace width="0.25em"/><mn>4</mn><mo>}</mo></mrow></math>
+<math display="block"><mrow><mi>W</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>{</mo><mn>5</mn><mo>,</mo><mspace width="0.25em"/><mn>6</mn><mo>}</mo></mrow></math>
+<p>if today <math><mrow><mi>t</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>T</mi></mrow></math> and target DTE <math><mi>D</mi></math>, one might observe that deriving day of the week <math><mrow><mi>d</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mi>T</mi><mo>∪</mo><mi>W</mi><mo>}</mo></mrow></math> for <math><mi>D</mi></math> is simply:</p>
+<math display="block"><mrow><mo stretchy="false">(</mo><mi>t</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>D</mi><mo stretchy="false">)</mo><mo>mod</mo><mn>7</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>d</mi></mrow></math>
 <p>for 30<math><mrow><mo>±</mo><mn>1</mn></mrow></math> DTE strategies, one is never presented two equivalent choices for days-to-expiry in non-holiday conditions.</p>
 <p>using the above, one observes when the possibility of a choice may arise:</p>
-<math display="block"><mrow><mi>d</mi><mo>∈</mo><mi>W</mi><mo>⟺</mo><mi>t</mi><mo>∈</mo><mo>{</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math>
+<math display="block"><mrow><mi>d</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>W</mi><mspace width="0.25em"/><mo>⟺</mo><mspace width="0.25em"/><mi>t</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mn>3</mn><mspace width="0.25em"/><mo>,</mo><mspace width="0.25em"/><mn>4</mn><mspace width="0.25em"/><mo>}</mo></mrow></math>
 <p>that is to say, a choice may only happen on Thursday or Friday. given, two choices: <math><mrow><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math> and <math><mrow><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math> representing 29 DTE and 31 DTE, respectively:</p>
-<math display="block"><mrow><mo>(</mo><mn>3</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>4</mn></mrow></math>
-<math display="block"><mrow><mo>(</mo><mn>3</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>6</mn></mrow></math>
-<math display="block"><mrow><mo>(</mo><mn>4</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>5</mn></mrow></math>
-<math display="block"><mrow><mo>(</mo><mn>4</mn><mo>+</mo><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo>)</mo><mo>mod</mo><mn>7</mn><mo>=</mo><mn>0</mn></mrow></math>
+<math display="block"><mrow><mo stretchy="false">(</mo><mn>3</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo stretchy="false">)</mo><mo>mod</mo><mn>7</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>4</mn></mrow></math>
+<math display="block"><mrow><mo stretchy="false">(</mo><mn>3</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo stretchy="false">)</mo><mo>mod</mo><mn>7</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>6</mn></mrow></math>
+<math display="block"><mrow><mo stretchy="false">(</mo><mn>4</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo><mo stretchy="false">)</mo><mo>mod</mo><mn>7</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>5</mn></mrow></math>
+<math display="block"><mrow><mo stretchy="false">(</mo><mn>4</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo><mo stretchy="false">)</mo><mo>mod</mo><mn>7</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>0</mn></mrow></math>
 <p>thus, <math><mrow><mi>t</mi><mo>=</mo><mn>3</mn></mrow></math> is always presented <math><mrow><msub><mi>D</mi><mrow><mo>-</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math> while <math><mrow><mi>t</mi><mo>=</mo><mn>4</mn></mrow></math> is always presented <math><mrow><msub><mi>D</mi><mrow><mo>+</mo><mn>1</mn></mrow></msub><mo>'</mo></mrow></math>.</p>
 <h2>visual proof</h2>
-<p>using <math><mn>0</mn></math> to indicate the current trading day, there exists a nice visual proof; make note of when <math><mrow><mi>t</mi><mo>=</mo><mn>3</mn></mrow></math> (thursday) is the current day <math><mrow><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math> and <math><mrow><mi>t</mi><mo>=</mo><mn>4</mn></mrow></math> (friday) is the current day <math><mrow><mo>(</mo><mn>0</mn><mo>)</mo></mrow></math>.</p>
+<p>using <math><mn>0</mn></math> to indicate the current trading day, there exists a nice visual proof; make note of when <math><mrow><mi>t</mi><mo>=</mo><mn>3</mn></mrow></math> (thursday) is the current day <math><mrow><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></math> and <math><mrow><mi>t</mi><mo>=</mo><mn>4</mn></mrow></math> (friday) is the current day <math><mrow><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo></mrow></math>.</p>
 <p><img src="../static/useless-30dte-lemma_visual-proof.png" alt="calendar-based visual proof of written modular arithmetic proof" /></p>
 <h2>closing thoughts</h2>
 <p>questioning assumptions and re-stating base truths often can combat misguided efforts, such as adding complexity where none is required. this is the essense of <math><mtext mathvariant="italic">human-first</mtext></math> thinking that must continue to be protected in the age of <math><mtext mathvariant="italic">outsourcing logic and reasoning</mtext></math>.</p>

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -226,6 +227,111 @@ func TestBuildPageMultilineDisplay(t *testing.T) {
 		t.Fatalf("expected display block math: %s", result)
 	}
 	t.Logf("%s", result)
+}
+
+// Issue #1 & #3: Space nodes between math tokens must produce <mspace>
+// in MathML output, not be silently dropped.
+func TestLatexToMathMLSpacesBetweenTokens(t *testing.T) {
+	cases := []struct {
+		name string
+		expr string
+		want string // substring that must appear
+	}{
+		{
+			"cases_if_space",
+			`\begin{cases} k & \text{if } k \mid n \\ 0 & \text{otherwise} \end{cases}`,
+			`</mtext><mspace`,
+		},
+		{
+			"cases_q_odd",
+			`\begin{cases} 2 & q \text{ odd} \\ 0 & q \text{ even} \end{cases}`,
+			`</mi><mspace`,
+		},
+		{
+			"simple_a_b",
+			`a b`,
+			`<mspace`,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := latexToMathML([]byte(tc.expr), false)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Contains(result, []byte(tc.want)) {
+				t.Fatalf("expected %q in output:\n%s", tc.want, result)
+			}
+		})
+	}
+}
+
+// Issue #2: Regular () operators should not stretch to match
+// the height of neighboring superscripts.
+func TestLatexToMathMLOperatorParensNonStretchy(t *testing.T) {
+	result, err := latexToMathML([]byte(`(-1)^q - 1`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(result)
+	if !strings.Contains(s, `stretchy="false"`) {
+		t.Fatalf("regular () should have stretchy=false:\n%s", s)
+	}
+}
+
+// Issue #2 continued: \left(\right) Delimited parens SHOULD remain
+// stretchy (no stretchy="false").
+func TestLatexToMathMLDelimitedParensStretchy(t *testing.T) {
+	result, err := latexToMathML([]byte(`\left(\frac{a}{b}\right)`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := string(result)
+	if strings.Contains(s, `stretchy="false"`) {
+		t.Fatalf("\\left/\\right delimiters should remain stretchy:\n%s", s)
+	}
+}
+
+// Issue #4: Markdown tables containing inline math with pipe
+// characters must render as <table>, not raw pipe text.
+func TestBuildPageTableWithInlineMath(t *testing.T) {
+	src := []byte("# test\n\n| a | b |\n|---|---|\n| $x$ | $O(n^2)$ |\n")
+	result, err := buildPage(src, pageMeta{Title: "test", URL: "https://test"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte("<table")) {
+		t.Fatalf("expected <table> for pipe-delimited markdown table:\n%s", result)
+	}
+}
+
+// Issue #4 specific: Table rows with $...$ math containing operators
+// that look like pipes must not break column splitting.
+func TestBuildPageTableMathWithMid(t *testing.T) {
+	src := []byte("# test\n\n| source | bound | absorbed by |\n|---|---|---|\n| non-dominant divisors | $O(n^2 \\cdot 2^{n/3})$ | $o(2^n/n^{M+2})$ |\n")
+	result, err := buildPage(src, pageMeta{Title: "test", URL: "https://test"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte("<table")) {
+		t.Fatalf("expected <table> for table with inline math:\n%s", result)
+	}
+}
+
+// Issue #5: Inline math spanning multiple lines must be matched
+// by the inline regex so it gets rendered instead of showing raw LaTeX.
+func TestBuildPageMultilineInlineMath(t *testing.T) {
+	src := []byte("# test\n\ndefine $\\text{hostSet}(k, e) = \\{S : e \\in S, \\;\n|S| \\mid (\\sigma + k \\cdot \\text{rank}(e, S))\\}$.\n")
+	result, err := buildPage(src, pageMeta{Title: "test", URL: "https://test"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Contains(result, []byte(`$\text{hostSet}`)) {
+		t.Fatalf("raw LaTeX leaked through — multi-line inline math was not parsed:\n%s", result)
+	}
+	if !bytes.Contains(result, []byte("<math>")) {
+		t.Fatalf("expected <math> from inline expression:\n%s", result)
+	}
 }
 
 func TestLatexToMathMLBlogExpressions(t *testing.T) {
