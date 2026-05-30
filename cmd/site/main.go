@@ -314,6 +314,8 @@ var goImportOverrides = map[string]goImport{
 	"jsonldb":     {repo: "thatnealpatel/mono", subdir: "jsonldb"},
 	"ranking":     {repo: "thatnealpatel/mono", subdir: "ranking"},
 	"unsafe":      {repo: "thatnealpatel/mono", subdir: "unsafe"},
+	"gh":          {repo: "thatnealpatel/mono", subdir: "gh"},
+	"gerrit":      {repo: "thatnealpatel/mono", subdir: "gerrit"},
 }
 
 func generateGoImports(gen string) error {
