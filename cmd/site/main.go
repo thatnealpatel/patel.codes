@@ -306,8 +306,9 @@ type goImport struct {
 	subdir string
 }
 
-// goImportOverrides maps module names to GitHub repos that should always
-// get a vanity import page, regardless of the GitHub API heuristic.
+// goImportOverrides describes modules that exist
+// on my GitHub that should always be mapped to
+// name import pages.
 var goImportOverrides = map[string]goImport{
 	"proofs":      {repo: "thatnealpatel/proofs"},
 	"patel.codes": {repo: "thatnealpatel/patel.codes"},
@@ -316,8 +317,13 @@ var goImportOverrides = map[string]goImport{
 	"unsafe":      {repo: "thatnealpatel/mono", subdir: "unsafe"},
 	"gh":          {repo: "thatnealpatel/mono", subdir: "gh"},
 	"gerrit":      {repo: "thatnealpatel/mono", subdir: "gerrit"},
+	"srvfs":       {repo: "thatnealpatel/mono", subdir: "srvfs"},
+	"ghdl":        {repo: "thatnealpatel/mono", subdir: "ghdl"},
 }
 
+// generateGoImports uses a lazy method to derive
+// any new Go repositories that need their own
+// generated vanity page.
 func generateGoImports(gen string) error {
 	resp, err := http.Get("https://api.github.com/users/thatnealpatel/repos?per_page=100")
 	if err != nil {
