@@ -313,6 +313,7 @@ var goImportOverrides = map[string]goImport{
 	"patel.codes": {repo: "thatnealpatel/patel.codes"},
 	"jsonldb":     {repo: "thatnealpatel/mono", subdir: "jsonldb"},
 	"ranking":     {repo: "thatnealpatel/mono", subdir: "ranking"},
+	"unsafe":      {repo: "thatnealpatel/mono", subdir: "unsafe"},
 }
 
 func generateGoImports(gen string) error {
@@ -327,16 +328,22 @@ func generateGoImports(gen string) error {
 	}
 
 	var repos []struct {
-		Name     string      `json:"name"`
-		Fork     bool        `json:"fork"`
-		Language string      `json:"language"`
-		License  interface{} `json:"license"`
+		Name     string `json:"name"`
+		Fork     bool   `json:"fork"`
+		Language string `json:"language"`
+		License  any    `json:"license"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&repos); err != nil {
 		return fmt.Errorf("decoding github repos: %w", err)
 	}
 
-	written := make(map[string]bool)
+	written := map[string]bool{
+		// We need to pre-seed mono to ensure
+		// that it does not get auto-generated
+		// as a Go module since it technically
+		// does meet all the critiera.
+		"mono": true,
+	}
 
 	for name, imp := range goImportOverrides {
 		dir := filepath.Join(gen, name)
