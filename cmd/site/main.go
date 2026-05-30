@@ -169,7 +169,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	const addr = "localhost:9876"
+	const addr = ":9876"
 	fmt.Println("serving on", "http://"+addr)
 	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(gen))))
 }
@@ -301,11 +301,18 @@ func readTitleAndDate(path string) (title, date string, err error) {
 	return title, date, nil
 }
 
+type goImport struct {
+	repo   string
+	subdir string
+}
+
 // goImportOverrides maps module names to GitHub repos that should always
 // get a vanity import page, regardless of the GitHub API heuristic.
-var goImportOverrides = map[string]string{
-	"proofs": "thatnealpatel/proofs",
-	"patel.codes": "thatnealpatel/patel.codes",
+var goImportOverrides = map[string]goImport{
+	"proofs":      {repo: "thatnealpatel/proofs"},
+	"patel.codes": {repo: "thatnealpatel/patel.codes"},
+	"jsonldb":     {repo: "thatnealpatel/mono", subdir: "jsonldb"},
+	"ranking":     {repo: "thatnealpatel/mono", subdir: "ranking"},
 }
 
 func generateGoImports(gen string) error {
@@ -331,12 +338,12 @@ func generateGoImports(gen string) error {
 
 	written := make(map[string]bool)
 
-	for name, ghRepo := range goImportOverrides {
+	for name, imp := range goImportOverrides {
 		dir := filepath.Join(gen, name)
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return err
 		}
-		html := goImportPageGitHub(name, ghRepo)
+		html := goImportPageGitHub(name, imp.repo, imp.subdir)
 		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte(html), 0o644); err != nil {
 			return err
 		}
@@ -355,7 +362,7 @@ func generateGoImports(gen string) error {
 		if err := os.MkdirAll(dir, 0o755); err != nil {
 			return err
 		}
-		html := goImportPageGitHub(repo.Name, "thatnealpatel/"+repo.Name)
+		html := goImportPageGitHub(repo.Name, "thatnealpatel/"+repo.Name, "")
 		if err := os.WriteFile(filepath.Join(dir, "index.html"), []byte(html), 0o644); err != nil {
 			return err
 		}
@@ -364,11 +371,15 @@ func generateGoImports(gen string) error {
 	return nil
 }
 
-func goImportPageGitHub(module, ghRepo string) string {
+func goImportPageGitHub(module, ghRepo, subdir string) string {
+	extra := ""
+	if subdir != "" {
+		extra = " " + subdir
+	}
 	return `<!DOCTYPE html>
 <html>
 <head>
-<meta name="go-import" content="patel.codes/` + module + ` git https://github.com/` + ghRepo + `">
+<meta name="go-import" content="patel.codes/` + module + ` git https://github.com/` + ghRepo + extra + `">
 <meta http-equiv="refresh" content="0; url=https://pkg.go.dev/patel.codes/` + module + `">
 </head>
 <body>
