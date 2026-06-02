@@ -19,6 +19,7 @@ working on go cryptography and security.
 
 ## words
 
+- [an accidentally novel combinatorics proof](./words/an_accidentally_novel_combinatorics_proof_1.html)
 - [patel.codes is now `<noscript>`](./words/rewritingpatelcodes.html)
 - [the human experience is nonlinear](./words/humanexperienceisnonlinear.html)
 - [yet another "final" configuration spec](./words/marytrees.html)

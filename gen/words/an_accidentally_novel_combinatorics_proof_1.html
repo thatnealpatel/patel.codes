@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>an accidentally novel combinatorics proof</title>
+<meta property="og:title" content="an accidentally novel combinatorics proof">
+<meta property="og:url" content="https://patel.codes/words/an_accidentally_novel_combinatorics_proof_1.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>an accidentally novel combinatorics proof</h1>
+<p>2026-05-25</p>
+<h2>disclaimer</h2>
+<p>i did not touch any generative ai or agentic
+llm tools prior to february 2026. i had tried
+them many times over the years, and i always
+kept running into the same frustrations. this
+vehemently fueled my contrarian attitudes
+towards llms. while i still largely hold these
+attitudes, it is increasingly more difficult
+to deny the utility of these tools.</p>
+<p>all written opinions are my own.</p>
+<h2>motivations</h2>
+<p>for the past few weeks, i have been doing a little
+r&amp;d on a maths harness that uses claude code.</p>
+<p>its maiden voyage was in a review of <a href="https://go.dev/cl/743860">Go's new floating
+point parsing and printing algorithm</a>
+where i tested its ability to function as an aide when
+reading reading <a href="https://research.swtch.com/fp-proof">Russ' proofs</a>.
+in doing so, i <a href="https://go-review.googlesource.com/c/go/+/743860/comment/6d1eaaf7_a0b4274e/">uncovered a material edge case that diverged from the
+proof</a>.</p>
+<p>over the weekend, a friend showed me a
+tweet about <a href="https://github.com/google-deepmind/alphaproof-nexus-results">AlphaProof</a>'s
+recent publications. my brain lit up; i asked my
+friend to just show me one of the titles. this was
+a great opportunity to benchmark my little project
+with only one clear bias: i knew that whatever it
+was, it was almost certainly provable.</p>
+<h2>set up</h2>
+<p>one program i have been tinkering on recently is a
+computational framework in Go that allows an agent
+to guess at how difficult a proof may be. the
+classifications are ternary:</p>
+<ul>
+<li>elementary --&gt; worth trying</li>
+<li>hard --&gt; likely not worth trying</li>
+<li>infeasible --&gt; definitely not worth trying</li>
+</ul>
+<!-- todo: describe types of problems in each? -->
+<p>the only problem i had formally pointed it at was
+an erdos problem that was deemed 'hard' by the
+framework; after running it on a051293, it deemed
+the problem 'elementary,' which is a bit funny.</p>
+<p>i do not have the ability to concisely and neatly
+present the topics in my own voice; therefore, i
+have marked the sections <strong>[gen]erated</strong> by claude
+from the <a href="https://github.com/thatnealpatel/proofs/tree/main/Proofs/Proofs">lean proof</a>.</p>
+<p>if i have time to review and understand these topics
+more deeply, i will revise this in a follow up. my
+understanding is that the premise of the proof is
+expressed correctly, and the lack of any <code>axiom</code> or
+<code>sorry</code> in the lean proof indicate that it is
+computationally verified.</p>
+<p>my process was largely hands-off; i spent a majority
+of active time thinking about the meta strategy and
+documenting frictions the harness experienced and was
+incapable of self-documenting. i did interject a few
+key details that are otherwise not noteworthy when
+compared to how claude materialized them.</p>
+<h2>the theorem</h2>
+<p>in 2002, Cloitre conjectured that the number of nonempty
+subsets of <code>{1,...,n}</code> with integer mean satisfies</p>
+<math display="block"><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi></mfrac><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mi>M</mi></msubsup><mspace width="0.25em"/><mfrac><mrow><mi>F</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow><msup><mi>n</mi><mi>k</mi></msup></mfrac><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>o</mi><mrow><mo>(</mo><mfrac><msup><mn>2</mn><mi>n</mi></msup><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup></mfrac><mo>)</mo></mrow></mrow></math>
+<p>for all <code>M</code>, where <code>F(k)</code> are exactly the ordered
+<a href="https://en.wikipedia.org/wiki/Bell_number">Bell Numbers</a>:</p>
+<math display="block"><mrow><mo>{</mo><mn>1</mn><mo>,</mo><mspace width="0.25em"/><mn>1</mn><mo>,</mo><mspace width="0.25em"/><mn>3</mn><mo>,</mo><mspace width="0.25em"/><mn>13</mn><mo>,</mo><mspace width="0.25em"/><mn>75</mn><mo>,</mo><mspace width="0.25em"/><mn>541</mn><mo>,</mo><mspace width="0.25em"/><mo>…</mo><mo>}</mo></mrow></math>
+<p>the proof decomposes into three independent modules
+sketched below for brevity.</p>
+<h2>module a: counting with frequencies [gen]</h2>
+<p>the first task is counting subsets of <code>{1,...,k}</code> whose
+elements sum to <math><mrow><mn>0</mn><mspace width="0.25em"/><mo>mod</mo><mi>k</mi></mrow></math>. this is a discrete fourier
+transform on cyclic groups.</p>
+<h3>the roots of unity filter [gen]</h3>
+<p>let <math><mi>ζ</mi></math> be a primitive k-th root of unity.
+character orthogonality gives</p>
+<math display="block"><mrow><msubsup><mo>∑</mo><mrow><mi>r</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>k</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mspace width="0.25em"/><msup><mi>ζ</mi><mrow><mi>r</mi><mi>n</mi></mrow></msup><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mrow><mo>{</mo><mtable columnalign="left left"><mtr><mtd><mrow><mi>k</mi><mspace width="0.25em"/></mrow></mtd><mtd><mrow><mspace width="0.25em"/><mtext>if </mtext><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mi>n</mi><mspace width="0.25em"/></mrow></mtd></mtr><mtr><mtd><mrow><mn>0</mn><mspace width="0.25em"/></mrow></mtd><mtd><mrow><mspace width="0.25em"/><mtext>otherwise</mtext><mspace width="0.25em"/></mrow></mtd></mtr></mtable></mrow></mrow></math>
+<p>applying this to indicator-sum over all subsets
+<math><mrow><mi>S</mi><mspace width="0.25em"/><mo>⊆</mo><mspace width="0.25em"/><mo>{</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>}</mo></mrow></math>:</p>
+<pre><code>b(k):
+    zeta = primitive k-th root of unity
+    total = 0
+    for r in {0, ..., k-1}:
+        total += product over m in {1,...,k} of (1 + zeta^(r*m))
+    return total / k
+</code></pre>
+<p>the product <math><mrow><msubsup><mo>∏</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></msubsup><mo stretchy="false">(</mo><mn>1</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><msup><mi>ζ</mi><mrow><mi>r</mi><mi>m</mi></mrow></msup><mo stretchy="false">)</mo></mrow></math> expands
+via <code>Finset.prod_add</code> into exactly
+<math><mrow><msub><mo>∑</mo><mrow><mi>S</mi><mspace width="0.25em"/><mo>⊆</mo><mspace width="0.25em"/><mo>{</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>}</mo></mrow></msub><mspace width="0.25em"/><msup><mi>ζ</mi><mrow><mi>r</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo></mrow></msup></mrow></math>.
+averaging over r applies the orthogonality filter,
+extracting the count of subsets with
+<math><mrow><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo></mrow></math>.</p>
+<h3>evaluating the product [gen]</h3>
+<p>for a given r, the values <math><msup><mi>ζ</mi><mrow><mi>r</mi><mi>m</mi></mrow></msup></math> for
+<math><mrow><mi>m</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi></mrow></math> cycle through the q-th roots of unity
+with multiplicity <math><mrow><mi>k</mi><mo>/</mo><mi>q</mi></mrow></math>, where <math><mrow><mi>q</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>/</mo><mspace width="0.25em"/><mo>gcd</mo><mo stretchy="false">(</mo><mi>r</mi><mo>,</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>.
+the product reduces to</p>
+<math display="block"><msup><mrow><mo>(</mo><mrow><msubsup><mo>∏</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>q</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><mn>1</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><msup><mi>ω</mi><mi>j</mi></msup><mo stretchy="false">)</mo></mrow><mo>)</mo></mrow><mrow><mi>k</mi><mo>/</mo><mi>q</mi></mrow></msup></math>
+<p>where <math><mi>ω</mi></math> is a primitive q-th root of unity.
+evaluating <math><mrow><msup><mi>x</mi><mi>q</mi></msup><mspace width="0.25em"/><mo>-</mo><mspace width="0.25em"/><mn>1</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msub><mo>∏</mo><mi>j</mi></msub><mo stretchy="false">(</mo><mi>x</mi><mspace width="0.25em"/><mo>-</mo><mspace width="0.25em"/><msup><mi>ω</mi><mi>j</mi></msup><mo stretchy="false">)</mo></mrow></math> at
+<math><mrow><mi>x</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>-</mo><mn>1</mn></mrow></math> gives <math><mrow><mo stretchy="false">(</mo><mo>-</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mi>q</mi></msup><mspace width="0.25em"/><mo>-</mo><mspace width="0.25em"/><mn>1</mn><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msub><mo>∏</mo><mi>j</mi></msub><mo stretchy="false">(</mo><mo>-</mo><mn>1</mn><mo>-</mo><msup><mi>ω</mi><mi>j</mi></msup><mo stretchy="false">)</mo></mrow></math>.
+factoring out <math><mrow><mo stretchy="false">(</mo><mo>-</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mi>q</mi></msup></mrow></math>:</p>
+<math display="block"><mrow><msubsup><mo>∏</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>q</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msup><mi>ω</mi><mi>j</mi></msup><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mrow><mo>{</mo><mtable columnalign="left left"><mtr><mtd><mrow><mn>2</mn><mspace width="0.25em"/></mrow></mtd><mtd><mrow><mspace width="0.25em"/><mi>q</mi><mspace width="0.25em"/><mtext> odd</mtext><mspace width="0.25em"/></mrow></mtd></mtr><mtr><mtd><mrow><mn>0</mn><mspace width="0.25em"/></mrow></mtd><mtd><mrow><mspace width="0.25em"/><mi>q</mi><mspace width="0.25em"/><mtext> even</mtext><mspace width="0.25em"/></mrow></mtd></mtr></mtable></mrow></mrow></math>
+<h3>collecting by gcd [gen]</h3>
+<p>for each divisor <math><mi>d</mi></math> of <math><mi>k</mi></math>, exactly <math><mrow><mi>φ</mi><mo stretchy="false">(</mo><mi>k</mi><mo>/</mo><mi>d</mi><mo stretchy="false">)</mo></mrow></math>
+values of <math><mrow><mi>r</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo>}</mo></mrow></math> satisfy
+<math><mrow><mo>gcd</mo><mo stretchy="false">(</mo><mi>r</mi><mo>,</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>d</mi></mrow></math>. the corresponding <math><mrow><mi>q</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mo>/</mo><mi>d</mi></mrow></math>
+contributes <math><msup><mn>2</mn><mi>d</mi></msup></math> when <math><mrow><mi>k</mi><mo>/</mo><mi>d</mi></mrow></math> is odd (i.e., <math><mi>d</mi></math> is an
+odd divisor of <math><mi>k</mi></math>) and 0 otherwise. summing:</p>
+<math display="block"><mrow><mi>b</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><mn>1</mn><mi>k</mi></mfrac><msub><mo>∑</mo><mtable rowspacing="0.1em" columnalign="center"><mtr><mtd><mrow><mi>d</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/></mrow></mtd></mtr><mtr><mtd><mrow><mi>d</mi><mspace width="0.25em"/><mtext> odd</mtext></mrow></mtd></mtr></mtable></msub><mspace width="0.25em"/><mi>φ</mi><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><msup><mn>2</mn><mrow><mi>k</mi><mo>/</mo><mi>d</mi></mrow></msup></mrow></math>
+<p>this is stanley's exercise 1.105. the lean proof uses
+<code>IsPrimitiveRoot</code>, <code>Polynomial.nthRootsFinset</code>, and
+<code>Nat.totient</code>.</p>
+<h2>module b: the Zumkeller identity [gen]</h2>
+<p>this module proves the per-k identity connecting two
+counts:</p>
+<ul>
+<li><math><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>|</mo><mo>{</mo><mi>S</mi><mspace width="0.25em"/><mo>⊆</mo><mspace width="0.25em"/><mo>{</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>}</mo><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>S</mi><mspace width="0.25em"/><mo>≠</mo><mspace width="0.25em"/><mo>∅</mo><mo>,</mo><mspace width="0.25em"/><mo> </mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo><mo>}</mo><mo>|</mo></mrow></math></li>
+<li><math><mrow><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>|</mo><mo>{</mo><mi>S</mi><mspace width="0.25em"/><mo>⊆</mo><mspace width="0.25em"/><mo>{</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>}</mo><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>S</mi><mo>,</mo><mspace width="0.25em"/><mo> </mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo><mo>}</mo><mo>|</mo></mrow></math></li>
+</ul>
+<p>the claim is <math><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>. this was observed without
+proof by Zumkeller (2006, <a href="https://oeis.org/A082550">oeis a082550</a>)
+and Wiseman (2019, <a href="https://oeis.org/A063776">oeis a063776</a>).
+as of may 2026, no proof exists in the published literature.
+to the best of my knowledge, the proof below is the first.</p>
+<h3>setup [gen]</h3>
+<p>work in <math><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo>}</mo></mrow></math> (representing
+<math><mrow><mo>{</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>}</mo></mrow></math> shifted by 1). for a nonempty subset
+<math><mi>S</mi></math>, define</p>
+<math display="block"><mrow><mi>α</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>|</mo><mo>{</mo><mi>r</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo>}</mo><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>σ</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>r</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mo stretchy="false">)</mo><mo>}</mo><mo>|</mo></mrow></math>
+<math display="block"><mrow><mi>β</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>|</mo><mo>{</mo><mi>j</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mo>|</mo><mi>S</mi><mo>|</mo><mo>-</mo><mn>1</mn><mo>}</mo><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>σ</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>j</mi><mo stretchy="false">)</mo><mo>}</mo><mo>|</mo></mrow></math>
+<p>where <math><mrow><mi>σ</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msub><mo>∑</mo><mrow><mi>s</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>S</mi></mrow></msub><mo stretchy="false">(</mo><mi>s</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>.</p>
+<h3>the key lemma [gen]</h3>
+<math display="block"><mrow><mi>α</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>β</mi></mrow></math>
+<p>both <math><mi>α</mi></math> and <math><mi>β</mi></math> count solutions to a linear
+congruence of the form <math><mrow><mi>m</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>b</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>a</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>x</mi><mo stretchy="false">)</mo></mrow></math> over
+<math><mrow><mi>x</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>m</mi><mo>-</mo><mn>1</mn><mo>}</mo></mrow></math>. the solution count is:</p>
+<pre><code>count_solutions(b, a, m):
+    g = gcd(a, m)
+    if g divides b: return g
+    else:           return 0
+</code></pre>
+<p><math><mi>α</mi></math> has <math><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>,</mo><mspace width="0.25em"/><mi>m</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mo>|</mo><mi>S</mi><mo>|</mo><mo>,</mo><mspace width="0.25em"/><mi>k</mi><mo stretchy="false">)</mo></mrow></math>;
+<math><mi>β</mi></math> has <math><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>,</mo><mspace width="0.25em"/><mi>m</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mo stretchy="false">)</mo></mrow></math>.
+since <math><mrow><mo>gcd</mo><mo stretchy="false">(</mo><mo>|</mo><mi>S</mi><mo>|</mo><mo>,</mo><mspace width="0.25em"/><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>gcd</mo><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mo stretchy="false">)</mo></mrow></math> and the
+divisibility condition on <math><mrow><mi>b</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>σ</mi></mrow></math> is the same,
+<math><mrow><mi>α</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>β</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo></mrow></math> for every nonempty <math><mi>S</mi></math>.</p>
+<h3>another lemma [gen]</h3>
+<math display="block"><mrow><mo>∑</mo><mspace width="0.25em"/><mi>α</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+<p>define <math><mrow><mtext>rotate</mtext><mo stretchy="false">(</mo><mi>S</mi><mo>,</mo><mspace width="0.25em"/><mi>r</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>{</mo><mo stretchy="false">(</mo><mi>s</mi><mo>+</mo><mi>r</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>mod</mo><mi>k</mi><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>s</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>S</mi><mo>}</mo></mrow></math>.
+rotation preserves cardinality and is a bijection on
+the powerset of <math><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo>}</mo></mrow></math>.</p>
+<p>the divisibility condition rewrites as:
+<math><mrow><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>σ</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>r</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mo stretchy="false">)</mo></mrow></math> iff
+<math><mrow><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mtext>rotate</mtext><mo stretchy="false">(</mo><mi>S</mi><mo>,</mo><mspace width="0.25em"/><mi>r</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></math>, where the
+sum uses the <math><mrow><mo stretchy="false">(</mo><mi>s</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>-shift convention. so <math><mrow><mi>α</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mi>S</mi><mo stretchy="false">)</mo></mrow></math>
+counts exactly how many of <math><mi>S</mi></math>'s <math><mi>k</mi></math> rotations land in
+the set <math><mrow><mo>{</mo><mi>T</mi><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mi>T</mi><mo stretchy="false">)</mo><mo>}</mo></mrow></math>.</p>
+<p>swapping summation order --- sum over <math><mi>r</mi></math> first, then
+over <math><mi>S</mi></math> --- each rotation <math><mi>r</mi></math> is a bijection on
+nonempty subsets, so each <math><mi>r</mi></math> contributes <math><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>.
+but the set counted by <math><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math> excludes <math><mo>∅</mo></math>
+(which always satisfies the divisibility), so:</p>
+<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>S</mi><mspace width="0.25em"/><mo>≠</mo><mspace width="0.25em"/><mo>∅</mo></mrow></msub><mspace width="0.25em"/><mi>α</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+<h3>yet another lemma [gen]</h3>
+<math display="block"><mrow><mo>∑</mo><mspace width="0.25em"/><mi>β</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+<p><math><mrow><mi>β</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mi>S</mi><mo stretchy="false">)</mo></mrow></math> admits a host-element decomposition:
+rewrite it as the number of elements <math><mrow><mi>e</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>S</mi></mrow></math> such
+that <math><mrow><mo>|</mo><mi>S</mi><mo>|</mo><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>σ</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mtext>rank</mtext><mo stretchy="false">(</mo><mi>e</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow></math>,
+where <math><mrow><mtext>rank</mtext><mo stretchy="false">(</mo><mi>e</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>|</mo><mo>{</mo><mi>s</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>S</mi><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>s</mi><mspace width="0.25em"/><mo><</mo><mspace width="0.25em"/><mi>e</mi><mo>}</mo><mo>|</mo></mrow></math>.</p>
+<p>define <math><mrow><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>e</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>{</mo><mi>S</mi><mspace width="0.25em"/><mo>:</mo><mspace width="0.25em"/><mi>e</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mi>S</mi><mo>,</mo><mspace width="0.25em"/><mo> </mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo><mspace width="0.25em"/><mo>∣</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>σ</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mtext>rank</mtext><mo stretchy="false">(</mo><mi>e</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>}</mo></mrow></math>.
+swapping the sum over <math><mi>S</mi></math> with the sum over
+<math><mrow><mi>e</mi><mspace width="0.25em"/><mo>∈</mo><mspace width="0.25em"/><mo>{</mo><mn>0</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo>}</mo></mrow></math>:</p>
+<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>S</mi><mspace width="0.25em"/><mo>≠</mo><mspace width="0.25em"/><mo>∅</mo></mrow></msub><mspace width="0.25em"/><mi>β</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>e</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>k</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mspace width="0.25em"/><mo>|</mo><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>e</mi><mo stretchy="false">)</mo><mo>|</mo></mrow></math>
+<p>the key structural fact is that rotation by 1 bijects
+<math><mrow><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>e</mi><mo stretchy="false">)</mo></mrow></math> onto <math><mrow><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>e</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>mod</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>.
+the forward direction (rotation preserves membership
+and divisibility, shifting the host element) is proved
+by case analysis on whether <math><mrow><mi>e</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mo>-</mo><mn>1</mn></mrow></math> (wrapping) or
+<math><mrow><mi>e</mi><mspace width="0.25em"/><mo><</mo><mspace width="0.25em"/><mi>k</mi><mo>-</mo><mn>1</mn></mrow></math> (no wrapping). the backward direction uses
+rotation by <math><mrow><mi>k</mi><mo>-</mo><mn>1</mn></mrow></math>. since rotation gives
+<math><mo>≤</mo></math> in both directions, equality holds:</p>
+<math display="block"><mrow><mo>|</mo><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>e</mi><mo stretchy="false">)</mo><mo>|</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo>|</mo><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mn>0</mn><mo stretchy="false">)</mo><mo>|</mo><mspace width="0.25em"/><mo> </mo><mspace width="0.25em"/><mo>∀</mo><mspace width="0.25em"/><mi>e</mi></mrow></math>
+<p>finally, a reflection bijection <math><mrow><mi>s</mi><mspace width="0.25em"/><mo>↦</mo><mspace width="0.25em"/><mi>k</mi><mo>-</mo><mn>1</mn><mo>-</mo><mi>s</mi></mrow></math>
+establishes <math><mrow><mo>|</mo><mtext>hostSet</mtext><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mn>0</mn><mo stretchy="false">)</mo><mo>|</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>. reflection
+maps element 0 to element <math><mrow><mi>k</mi><mo>-</mo><mn>1</mn></mrow></math> (the representation of
+<math><mi>k</mi></math> in the shifted indexing) and preserves the
+divisibility condition since
+<math><mrow><mtext>sum</mtext><mo stretchy="false">(</mo><mtext>reflect</mtext><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mtext>sum</mtext><mo stretchy="false">(</mo><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mo>|</mo><mi>S</mi><mo>|</mo></mrow></math>.</p>
+<p>therefore:</p>
+<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>S</mi><mspace width="0.25em"/><mo>≠</mo><mspace width="0.25em"/><mo>∅</mo></mrow></msub><mspace width="0.25em"/><mi>β</mi><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+<h3>the identity [gen]</h3>
+<p><math><mrow><mi>α</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>β</mi></mrow></math> term-by-term implies
+<math><mrow><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>. dividing by <math><mi>k</mi></math>:</p>
+<math display="block"><mrow><mi>L</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>R</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo> </mo><mspace width="0.25em"/><mo>∀</mo><mspace width="0.25em"/><mi>k</mi><mspace width="0.25em"/><mo>≥</mo><mspace width="0.25em"/><mn>1</mn></mrow></math>
+<h2>module c: the discrete laplace method [gen]</h2>
+<p>the d = 1 term in <math><mrow><mi>b</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math> contributes <math><mrow><msup><mn>2</mn><mi>k</mi></msup><mo>/</mo><mi>k</mi></mrow></math>. every
+odd divisor <math><mrow><mi>d</mi><mspace width="0.25em"/><mo>≥</mo><mspace width="0.25em"/><mn>3</mn></mrow></math> contributes at most
+<math><mrow><msup><mn>2</mn><mrow><mi>k</mi><mo>/</mo><mn>3</mn></mrow></msup><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>d</mi><mo>/</mo><mi>k</mi></mrow></math>, since <math><mrow><mi>k</mi><mo>/</mo><mi>d</mi><mspace width="0.25em"/><mo>≤</mo><mspace width="0.25em"/><mi>k</mi><mo>/</mo><mn>3</mn></mrow></math> and
+<math><mrow><mi>φ</mi><mo stretchy="false">(</mo><mi>d</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo><</mo><mspace width="0.25em"/><mi>d</mi></mrow></math>. summing this tail over <math><mrow><mi>k</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>n</mi></mrow></math>
+gives <math><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><msup><mn>2</mn><mrow><mi>n</mi><mo>/</mo><mn>3</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>, which is
+<math><mrow><mi>o</mi><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math> for any <math><mi>M</mi></math>. so</p>
+<math display="block"><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>-</mo><mspace width="0.25em"/><mi>n</mi><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>o</mi><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup><mo stretchy="false">)</mo><mo>,</mo><mspace width="0.25em"/><mo> </mo><mspace width="0.25em"/><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mi>k</mi></msup><mi>k</mi></mfrac></mrow></math>
+<h3>reindexing [gen]</h3>
+<p>substituting <math><mrow><mi>j</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mi>n</mi><mspace width="0.25em"/><mo>-</mo><mspace width="0.25em"/><mi>k</mi></mrow></math>:</p>
+<math display="block"><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msup><mn>2</mn><mi>n</mi></msup><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mspace width="0.25em"/><mfrac><mn>1</mn><mrow><msup><mn>2</mn><mi>j</mi></msup><mo stretchy="false">(</mo><mi>n</mi><mo>-</mo><mi>j</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math>
+<p>the <math><mrow><mn>1</mn><mo>/</mo><msup><mn>2</mn><mi>j</mi></msup></mrow></math> factor ensures the sum is dominated by
+small <math><mi>j</mi></math>.</p>
+<h3>geometric expansion [gen]</h3>
+<p>the standard identity for a geometric partial sum gives</p>
+<math display="block"><mrow><mfrac><mn>1</mn><mrow><mi>n</mi><mo>-</mo><mi>j</mi></mrow></mfrac><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><mn>1</mn><mi>n</mi></mfrac><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>M</mi></msubsup><msup><mrow><mo>(</mo><mfrac><mi>j</mi><mi>n</mi></mfrac><mo>)</mo></mrow><mi>i</mi></msup><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mfrac><mrow><mo stretchy="false">(</mo><mi>j</mi><mo>/</mo><mi>n</mi><msup><mo stretchy="false">)</mo><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup></mrow><mrow><mi>n</mi><mo>-</mo><mi>j</mi></mrow></mfrac></mrow></math>
+<p>substituting and exchanging the finite sums
+(<math><mi>j</mi></math> first, then <math><mi>i</mi></math>):</p>
+<math display="block"><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mi>n</mi></msup><mi>n</mi></mfrac><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>M</mi></msubsup><mfrac><mn>1</mn><msup><mi>n</mi><mi>i</mi></msup></mfrac><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mfrac><msup><mi>j</mi><mi>i</mi></msup><msup><mn>2</mn><mi>j</mi></msup></mfrac><mspace width="0.25em"/><mo> </mo><mo>+</mo><mo> </mo><mspace width="0.25em"/><msup><mn>2</mn><mi>n</mi></msup><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>-</mo><mn>1</mn></mrow></msubsup><mfrac><mrow><mo stretchy="false">(</mo><mi>j</mi><mo>/</mo><mi>n</mi><msup><mo stretchy="false">)</mo><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup></mrow><mrow><msup><mn>2</mn><mi>j</mi></msup><mo stretchy="false">(</mo><mi>n</mi><mo>-</mo><mi>j</mi><mo stretchy="false">)</mo></mrow></mfrac></mrow></math>
+<p>the remainder term is <math><mrow><mi>o</mi><mo stretchy="false">(</mo><mn>1</mn><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math> after splitting
+the <math><mi>j</mi></math>-sum at <math><mrow><mi>n</mi><mo>/</mo><mn>2</mn></mrow></math>: the low half is bounded by the
+polylogarithmic tsum, the high half decays as
+<math><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo>/</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>/</mo><mn>2</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>.</p>
+<h3>the coefficient identity [gen]</h3>
+<p>the inner partial sum converges to the polylogarithmic
+series:</p>
+<math display="block"><mrow><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mo>∞</mo></msubsup><mfrac><msup><mi>j</mi><mi>m</mi></msup><msup><mn>2</mn><mi>j</mi></msup></mfrac><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>2</mn><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><mi>F</mi><mo stretchy="false">(</mo><mi>m</mi><mo stretchy="false">)</mo></mrow></math>
+<p>proved by strong induction on <math><mi>m</mi></math>. the base case
+<math><mrow><mi>m</mi><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>0</mn></mrow></math> is the geometric series</p>
+<math display="block"><mrow><mo>∑</mo><mspace width="0.25em"/><mn>1</mn><mo>/</mo><msup><mn>2</mn><mi>j</mi></msup><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>2</mn></mrow></math>
+<p>for the inductive step, the shift identity</p>
+<math display="block"><mrow><mo>∑</mo><mspace width="0.25em"/><mo stretchy="false">(</mo><mi>j</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mi>m</mi></msup><mspace width="0.25em"/><mo>/</mo><mspace width="0.25em"/><msup><mn>2</mn><mi>j</mi></msup><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mn>2</mn><mspace width="0.25em"/><mo>∑</mo><mspace width="0.25em"/><msup><mi>j</mi><mi>m</mi></msup><mspace width="0.25em"/><mo>/</mo><mspace width="0.25em"/><msup><mn>2</mn><mi>j</mi></msup></mrow></math>
+<p>is valid for <math><mrow><mi>m</mi><mspace width="0.25em"/><mo>≥</mo><mspace width="0.25em"/><mn>1</mn></mrow></math>, and when combined
+with the binomial expansion</p>
+<math display="block"><mrow><mo stretchy="false">(</mo><mi>j</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></msup><mspace width="0.25em"/><mo>-</mo><mspace width="0.25em"/><msup><mi>j</mi><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></msup><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msub><mo>∑</mo><mrow><mi>k</mi><mo><</mo><mi>m</mi><mo>+</mo><mn>1</mn></mrow></msub><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow><mi>k</mi></mfrac><mo>)</mo></mrow><msup><mi>j</mi><mi>k</mi></msup></mrow></math>
+<p>and the fubini recurrence</p>
+<math display="block"><mrow><mi>F</mi><mo stretchy="false">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><mi>m</mi></msubsup><mrow><mo>(</mo><mfrac linethickness="0"><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow><mi>k</mi></mfrac><mo>)</mo></mrow><mi>F</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+<p>the value pins.</p>
+<h3>error budget [gen]</h3>
+<table>
+<thead>
+<tr>
+<th>source</th>
+<th>bound</th>
+<th>absorbed by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>non-dominant divisors</td>
+<td><math><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mspace width="0.25em"/><mo>⋅</mo><mspace width="0.25em"/><msup><mn>2</mn><mrow><mi>n</mi><mo>/</mo><mn>3</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math></td>
+<td><math><mrow><mi>o</mi><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>2</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math></td>
+</tr>
+<tr>
+<td>geometric remainder</td>
+<td><math><mrow><mi>O</mi><mo stretchy="false">(</mo><mn>1</mn><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>2</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math> after <math><mrow><mo>×</mo><mspace width="0.25em"/><msup><mn>2</mn><mi>n</mi></msup></mrow></math></td>
+<td><math><mrow><mi>o</mi><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math></td>
+</tr>
+<tr>
+<td>partial-sum truncation</td>
+<td><math><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mi>i</mi></msup><mo>/</mo><msup><mn>2</mn><mi>n</mi></msup><mo stretchy="false">)</mo></mrow></math> per coefficient</td>
+<td><math><mrow><mi>o</mi><mo stretchy="false">(</mo><mn>1</mn><mo>/</mo><mi>n</mi><mo stretchy="false">)</mo></mrow></math> after <math><mrow><mo>×</mo><mspace width="0.25em"/><msup><mn>2</mn><mi>n</mi></msup><mo>/</mo><mi>n</mi></mrow></math></td>
+</tr>
+</tbody>
+</table>
+<p>all three are <math><mrow><mi>o</mi><mo stretchy="false">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo>/</mo><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup><mo stretchy="false">)</mo></mrow></math>.</p>
+<h2>the bridge [gen]</h2>
+<p><code>a051293_counting.lean</code> links the three modules:</p>
+<pre><code>// module A: the DFT formula matches the combinatorial count
+b_comb_eq_b(k):    b_comb(k) == b(k)    for all k &gt;= 1
+
+// module B: per-k identity via Zumkeller
+zumkeller_identity(k):    b_comb(k) - 1 == |maxKIntMeanSubsets(k)|
+
+// summation: partition integer-mean subsets by max element
+a_comb_eq_sum(n):    a_comb(n) == sum_{k=1}^{n} (b_comb(k) - 1)
+
+// bridge: combinatorial count equals analytic formula
+a_comb_eq_a(n):    a_comb(n) == a(n)    for all n &gt;= 1
+
+// module C: asymptotic expansion of a(n)
+asymptotic_expansion(M):    a(n) = fubini_expansion + o(2^n/n^{M+1})
+</code></pre>
+<p>composing <code>a_comb_eq_a</code> with <code>asymptotic_expansion</code>
+yields the final theorem:</p>
+<pre><code>cloitre_conjecture(M):
+    a_comb(n) = (2^{n+1}/n) * sum_{i=0}^{M} F(i)/n^i
+              + o(2^n / n^{M+1})
+</code></pre>
+<h2>closing thoughts</h2>
+<p>from start to finish, it took approximately 6 hours and
+a few fresh sessions to grok the proof. i suspect that
+much of this time can be greatly reduced with better
+tooling which i am actively working on.</p>
+<p>as far as the results, <code>module a</code> and <code>module c</code> are what
+i believe would be called &quot;standard analysis.&quot;</p>
+<p><code>module b</code> is new as far as i am aware. the identity
+was observed empirically by Zumkeller in 2006 and
+restated by Wiseman in 2019. no proof, formal or
+informal, appears anywhere in the published literature
+or obvious websites. the lean formalization i &quot;wrote&quot;
+is the first to my knowledge.</p>
+<p>additionally, these results appear to be fundamentally
+different in at least two ways to those published by
+<a href="https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/NaturalLanguageProofs/OEIS/oeis_51293.pdf">AlphaProof Nexus</a>.</p>
+<p>the lean source code for the proof can be found <a href="https://github.com/thatnealpatel/proofs/tree/main/Proofs/Proofs">on my
+github</a>.</p>
+
+</body>
+</html>
