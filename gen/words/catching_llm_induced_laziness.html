@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>catching llm-induced laziness</title>
+<meta property="og:title" content="catching llm-induced laziness">
+<meta property="og:url" content="https://patel.codes/words/catching_llm_induced_laziness.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>catching llm-induced laziness</h1>
+<p>2026-06-02</p>
+<h2>intro</h2>
+<p>as i alluded to in
+<a href="/words/an_accidentally_novel_combinatorics_proof_1.html">an accidentally novel combinatorics proof</a>,
+i have found myself increasingly less capable
+of defending the &quot;it is all slop&quot; stance when
+it comes to generative ai technologies.</p>
+<p>when it concerns the usage of generative ai tools,
+the aphorism <strong>&quot;replace typing, not thinking&quot;</strong>
+is one that i try to observe daily;
+previously, i did not think there was much cause
+for concern since i was not blatantly shipping
+slop upstream or destroying the attention of others.</p>
+<p>i have since reconsidered the cause for concern
+after finding myself in a position where, in
+hindsight, i was operating in a &quot;replace thinking&quot;
+mode.</p>
+<p>i wrote a small quality of (my) life program a
+few months ago that simply manages a one-to-many
+fan out of a set of files in a standard filesystem.
+it largely functions as follows:</p>
+<pre><code class="language-shell">% sync     # dry run
+% sync -w  # write
+</code></pre>
+<p>where <code>sync</code> simply shows a colored list of which
+destination files will be <code>added</code>/<code>updated</code>/<code>deleted</code>.
+in recent weeks, i have added a few more types of
+destination files. this naturally gave rise to the
+desire to see file diffs <em>sometimes,</em> so the api
+evolved:</p>
+<pre><code class="language-shell">% sync     # view file diff
+% sync -v  # view full diff
+% sync -w
+</code></pre>
+<h2>unintentionally brain off</h2>
+<p>at the time, i found myself multi-tasking; i was
+switching between the repository which hosts this
+program and another where i was attempting to prove
+some small lemmas that i would later need.</p>
+<p>i thought about adding support for full content
+diffs while my maths harness was spinning on these
+lemmas. i was more interested in what the maths
+harness was doing (or rather, not doing), so i simply
+opened claude code in the <code>sync</code> program's directory
+in a feeble attempt to multi-task.</p>
+<h3>first attempt (fail: &gt;20 min)</h3>
+<p>my maths harness was getting close to formalizing
+something interesting, so i quickly wrote and sent:</p>
+<pre><code>Add a universal option to 'sync' -v that
+shows the actual content diffs in a git-like
+colored view for added/removed.
+</code></pre>
+<p>after returning, i noticed that the initial
+approach was trying to use an older diff algorithm.
+it was handling newlines extremely incorrectly and
+subsequent prompts to course correct failed.</p>
+<p>in total, this took 20 minutes of human and agent
+time costing approximately 85,000 tokens. to be
+fair, some of this was wall time, but more than
+13 minutes was active human or active agent.</p>
+<h3>second attempt (fail: 4 min)</h3>
+<p>the first attempt left me subtly frustrated.
+on one hand, <em>i did not lose anything in the
+failed transaction.</em> however, on the other,
+this was a trivial task... why was the agent
+failing at such trivial work?</p>
+<p>i put around 20 seconds of active thought
+into the second attempt, ensuring that i could
+quickly divert my attention back to where i
+wanted:</p>
+<pre><code>Add a naive, brute force diff view when '-v'
+is used with 'sync' for any subcommand.
+The diff view should simply show naively what
+lines in the dst are getting changed based
+on the src.
+
+Write some robust, idiomatic test cases in
+sync_test.go before implementing to
+straighten out the idea in your head.
+</code></pre>
+<p>my thought process was that the agent could
+figure out how to get from naive, unhelpful,
+but correct diffs to a correct, minimal diff
+program.</p>
+<p>after 4 minutes and 55,000 tokens, the result
+was semi-correct and unappealing since it did
+not make it further than brute force diffs.
+this time i did not bother to course correct.
+i was clearly frustrated and uttered the
+all-too-expected, &quot;i could just do this myself.&quot;</p>
+<h3>third attempt (success: &lt;2 min)</h3>
+<p>while frustrated, it was in this moment that
+i realized where i erred. i <em>thought</em> about
+how i would do this myself. this was a program
+that hardly anyone but me uses, and it was
+not meant to be hardened against adversarial
+inputs in any way.</p>
+<p>after spending less than one minute turning
+my brain on and going to the <code>diff</code> man page,
+i realized that this is exactly what i wanted:</p>
+<pre><code>% diff -u \
+&lt;(cat ~/.sync/custom/file) \
+&lt;(cat ~/path/to/dst/file)
+</code></pre>
+<p>all that remained to materialize the program was
+some <strong>annoying typing</strong> to apply ANSI coloring
+based on the first rune of each line in the <code>diff</code>
+output. thus, the final attempt began:</p>
+<pre><code>Add a universally accepted '-v' flag to 'sync'
+which when invoked prints a diff for each of the files
+in the sync.
+
+To get the diff text, simply use an exec.Command
+on:
+
+'''
+% diff -u \
+&lt;(cat ~/.sync/custom/file) \
+&lt;(cat ~/path/to/dst/file)
+'''
+
+The output has markers that can help you color the
+output if the ansi colors do not make it through
+the exec.Command buffer.
+</code></pre>
+<p>shamefully, after 103 seconds and 46,000 tokens,
+i got the functionality that i wanted with tests
+that made sense.</p>
+<p>from a strictly self-centered perspective,
+prevailing sentiment seems to indicate that these
+tools are powerful when used correctly but still
+mostly good, even when used suboptimally. if we
+define correct usage to be both useful results
+and preservation of the operator's cognition, then
+suboptimal usage seems to produce &quot;mostly good&quot;
+results at the cost of the operator.</p>
+<h2>closing thoughts</h2>
+<p>while the aphorism <strong>&quot;replace typing, not
+thinking&quot;</strong> is certainly a nice one, it is
+much harder to abide by in practice than
+i previously thought.</p>
+<p>on one hand, this ordeal captures about 30 minutes
+of my life that i am likely to completely forget
+about in the next 48 hours; however, it represents
+something that i previously wrote off as &quot;affects
+other people, surely.&quot;</p>
+<p>it was slightly worrying to notice myself
+replace thinking about programming, especially
+in a context where i was having fun.</p>
+<p>without changing anything, i fear that there
+might come a day where i am no longer able
+to tell when this sort of behavior has occurred.</p>
+<p>currently, i do not have a convincing argument
+for any productive behavioral change beyond simply
+using generative ai tooling less frequently. saying
+&quot;but i'll be more careful next time&quot; seems like a
+stone's throw away from lying to myself.</p>
+<p>it appears that this slope is indeed more slippery
+than i previously thought.</p>
+
+</body>
+</html>
