@@ -174,7 +174,7 @@ func processGenSections(body string) string {
 		if at < len(result) && result[at] == '\n' {
 			at++
 		}
-		notice := "<p class=\"gen-notice\">This page contains generated content delineated using <span class=\"gen-inline\">this shadowing style</span>.</p>\n"
+		notice := "<p class=\"gen-notice\">this page contains generated content delineated using <span class=\"gen-inline\">this shadowing style</span>.</p>\n"
 		result = result[:at] + notice + result[at:]
 	}
 
