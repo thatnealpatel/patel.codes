@@ -17,6 +17,7 @@
     --ink-faint: #a8a49c;
     --accent: #f8d551;
     --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
     --font-family: "PT Mono", monospace;
   }
   body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
@@ -28,6 +29,9 @@
   table { border-collapse: collapse; margin: 1.5rem 0; }
   th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
   th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
   math { font-size: 1.1em; }
   math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
 </style>
