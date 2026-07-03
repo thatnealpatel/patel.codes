@@ -315,7 +315,7 @@ var goImportOverrides = map[string]goImport{
 	"jsonldb":     {repo: "thatnealpatel/mono", subdir: "jsonldb"},
 	"ranking":     {repo: "thatnealpatel/mono", subdir: "ranking"},
 	"unsafe":      {repo: "thatnealpatel/mono", subdir: "unsafe"},
-	"gh":          {repo: "thatnealpatel/mono", subdir: "gh"},
+	"gh":          {repo: "thatnealpatel/mono", subdir: "gh"}, // TODO: remove.
 	"gerrit":      {repo: "thatnealpatel/mono", subdir: "gerrit"},
 	"srvfs":       {repo: "thatnealpatel/mono", subdir: "srvfs"},
 	"ghdl":        {repo: "thatnealpatel/mono", subdir: "ghdl"},
@@ -326,8 +326,9 @@ var goImportOverrides = map[string]goImport{
 	"erdos":       {repo: "thatnealpatel/mono", subdir: "erdos"},
 	"cve":         {repo: "thatnealpatel/mono", subdir: "cve"},
 	"leandoc":     {repo: "thatnealpatel/mono", subdir: "leandoc"},
-	"plsno":       {repo: "thatnealpatel/mono", subdir: "plsno"},
+	"plsno":       {repo: "thatnealpatel/mono", subdir: "plsno"}, // TODO: rename.
 	"fetch":       {repo: "thatnealpatel/mono", subdir: "fetch"},
+	"ghfa":        {repo: "thatnealpatel/mono", subdir: "ghfa"},
 }
 
 // generateGoImports uses a lazy method to derive
