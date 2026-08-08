@@ -463,3 +463,76 @@ func TestLatexToMathMLBlogExpressions(t *testing.T) {
 		})
 	}
 }
+
+func TestSpanComments(t *testing.T) {
+	goSyn := commentTokens["go"]
+	leanSyn := commentTokens["lean"]
+	cases := []struct {
+		name string
+		syn  commentSyntax
+		in   string
+		want string
+	}{
+		{"go_single", goSyn,
+			"x := 1 // half\ny := 2\n",
+			"x := 1 <span class=\"cm\">// half</span>\ny := 2\n"},
+		{"go_multi", goSyn,
+			"a /* one\ntwo */ b",
+			"a <span class=\"cm\">/* one\ntwo */</span> b"},
+		{"go_multi_unterminated", goSyn,
+			"a /* open\nrest",
+			"a <span class=\"cm\">/* open\nrest</span>"},
+		{"lean_single", leanSyn,
+			"def f := 0 -- note\n",
+			"def f := 0 <span class=\"cm\">-- note</span>\n"},
+		{"lean_doc_over_multi", leanSyn,
+			"/-- doc -/\ndef f := 0",
+			"<span class=\"cm\">/-- doc -/</span>\ndef f := 0"},
+		{"lean_multi", leanSyn,
+			"/- block -/ def f := 0",
+			"<span class=\"cm\">/- block -/</span> def f := 0"},
+		{"single_at_eof_no_newline", goSyn,
+			"x // tail",
+			"x <span class=\"cm\">// tail</span>"},
+		{"downgrade_incomplete_multi",
+			commentSyntax{singleStart: "#", multiStart: "=begin"},
+			"a =begin\n# hi\n",
+			"a =begin\n<span class=\"cm\"># hi</span>\n"},
+		{"no_comments", goSyn, "x := 1\n", "x := 1\n"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := spanComments(tc.in, tc.syn)
+			if got != tc.want {
+				t.Fatalf("spanComments(%q):\n got %q\nwant %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestHighlightComments(t *testing.T) {
+	in := "<p>hi</p>\n<pre><code class=\"language-go\">x := 1 // c\n</code></pre>\n" +
+		"<pre><code class=\"language-py\"># nope\n</code></pre>\n" +
+		"<pre><code>// bare\n</code></pre>\n"
+	got := highlightComments(in)
+	if !strings.Contains(got, "<span class=\"cm\">// c</span>") {
+		t.Fatalf("go comment not highlighted: %s", got)
+	}
+	if strings.Contains(got, "<span class=\"cm\"># nope") {
+		t.Fatalf("unlisted language highlighted: %s", got)
+	}
+	if strings.Contains(got, "<span class=\"cm\">// bare") {
+		t.Fatalf("bare (no language) block highlighted: %s", got)
+	}
+}
+
+func TestBuildPageCommentHighlight(t *testing.T) {
+	src := []byte("# test\n\n```go\nx := 1 // half\n```\n")
+	result, err := buildPage(src, pageMeta{Title: "test", URL: "https://test"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte(`<span class="cm">// half</span>`)) {
+		t.Fatalf("expected highlighted comment in page: %s", result)
+	}
+}

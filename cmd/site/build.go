@@ -111,6 +111,7 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 	}
 
 	body = processGenSections(body)
+	body = highlightComments(body)
 
 	var buf bytes.Buffer
 	err := pageTmpl.ExecuteTemplate(&buf, "page.html", struct {
