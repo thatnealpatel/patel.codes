@@ -334,6 +334,106 @@ func TestBuildPageMultilineInlineMath(t *testing.T) {
 	}
 }
 
+// Unknown commands must be surfaced in a warning style instead of
+// rendering as nothing.
+func TestLatexToMathMLUnknownCommandVisible(t *testing.T) {
+	result, err := latexToMathML([]byte(`\lvert x \rvert`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("expected <merror> for unknown command:\n%s", result)
+	}
+	if !bytes.Contains(result, []byte(`\lvert`)) {
+		t.Fatalf("expected raw command name in output:\n%s", result)
+	}
+}
+
+// Unknown commands with parsed args must keep the args visible too.
+func TestLatexToMathMLUnknownCommandKeepsArgs(t *testing.T) {
+	result, err := latexToMathML([]byte(`\mathcal{H}`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte(`<merror><mtext>\mathcal</mtext></merror>`)) {
+		t.Fatalf("expected warning for \\mathcal:\n%s", result)
+	}
+	if !bytes.Contains(result, []byte("<mi>H</mi>")) {
+		t.Fatalf("expected arg of \\mathcal to survive:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLFloorCeil(t *testing.T) {
+	result, err := latexToMathML([]byte(`\lfloor \log_2 n \rfloor + \lceil x \rceil`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"⌊", "⌋", "⌈", "⌉", "<mo>log</mo>"} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Fatalf("expected %q in output:\n%s", want, result)
+		}
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLNamedFunctions(t *testing.T) {
+	result, err := latexToMathML([]byte(`\min(a, \max(b, \log n))`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"<mo>min</mo>", "<mo>max</mo>", "<mo>log</mo>"} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Fatalf("expected %q in output:\n%s", want, result)
+		}
+	}
+}
+
+func TestLatexToMathMLMathbb(t *testing.T) {
+	result, err := latexToMathML([]byte(`f : \mathbb{N} \to \mathbb{Z}`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"<mi>ℕ</mi>", "<mi>ℤ</mi>", "→"} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Fatalf("expected %q in output:\n%s", want, result)
+		}
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLMathbbFormulaic(t *testing.T) {
+	result, err := latexToMathML([]byte(`\mathbb{A} \mathbb{k} \mathbb{1}`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"𝔸", "𝕜", "𝟙"} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Fatalf("expected %q in output:\n%s", want, result)
+		}
+	}
+}
+
+// \ne, \to, \setminus are easy to type instead of \neq, \rightarrow;
+// they must render, not drop.
+func TestLatexToMathMLAliases(t *testing.T) {
+	result, err := latexToMathML([]byte(`a \ne b, A \setminus B`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"≠", "∖"} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Fatalf("expected %q in output:\n%s", want, result)
+		}
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
 func TestLatexToMathMLBlogExpressions(t *testing.T) {
 	cases := []struct {
 		name string

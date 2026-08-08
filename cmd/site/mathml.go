@@ -20,13 +20,15 @@ var greekLetters = map[string]string{
 
 var operators = map[string]string{
 	`\pm`: "±", `\mp`: "∓", `\times`: "×", `\div`: "÷",
-	`\cdot`: "⋅", `\leq`: "≤", `\le`: "≤", `\geq`: "≥", `\neq`: "≠",
+	`\cdot`: "⋅", `\leq`: "≤", `\le`: "≤", `\geq`: "≥", `\neq`: "≠", `\ne`: "≠",
 	`\approx`: "≈", `\equiv`: "≡", `\in`: "∈", `\notin`: "∉",
 	`\subset`: "⊂", `\subseteq`: "⊆", `\supset`: "⊃", `\cup`: "∪", `\cap`: "∩",
-	`\rightarrow`: "→", `\leftarrow`: "←", `\mapsto`: "↦", `\Rightarrow`: "⇒",
+	`\setminus`: "∖",
+	`\rightarrow`: "→", `\leftarrow`: "←", `\to`: "→", `\mapsto`: "↦", `\Rightarrow`: "⇒",
 	`\Leftarrow`: "⇐", `\iff`: "⟺",
 	`\infty`: "∞", `\partial`: "∂", `\nabla`: "∇",
 	`\forall`: "∀", `\exists`: "∃", `\emptyset`: "∅", `\mid`: "∣",
+	`\lfloor`: "⌊", `\rfloor`: "⌋", `\lceil`: "⌈", `\rceil`: "⌉",
 	`\sum`: "∑", `\prod`: "∏", `\int`: "∫",
 	`\ldots`: "…", `\cdots`: "⋯", `\dots`: "…",
 	`\quad`: " ", `\qquad`: "  ",
@@ -217,14 +219,19 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 		}
 		buf.WriteString("</mtext>")
 
+	case `\mathbb`:
+		for _, arg := range cmd.Args {
+			writeMathbb(buf, arg)
+		}
+
 	case `\mod`, `\bmod`:
 		buf.WriteString("<mo>mod</mo>")
 		for _, arg := range cmd.Args {
 			writeNodes(buf, arg)
 		}
 
-	case `\gcd`:
-		buf.WriteString("<mo>gcd</mo>")
+	case `\gcd`, `\log`, `\min`, `\max`:
+		buf.WriteString("<mo>" + cmd.Name[1:] + "</mo>")
 		for _, arg := range cmd.Args {
 			writeNodes(buf, arg)
 		}
@@ -255,6 +262,11 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 			buf.WriteString("<mi>" + s + "</mi>")
 		} else if s, ok := operators[cmd.Name]; ok {
 			buf.WriteString("<mo>" + s + "</mo>")
+		} else {
+			buf.WriteString("<merror><mtext>" + cmd.Name + "</mtext></merror>")
+			for _, arg := range cmd.Args {
+				writeNodes(buf, arg)
+			}
 		}
 	}
 }
@@ -276,6 +288,60 @@ func writeArgText(buf *bytes.Buffer, nodes []parser.Node) {
 			writeNode(buf, n)
 		}
 	}
+}
+
+func writeMathbb(buf *bytes.Buffer, nodes []parser.Node) {
+	for _, n := range nodes {
+		switch n := n.(type) {
+		case parser.Letter:
+			buf.WriteString("<mi>")
+			for _, r := range string(n) {
+				buf.WriteRune(doubleStruck(r))
+			}
+			buf.WriteString("</mi>")
+		case parser.Number:
+			buf.WriteString("<mn>")
+			for _, r := range string(n) {
+				buf.WriteRune(doubleStruck(r))
+			}
+			buf.WriteString("</mn>")
+		case parser.List:
+			writeMathbb(buf, []parser.Node(n))
+		default:
+			writeNode(buf, n)
+		}
+	}
+}
+
+// doubleStruck maps alphanumerics to their Unicode double-struck code
+// points; MathML Core dropped mathvariant, so styling via attribute is
+// not portable.
+func doubleStruck(r rune) rune {
+	switch {
+	case r >= 'A' && r <= 'Z':
+		switch r {
+		case 'C':
+			return 'ℂ'
+		case 'H':
+			return 'ℍ'
+		case 'N':
+			return 'ℕ'
+		case 'P':
+			return 'ℙ'
+		case 'Q':
+			return 'ℚ'
+		case 'R':
+			return 'ℝ'
+		case 'Z':
+			return 'ℤ'
+		}
+		return 0x1D538 + (r - 'A')
+	case r >= 'a' && r <= 'z':
+		return 0x1D552 + (r - 'a')
+	case r >= '0' && r <= '9':
+		return 0x1D7D8 + (r - '0')
+	}
+	return r
 }
 
 func writeEnv(buf *bytes.Buffer, env parser.Env) {
