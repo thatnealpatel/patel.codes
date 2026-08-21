@@ -19,6 +19,7 @@ working on go cryptography and security.
 
 ## words
 
+- [what i actually proved about `A051293`](./words/sharpening_my_a051293_results.html)
 - [catching llm-induced laziness](./words/catching_llm_induced_laziness.html)
 - [an accidentally novel combinatorics proof](./words/an_accidentally_novel_combinatorics_proof_1.html)
 - [patel.codes is now `<noscript>`](./words/rewritingpatelcodes.html)

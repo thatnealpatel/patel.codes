@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>what i actually proved about `A051293`</title>
+<meta property="og:title" content="what i actually proved about `A051293`">
+<meta property="og:url" content="https://patel.codes/words/sharpening_my_a051293_results.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
+  pre code { color: var(--ink); font-size: 15px; }
+  pre code .cm { color: var(--ink-light); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>what i actually proved about <code>A051293</code></h1>
+<p>2026-08-21</p>
+<p class="gen-notice">this page contains generated content delineated using <span class="gen-inline">this shadowing style</span>.</p>
+<h2>motivations</h2>
+<p>in May 2026, i published
+<a href="/words/an_accidentally_novel_combinatorics_proof_1.html">an accidentally novel combinatorics proof</a>.
+the post described a machine-checked proof of the same
+<a href="https://oeis.org/A051293"><code>A051293</code></a> asymptotic that
+AlphaProof had formalized.</p>
+<p>i claimed a general version of the result, and i also
+wrote that i did not have the time to rigorously vet the
+proof to present it in my own voice.</p>
+<p>while that distinction was intentionally unsatisfying,
+it left some questions on the table:</p>
+<ol>
+<li>
+<p>did my lean definition actually describe <code>A051293</code>?</p>
+</li>
+<li>
+<p>how did my theorem compare with AlphaProof's theorem?</p>
+</li>
+<li>
+<p>was the general <code>M</code> result necessary to prove the conjecture?</p>
+</li>
+<li>
+<p>which novelty claims were substantiated?</p>
+</li>
+</ol>
+<p>let's re-visit the results in this post; i intentionally
+elected to keep the original unedited.</p>
+<h2>what i said in May</h2>
+<p>for those who have not read the original post, it
+roughly reduces to:</p>
+<ol>
+<li>
+<p>the generated Lean proof appeared to be non-vacuous</p>
+</li>
+<li>
+<p>it proved Cloitre's conjecture for every <code>M</code></p>
+</li>
+<li>
+<p>its route appeared to be different from AlphaProof's route</p>
+</li>
+<li>
+<p>one intermediate combinatorial identity appeared to be proven for the first time</p>
+</li>
+</ol>
+<p>while none of these claims were/are false, i wanted
+to put them to bed once and for all by elucidating
+the topic to the best of my ability.</p>
+<h2>the sequence and the conjecture</h2>
+<p><code>A051293(n)</code> counts the nonempty subsets of <code>{1,...,n}</code>
+whose arithmetic mean is an integer. Cloitre recorded an
+asymptotic expansion whose coefficients are the ordered
+Bell, or Fubini, numbers:</p>
+<math display="block"><mrow><mn>1</mn><mo>,</mo><mspace width="0.25em"/><mn>1</mn><mo>,</mo><mspace width="0.25em"/><mn>3</mn><mo>,</mo><mspace width="0.25em"/><mn>13</mn><mo>,</mo><mspace width="0.25em"/><mn>75</mn><mo>,</mo><mspace width="0.25em"/><mn>541</mn><mo>,</mo><mspace width="0.25em"/><mo>…</mo></mrow></math>
+<p>Cloitre's general statement on <a href="https://oeis.org/A051293"><code>A051293</code></a>
+reads as follows:</p>
+<blockquote>
+<p>More precisely, I conjecture for any <code>m &gt; 0</code>, <code>a(n) = 2^(n+1)/n * Sum_{k=0..m} A000670(k)/n^k + o(1/n^(m+1))</code> (<code>A000670</code> =
+preferential arrangements of n labeled elements).</p>
+</blockquote>
+<p>he then gives the fixed statement:</p>
+<blockquote>
+<p>In fact I conjecture that <code>a(n) = 2^(n+1)/n * (1 + 1/n + 3/n^2 + 13/n^3 + 75/n^4 + 541/n^5 + o(1/n^5))</code>.</p>
+</blockquote>
+<div class="gen">
+<p>this explicit sentence ends at <code>M = 5</code> and fixes the intended indexing:</p>
+<math display="block"><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi></mfrac><mspace width="0.25em"/><mrow><mo>(</mo><mrow><mspace width="0.25em"/><mn>1</mn><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mfrac><mn>1</mn><mi>n</mi></mfrac><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mfrac><mn>3</mn><msup><mi>n</mi><mn>2</mn></msup></mfrac><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mfrac><mn>13</mn><msup><mi>n</mi><mn>3</mn></msup></mfrac><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mfrac><mn>75</mn><msup><mi>n</mi><mn>4</mn></msup></mfrac><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mfrac><mn>541</mn><msup><mi>n</mi><mn>5</mn></msup></mfrac><mspace width="0.25em"/><mo>+</mo><mspace width="0.25em"/><mi>o</mi><mrow><mo>(</mo><mfrac><mn>1</mn><msup><mi>n</mi><mn>5</mn></msup></mfrac><mo>)</mo></mrow><mspace width="0.25em"/></mrow><mo>)</mo></mrow><mo>.</mo></mrow></math>
+</div>
+<p>AlphaProof proves this fixed truncation. my development
+proves a corrected asymptotic expansion for arbitrary <code>M</code>,
+and obtains the displayed <code>M = 5</code> statement as a corollary.</p>
+<p>formally, general <code>M</code> contains the fixed instance. practically,
+general <code>M</code> was not necessary to settle the explicit conjecture
+AlphaProof proved. it is cool and (maybe) useful because it
+names the coefficient pattern.</p>
+<h2>did i formalize the right sequence?</h2>
+<p>yes, but not rigorously.</p>
+<p>the original development used <code>a_comb</code>, a count over subsets
+of <code>{0,...,n-1}</code> whose elements are shifted by one when their
+mean is tested. that is a convenient Lean representation of
+subsets of <code>{1,...,n}</code>.</p>
+<p><code>Proofs/Enumerative/A051293/Cloitre.lean</code> now adds a literal
+version of the OEIS definition:</p>
+<pre><code class="language-lean">def a_oeis (n : ℕ) : ℕ :=
+  ((Finset.Icc 1 n).powerset.filter (fun S : Finset ℕ =&gt;
+    S.Nonempty ∧ S.card ∣ S.sum id)).card
+</code></pre>
+<p>i now also check (by kernel <code>decide</code>) the first ten terms
+of <code>a_comb</code> (original) and <code>a_oeis</code> (new) in my proof.
+additionally, <code>a_comb_eq_a_oeis</code> proves the two counts
+equal for every <code>n</code> by shifting each element by one.</p>
+<p>this bijection proves that the previous unsubstantiated
+use of the convenient internal definition is in fact
+the literal definition given.</p>
+<h2>what AlphaProof proved</h2>
+<p>AlphaProof presents <code>A051293 n</code> directly as the number
+of nonempty subsets of <code>Finset.Icc 1 n</code> whose cardinality
+divides their sum. its final theorem, <code>target_theorem_0</code>,
+is the limit</p>
+<div class="gen">
+<math display="block"><mrow><mfrac><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>-</mo><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mrow><mo>(</mo><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mo>+</mo><mfrac><mn>3</mn><msup><mi>n</mi><mn>2</mn></msup></mfrac><mo>+</mo><mfrac><mn>13</mn><msup><mi>n</mi><mn>3</mn></msup></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mo>+</mo><mfrac><mn>75</mn><msup><mi>n</mi><mn>4</mn></msup></mfrac><mo>+</mo><mfrac><mn>541</mn><msup><mi>n</mi><mn>5</mn></msup></mfrac></mrow><mo>)</mo></mrow></mrow></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><msup><mi>n</mi><mn>6</mn></msup></mfrac><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><mn>0</mn><mo>.</mo></mrow></math>
+<p>this is exactly the fixed <code>M = 5</code> statement, rather than
+merely a similar asymptotic. <code>cloitre_explicit_tendsto</code>
+has the same normalized limit expression over <code>a_oeis</code>,
+and follows from <code>cloitre_conjecture 5</code>. the two declarations
+live in separate repositories, but their sequence definitions
+are the same literal <code>Finset.Icc 1 n</code> count.</p>
+</div>
+<h2>how my proof differs</h2>
+<p>the proofs overlap more than my original post
+suggested; both use a roots-of-unity filter
+and both eventually reduce the dominant term to</p>
+<math display="block"><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mi>j</mi></msup><mi>j</mi></mfrac><mo>.</mo></mrow></math>
+<div class="gen">
+<p>AlphaProof gets there by grouping subsets by their cardinality <code>k</code>.
+for each <code>k</code>, its roots-of-unity argument separates the principal term
+<code>choose n k / k</code> from the nontrivial roots and bounds the latter
+exponentially. summing the principal terms gives</p>
+<math display="block"><mrow><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mspace width="0.25em"/><mfrac><mn>1</mn><mi>k</mi></mfrac><mspace width="0.25em"/><mrow><mo>(</mo><mfrac linethickness="0"><mi>n</mi><mi>k</mi></mfrac><mo>)</mo></mrow><mo>=</mo><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>-</mo><mi>H</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+</div>
+<p>my proof takes a different combinatorial bridge. it groups the
+integer-mean subsets by their maximum and uses the Zumkeller
+identity to reduce the count to a sum involving <code>b_comb(k)</code>.</p>
+<p>a separate roots-of-unity argument identifies <code>b_comb(k)</code> with a
+divisor-sum formula. the divisor <code>d = 1</code> contributes <code>2^k/k</code>; after
+summing the remaining odd-divisor terms, the proof obtains a polynomial
+times <code>2^(n/3)</code> bound. this is exponentially negligible relative to
+the main <code>2^n/n</code> scale, again leaving <code>S(n)</code> as the dominant term.</p>
+<p>there is also a real difference in how much of the coefficient pattern
+is formalized. AlphaProof proves six exact finite geometric-moment
+identities for</p>
+<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>j</mi><mo><</mo><mi>n</mi></mrow></msub><mfrac><msup><mi>j</mi><mi>m</mi></msup><msup><mn>2</mn><mi>j</mi></msup></mfrac><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>m</mi><mo>≤</mo><mn>5</mn><mo>.</mo></mrow></math>
+<p>their explicit correction terms imply the limiting values
+<code>2, 2, 6, 26, 150, 1082</code>. those are twice
+<code>1, 1, 3, 13, 75, 541</code>, so the coefficients are not arbitrary
+constants that merely make the final algebra work. my proof
+packages the same phenomenon uniformly as</p>
+<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>j</mi><mo>≥</mo><mn>0</mn></mrow></msub><mfrac><msup><mi>j</mi><mi>m</mi></msup><msup><mn>2</mn><mi>j</mi></msup></mfrac><mo>=</mo><mn>2</mn><mi>F</mi><mo stretchy="false">(</mo><mi>m</mi><mo stretchy="false">)</mo><mo>,</mo></mrow></math>
+<p>then carries the expansion through for arbitrary <code>M</code>. the
+distinction is therefore not “one proof explains the coefficients
+and the other does not.” it is that AlphaProof verifies the first
+six moment formulas individually, while my development proves the
+Fubini pattern uniformly and uses a different combinatorial route
+to reach the same dominant sum.</p>
+<p>and, experimentally, this is what i sought to achieve:
+without deep background, i wanted to test my experimental
+harness to see if it could produce a proof using a
+different route.</p>
+<h2>the indexing ambiguity</h2>
+<div class="gen">
+<p>Cloitre's general and explicit sentences do not give the little-<code>o</code>
+term the same clear scope. the general sentence writes
+<code>+ o(1/n^(m+1))</code> after an unparenthesized product, while the explicit
+sentence puts <code>o(1/n^5)</code> inside the parenthesized expansion.</p>
+<p>rather than treat the informal general sentence as a separate stronger
+claim, this development follows the unambiguous explicit statement.
+<code>cloitre_conjecture M</code> gives an error of</p>
+<math display="block"><mrow><mi>o</mi><mrow><mo>(</mo><mfrac><msup><mn>2</mn><mi>n</mi></msup><msup><mi>n</mi><mrow><mi>M</mi><mo>+</mo><mn>1</mn></mrow></msup></mfrac><mo>)</mo></mrow><mo>.</mo></mrow></math>
+<p>after dividing by the prefactor <code>2^(n+1)/n</code>, this is</p>
+<math display="block"><mrow><mi>o</mi><mrow><mo>(</mo><mfrac><mn>1</mn><msup><mi>n</mi><mi>M</mi></msup></mfrac><mo>)</mo></mrow><mo>.</mo></mrow></math>
+<p>at <code>M = 5</code>, that is exactly the parenthesized <code>o(1/n^5)</code> remainder in
+Cloitre's explicit sentence. the Lean theorem follows that convention
+without taking a position on how the general OEIS sentence should be
+repunctuated.</p>
+</div>
+<h2>what survived</h2>
+<p>broadly speaking, the original claims are
+true; however, they are more faithfully
+sharpened:</p>
+<ul>
+<li>generated a machine-checked proof of the corrected general-<code>M</code> expansion;</li>
+<li>the convenient combinatorial count is proved equal to a literal <code>A051293</code> count for every <code>n</code>;</li>
+<li>both definitions are checked against the first ten published terms;</li>
+<li>the explicit <code>M = 5</code> result proved by AlphaProof follows from the general theorem;</li>
+<li>the proof route explains the Fubini coefficients uniformly;</li>
+</ul>
+<p>the general <code>M</code> theorem is cool; it expands six convenient
+coefficients into a pattern and lifts a story as to why they
+appear; however, it is not strictly necessary to prove the
+conjecture.</p>
+<h2>literature check</h2>
+<p>(i did write some of the prose below, but i have left
+the shadowing to indicate that i merely adopted the
+literature check provided by my research harness.)</p>
+<div class="gen">
+<p>the exact per-<code>k</code> equality is recorded in <a href="https://oeis.org/A082550">A082550</a>
+and <a href="https://oeis.org/A063776">A063776</a> through observations by Papadopoulos in
+2016 and Wiseman in 2019. neither entry supplies a proof.</p>
+<p>a literature sweep found published  neighboring results on
+zero-sum subsets and necklaces, but no published proof of this
+exact integer-mean equality and no independent formalization of it.
+the Lean file therefore supplies a formal proof of an OEIS-observed
+identity.</p>
+<p>additionally, one OEIS cross-reference is shifted: <a href="https://oeis.org/A082550">A082550</a>
+prints <code>A051293(n+1) - A051293(n)</code>, while the definitions and terms
+give <code>A051293(n) - A051293(n-1)</code>.</p>
+<p>the <code>k+1</code> in the Lean summation is intentional: it converts <code>Finset.range n</code>
+from zero-based indices to maxima <code>1,...,n</code>. the proof derives the relation
+from the underlying counts, so this does not affect its results.</p>
+</div>
+<h2>closing thoughts</h2>
+<p>in general, most of my original hedging was warranted. though,
+in this case, the missing work was small. it has become more
+obvious to me that writing these posts is going to be the
+bottleneck.</p>
+<p>i understand how to audit my proofs more rigorously now, and i
+have built some substantial tooling in order to continue this
+type of research... however, that is a topic for another post.</p>
+<h2>references</h2>
+<ul>
+<li><a href="https://arxiv.org/abs/2605.22763">arXiv:2605.22763</a>: exact theorem and the paper's description of the conjecture;</li>
+<li><a href="https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/APNOutputs/OEIS/oeis_51293_conjecture_0.lean"><code>google-deepmind/AlphaProof-nexus-results</code></a>: exact <code>target_theorem_0</code> signature and proof structure;</li>
+<li><a href="https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A051293/Counting.lean"><code>Proofs/Enumerative/A051293/Counting.lean</code></a>: <code>cloitre_conjecture</code>;</li>
+<li><a href="https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A051293/Cloitre.lean"><code>Proofs/Enumerative/A051293/Cloitre.lean</code></a>: <code>a_oeis</code>, <code>a_comb_eq_a_oeis</code>, and <code>cloitre_explicit_tendsto</code>;</li>
+</ul>
+
+</body>
+</html>

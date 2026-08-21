@@ -2,6 +2,9 @@
 
 2026-05-25
 
+**update:**  [what i actually proved about `A051293`](/words/sharpening_my_a051293_results.html)
+sharpens and audits the results and claims made in this post.
+
 ## disclaimer
 
 i did not touch any generative ai or agentic
@@ -50,7 +53,7 @@ classifications are ternary:
 
 the only problem i had formally pointed it at was
 an erdos problem that was deemed 'hard' by the
-framework; after running it on a051293, it deemed
+framework; after running it on A051293, it deemed
 the problem 'elementary,' which is a bit funny.
 
 i do not have the ability to concisely and neatly
@@ -160,8 +163,8 @@ counts:
 - $R(k) = |\{S \subseteq \{1,\ldots,k\} : k \in S, \; |S| \mid \text{sum}(S)\}|$
 
 the claim is $L(k) = R(k)$. this was observed without
-proof by Zumkeller (2006, [oeis a082550](https://oeis.org/A082550))
-and Wiseman (2019, [oeis a063776](https://oeis.org/A063776)).
+proof by Zumkeller (2006, [oeis A082550](https://oeis.org/A082550))
+and Wiseman (2019, [oeis A063776](https://oeis.org/A063776)).
 as of may 2026, no proof exists in the published literature.
 to the best of my knowledge, the proof below is the first.
 
