@@ -14,8 +14,8 @@ other than maths and programming, i enjoy:
 - **#f8d551**
 - piano
 
-currently, i am programmer at google \
-working on go cryptography and security.
+currently, i am a programmer at Google \
+working on Go cryptography and security.
 
 ## words
 
