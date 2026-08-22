@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>llm disclosure on patel.codes</title>
+<meta property="og:title" content="llm disclosure on patel.codes">
+<meta property="og:url" content="https://patel.codes/words/patel_codes_llm_disclosure.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
+  pre code { color: var(--ink); font-size: 15px; }
+  pre code .cm { color: var(--ink-light); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>llm disclosure on patel.codes</h1>
+<p>2026-08-21</p>
+<h2>motivations</h2>
+<p>unfortunately, LLMs appear to be here to stay;
+i have found great utility in various side
+projects and research efforts. especially in
+the later, i find myself conflicted about how
+to honestly communicate results.</p>
+<p>while LLMs are horrendus at prose, they are
+undeniably useful for programming and maths.
+i never thought i would publish LLM-generated
+text on my website until
+<a href="/words/an_accidentally_novel_combinatorics_proof_1.html">an accidentally novel combinatorics proof</a>.</p>
+<p>i had to find a way to disclose the use of
+LLM-generated text: i hate reading it, and i
+believe it is unfair of me to subject others
+to it as well without their knowledge.</p>
+<p>i do not want people guessing about if my
+words are my own. i want them focused on the
+content.</p>
+<p>the idealist in me says &quot;i should never publish
+anything without having fully written everything
+myself.&quot; however, the realist in me has to contend
+with trading off time spent doing <code>&lt;cool thing&gt;</code>
+with time spent communicating <code>&lt;cool thing&gt;</code>.</p>
+<p>the aforementioned post is a good baseline against
+which to compare its sharpened counterpart:
+<a href="/words/sharpening_my_a051293_results.html">what i actually proved about <code>A051293</code></a>.</p>
+<h2><code>:::gen</code></h2>
+<p>any disclosed, generated content does not mean
+&quot;untrusted;&quot; instead, it indicates that i did
+not author it, but i read and verified it.</p>
+<p>my site generator is completely bespoke machinery
+instrumented in Go, so i just added a simple
+syntax to fence generated content:</p>
+<pre><code>:::gen
+
+**this is text i wrote, but marked generated.**
+
+:::
+</code></pre>
+<p>which renders as</p>
+<div class="gen">
+<p><strong>this is text i wrote, but marked generated.</strong></p>
+</div>
+<p>and includes the following banner at the top of the page</p>
+<p><strong>this page contains generated content delineated using
+<span class="gen-inline">this shadowing style</span>.</strong></p>
+<h2>closing thoughts</h2>
+<p>with several maths results in my pipeline blocked
+on my bandwidth to elucidate and review the results,
+it is obvious to me that i need to lean (no pun
+intended) on the LLMs in lower risk contexts.</p>
+<p>personally, i hope to keep generated content to
+&lt;30% of maths posts i publish; for non-maths or
+non-technical content, i imagine this will be
+closer to &lt;10%.</p>
+<p>i hope to continue writing and publishing things
+that do not require any LLM-generated text at all.</p>
+
+</body>
+</html>

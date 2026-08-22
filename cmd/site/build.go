@@ -110,7 +110,10 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 		body = strings.Replace(body, ph, string(entry.html), 1)
 	}
 
-	body = processGenSections(body)
+	// One-time exception: the disclosure post explains the shadowing
+	// style itself, so the auto-injected notice would be redundant.
+	skipNotice := strings.Contains(meta.URL, "/words/patel_codes_llm_disclosure.html")
+	body = processGenSections(body, skipNotice)
 	body = highlightComments(body)
 
 	var buf bytes.Buffer
@@ -127,7 +130,7 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func processGenSections(body string) string {
+func processGenSections(body string, skipNotice bool) string {
 	const open = "<p>:::gen</p>"
 	const close = "<p>:::</p>"
 
@@ -168,6 +171,9 @@ func processGenSections(body string) string {
 	}
 
 	result := out.String()
+	if skipNotice {
+		return result
+	}
 	genIdx := strings.Index(result, "<div class=\"gen\">")
 	pIdx := strings.Index(result, "</p>")
 	if pIdx >= 0 && pIdx < genIdx {
