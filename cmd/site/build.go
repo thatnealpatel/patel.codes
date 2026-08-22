@@ -116,6 +116,10 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 	body = processGenSections(body, skipNotice)
 	body = highlightComments(body)
 
+	if meta.URL != "https://patel.codes/" {
+		body = strings.Replace(body, "</p>", ` <span class="home">[<a href="/">home</a>]</span></p>`, 1)
+	}
+
 	var buf bytes.Buffer
 	err := pageTmpl.ExecuteTemplate(&buf, "page.html", struct {
 		Body template.HTML
