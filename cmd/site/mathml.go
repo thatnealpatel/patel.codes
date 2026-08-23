@@ -22,9 +22,9 @@ var operators = map[string]string{
 	`\pm`: "±", `\mp`: "∓", `\times`: "×", `\div`: "÷",
 	`\cdot`: "⋅", `\leq`: "≤", `\le`: "≤", `\geq`: "≥", `\neq`: "≠", `\ne`: "≠",
 	`\approx`: "≈", `\equiv`: "≡", `\in`: "∈", `\notin`: "∉",
-	`\subset`: "⊂", `\subseteq`: "⊆", `\supset`: "⊃", `\cup`: "∪", `\cap`: "∩",
-	`\setminus`: "∖",
-	`\rightarrow`: "→", `\leftarrow`: "←", `\to`: "→", `\mapsto`: "↦", `\Rightarrow`: "⇒",
+	`\subset`: "⊂", `\subseteq`: "⊆", `\supset`: "⊃", `\cup`: "∪", `\bigcup`: "⋃", `\cap`: "∩",
+	`\setminus`:   "∖",
+	`\rightarrow`: "→", `\leftarrow`: "←", `\to`: "→", `\mapsto`: "↦", `\Rightarrow`: "⇒", `\Longrightarrow`: "⟹",
 	`\Leftarrow`: "⇐", `\iff`: "⟺",
 	`\infty`: "∞", `\partial`: "∂", `\nabla`: "∇",
 	`\forall`: "∀", `\exists`: "∃", `\emptyset`: "∅", `\mid`: "∣",
@@ -177,6 +177,43 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 			buf.WriteString("</msqrt>")
 		}
 
+	case `\bigl`, `\bigr`:
+		form := "prefix"
+		if cmd.Name == `\bigr` {
+			form = "postfix"
+		}
+		buf.WriteString(`<mo fence="true" form="` + form + `" stretchy="true" minsize="1.2em" maxsize="1.2em">`)
+		for _, arg := range cmd.Args {
+			for _, node := range arg {
+				op, ok := node.(parser.Operator)
+				if !ok {
+					continue
+				}
+				delim := string(op)
+				if repl, ok := specialChars[delim]; ok {
+					delim = repl
+				}
+				if delim != "." {
+					buf.WriteString(delim)
+				}
+			}
+		}
+		buf.WriteString("</mo>")
+
+	case `\boxed`:
+		buf.WriteString(`<menclose notation="box"><mrow>`)
+		for _, arg := range cmd.Args {
+			writeNodes(buf, arg)
+		}
+		buf.WriteString("</mrow></menclose>")
+
+	case `\xmapsto`:
+		buf.WriteString(`<mover><mo stretchy="true">⟼</mo><mrow>`)
+		for _, arg := range cmd.Args {
+			writeNodes(buf, arg)
+		}
+		buf.WriteString("</mrow></mover>")
+
 	case `\overline`:
 		buf.WriteString("<mover><mrow>")
 		for _, arg := range cmd.Args {
@@ -218,6 +255,13 @@ func writeCommand(buf *bytes.Buffer, cmd parser.Command) {
 			writeArgText(buf, arg)
 		}
 		buf.WriteString("</mtext>")
+
+	case `\operatorname`:
+		buf.WriteString("<mo>")
+		for _, arg := range cmd.Args {
+			writeArgText(buf, arg)
+		}
+		buf.WriteString("</mo>")
 
 	case `\mathbb`:
 		for _, arg := range cmd.Args {

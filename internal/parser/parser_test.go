@@ -123,6 +123,12 @@ func TestParseCommands(t *testing.T) {
 		{"frac", `\frac{a}{b}`, `\frac`, 2},
 		{"sqrt", `\sqrt{x}`, `\sqrt`, 1},
 		{"textit", `\textit{hi}`, `\textit`, 1},
+		{"boxed", `\boxed{x}`, `\boxed`, 1},
+		{"xmapsto", `\xmapsto{\tau}`, `\xmapsto`, 1},
+		{"operatorname", `\operatorname{Pre}`, `\operatorname`, 1},
+		{"bigl", `\bigl(`, `\bigl`, 1},
+		{"bigr", `\bigr)`, `\bigr`, 1},
+		{"Longrightarrow", `\Longrightarrow`, `\Longrightarrow`, 0},
 		{"greek", `\alpha`, `\alpha`, 0},
 	}
 	for _, tc := range cases {

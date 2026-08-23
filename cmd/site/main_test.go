@@ -434,6 +434,87 @@ func TestLatexToMathMLAliases(t *testing.T) {
 	}
 }
 
+func TestLatexToMathMLLongrightarrow(t *testing.T) {
+	result, err := latexToMathML([]byte(`P \Longrightarrow Q`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte("<mo>⟹</mo>")) {
+		t.Fatalf("expected long rightwards double arrow in output:\n%s", result)
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLOperatorName(t *testing.T) {
+	result, err := latexToMathML([]byte(`\operatorname{Pre}(L)`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte("<mo>Pre</mo>")) {
+		t.Fatalf("expected named operator in output:\n%s", result)
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLBigcup(t *testing.T) {
+	result, err := latexToMathML([]byte(`\bigcup_{L\geq0}(B_L+T_L)`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Contains(result, []byte("<msub><mo>⋃</mo>")) {
+		t.Fatalf("expected scripted big union in output:\n%s", result)
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLBigDelimiters(t *testing.T) {
+	result, err := latexToMathML([]byte(`\bigl(B_L+\operatorname{keepOnes}(u)\bigr)`), false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`<mo fence="true" form="prefix" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo>`,
+		`<mo fence="true" form="postfix" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo>`,
+	} {
+		if !bytes.Contains(result, []byte(want)) {
+			t.Fatalf("expected %q in output:\n%s", want, result)
+		}
+	}
+	if bytes.Contains(result, []byte("<merror>")) {
+		t.Fatalf("unexpected <merror>:\n%s", result)
+	}
+}
+
+func TestLatexToMathMLBoxedAndXmapsto(t *testing.T) {
+	cases := []struct {
+		expr string
+		want []string
+	}{
+		{`\boxed{x+1}`, []string{`<menclose notation="box">`, `<mi>x</mi>`}},
+		{`A \xmapsto{\tau} B`, []string{`<mover><mo stretchy="true">⟼</mo>`, `<mi>τ</mi>`}},
+	}
+	for _, tc := range cases {
+		result, err := latexToMathML([]byte(tc.expr), false)
+		if err != nil {
+			t.Fatalf("latexToMathML(%q): %v", tc.expr, err)
+		}
+		for _, want := range tc.want {
+			if !bytes.Contains(result, []byte(want)) {
+				t.Fatalf("latexToMathML(%q): expected %q in output:\n%s", tc.expr, want, result)
+			}
+		}
+		if bytes.Contains(result, []byte("<merror>")) {
+			t.Fatalf("latexToMathML(%q): unexpected <merror>:\n%s", tc.expr, result)
+		}
+	}
+}
+
 func TestLatexToMathMLBlogExpressions(t *testing.T) {
 	cases := []struct {
 		name string

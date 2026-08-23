@@ -77,10 +77,12 @@ func (Env) node() {}
 var argCount = map[string]int{
 	`\frac`: 2, `\dfrac`: 2, `\tfrac`: 2, `\binom`: 2,
 	`\sqrt`: 1, `\overline`: 1, `\underline`: 1, `\hat`: 1,
+	`\boxed`: 1, `\xmapsto`: 1,
 	`\bar`: 1, `\vec`: 1, `\dot`: 1, `\ddot`: 1, `\tilde`: 1,
 	`\text`: 1, `\textit`: 1, `\textbf`: 1, `\textmd`: 1,
 	`\textrm`: 1, `\mathrm`: 1, `\mathbf`: 1, `\mathit`: 1,
-	`\mathcal`: 1, `\mathbb`: 1, `\mathfrak`: 1,
+	`\operatorname`: 1,
+	`\mathcal`:      1, `\mathbb`: 1, `\mathfrak`: 1,
 	`\mod`: 1, `\pmod`: 1, `\bmod`: 1,
 	`\eqref`: 1, `\label`: 1, `\tag`: 1,
 	`\substack`: 1,
@@ -219,6 +221,14 @@ func (p *parser) parseCommand() (Node, error) {
 	}
 	if name == `\end` {
 		return nil, fmt.Errorf("unexpected \\end without \\begin")
+	}
+	if name == `\bigl` || name == `\bigr` {
+		p.skipSpaces()
+		if p.pos >= len(p.input) {
+			return nil, fmt.Errorf("expected delimiter after %s", name)
+		}
+		delim := p.readDelim()
+		return Command{Name: name, Args: [][]Node{{Operator(delim)}}}, nil
 	}
 
 	nargs, known := argCount[name]
