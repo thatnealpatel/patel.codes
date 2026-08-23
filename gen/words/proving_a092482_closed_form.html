@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>proving `A092482`&#39;s closed form </title>
+<meta property="og:title" content="proving `A092482`&#39;s closed form ">
+<meta property="og:url" content="https://patel.codes/words/proving_a092482_closed_form.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
+  pre code { color: var(--ink); font-size: 15px; }
+  pre code .cm { color: var(--ink-light); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>proving <code>A092482</code>'s closed form</h1>
+<p>2026-08-23 <span class="home">[<a href="/">home</a>]</span></p>
+<p class="gen-notice">this page contains generated content delineated using <span class="gen-inline">this shadowing style</span>.</p>
+<h2>motivations</h2>
+<p>i am currently engaged in various side
+research projects, one of which requires
+me to build an evaluation set for grading
+the efficacy of an auto-research program
+built natively into a custom harness i
+have been rolling from scratch in Go.</p>
+<p>i originally intended the eval set to be
+a set of formalization tasks and a few
+proof tasks over known results. i suppose
+i should not have been surprised that i
+picked off some low-hanging fruit in the
+process.</p>
+<p>speaking of motivation, i was unfortunately
+not particularly motivated to spend more
+time on distilling and reducing the core
+kernels of the proof when  writing this post;
+as such, you might notice that a larger portion
+of it is generated than usual. while i did spend
+hours in exploring and writing this post, i
+hope that it does not detract from your reading
+experience.</p>
+<h2>the sequence and the typo</h2>
+<p>a three-term arithmetic progression, or 3-AP, is a triple <math><mrow><mi>x</mi><mo><</mo><mi>y</mi><mo><</mo><mi>z</mi></mrow></math>
+satisfying <math><mrow><mi>x</mi><mo>+</mo><mi>z</mi><mo>=</mo><mn>2</mn><mi>y</mi></mrow></math>; once some terms have been chosen, we say a
+candidate <math><mi>m</mi></math> is <strong>blocked</strong> if two earlier terms <math><mrow><mi>x</mi><mo><</mo><mi>y</mi><mo><</mo><mi>m</mi></mrow></math> satisfy</p>
+<math display="block"><mrow><mi>x</mi><mo>+</mo><mi>m</mi><mo>=</mo><mn>2</mn><mi>y</mi></mrow></math>
+<p>the greedy rule chooses the least candidate that is not blocked, with
+<code>(1,2,3)</code> as the sole permitted exception.</p>
+<p><a href="https://oeis.org/A092482"><code>A092482</code></a> is the greedy
+increasing sequence that contains no 3-AP other than
+its initial terms <code>1, 2, 3</code></p>
+<pre><code>1, 2, 3, 6, 7, 14, 15, 17, 18, 36, 37, 39, 40, 45, 46, 48, 49, 98, ...
+</code></pre>
+<p>in prose, it is defined as</p>
+<pre><code>a(1)=1, a(2)=2, a(3)=3; a(n) is least k such that no three terms of
+a(1), a(2), ..., a(n-1), k form an arithmetic progression, except
+for the first triple (1,2,3).
+</code></pre>
+<p>and the sequence contains a comment with the conjectured closed form</p>
+<pre><code>For n &gt; 2, a(n+2) = 1 + 2^floor(log_2(n)) + Sum_{k=1..n}
+(3^A007814(n) + 1)/2 = 1 + A053644(n) + A005836(n)
+(conjectured and checked up to n=512).
+</code></pre>
+<p>the summand contains a typo: <code>A007814(n)</code> should be <code>A007814(k)</code>.
+correcting it gives</p>
+<math display="block"><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>+</mo><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mspace width="0.25em"/><mi>n</mi><mo>⌋</mo></mrow></msup><mspace width="0.25em"/><mspace width="0.25em"/><mo>+</mo><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mfrac><mrow><msup><mn>3</mn><mrow><mi>A</mi><mn>007814</mn><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></msup><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow></math>
+<p>let's define <math><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow></math> as <em>reading the binary digits of <math><mi>n</mi></math> as a base-3 numeral</em></p>
+<math display="block"><mrow><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mspace width="0.25em"/><mo> </mo><mover><mo stretchy="true">⟼</mo><mrow><mi>τ</mi></mrow></mover><mo> </mo><mspace width="0.25em"/><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>9</mn><mo>,</mo><mn>10</mn><mo>,</mo><mn>12</mn><mo>,</mo><mn>13</mn></mrow></math>
+<p>these are the values listed by <code>A005836</code>. in terms of its published
+one-based indexing,</p>
+<math display="block"><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mi>A</mi><mn>005836</mn><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>
+<p>so the final equality in the quoted comment should read</p>
+<math display="block"><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>+</mo><mi>A</mi><mn>053644</mn><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>+</mo><mi>A</mi><mn>005836</mn><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>
+<p>equivalently, the repaired theorem presents</p>
+<math display="block"><mrow><menclose notation="box"><mrow><mrow><mspace width="0.25em"/><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>+</mo><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mspace width="0.25em"/><mi>n</mi><mo>⌋</mo></mrow></msup><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/></mrow></mrow></menclose><mspace width="0.25em"/><mo>  </mo><mo stretchy="false">(</mo><mi>n</mi><mo>≥</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>
+<p>which is ever so slightly stronger than the given <code>n &gt;2</code>
+stated on the entry. in the zero-indexed Lean definition,
+<code>greedySeq r = a(r+1)</code> and the precise formalization as</p>
+<div class="gen">
+<pre><code class="language-lean">theorem greedySeq_add_two (m : ℕ) :
+    greedySeq (m + 2) =
+      1 + 2 ^ Nat.log 2 (m + 1) + binToTernary (m + 1)
+</code></pre>
+</div>
+<p>here <code>Nat.log 2 n</code> is <math><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></math> and <code>binToTernary</code> is
+<math><mi>τ</mi></math>. at <math><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn></mrow></math>, the formula gives <code>3,6,7</code>, respectively. only
+<math><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn></mrow></math> extend the stated range <math><mrow><mi>n</mi><mo>></mo><mn>2</mn></mrow></math>: they give the final seed value <code>3</code>
+(block <math><mrow><mi>L</mi><mo>=</mo><mn>0</mn></mrow></math>) and the first value after the seed, <code>6</code> (the start of block
+<math><mrow><mi>L</mi><mo>=</mo><mn>1</mn></mrow></math>). the <math><mrow><mi>n</mi><mo>=</mo><mn>3</mn></mrow></math> case, giving <code>7</code>, was already in the stated range and is
+the second value of block <math><mrow><mi>L</mi><mo>=</mo><mn>1</mn></mrow></math>.</p>
+<h2>why the sum is <code>tau</code></h2>
+<p>incrementing a binary number flips its trailing ones
+to zeroes and carries a new one. if <code>k</code> has <math><mrow><msub><mi>ν</mi><mn>2</mn></msub><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>
+trailing zeroes, the step from <code>k-1</code> to <code>k</code>, read in
+base-3, is</p>
+<math display="block"><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo><mo>-</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>k</mi><mo>-</mo><mn>1</mn><mo stretchy="false">)</mo><mo>=</mo><mfrac><mrow><msup><mn>3</mn><mrow><msub><mi>ν</mi><mn>2</mn></msub><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></msup><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow></math>
+<p>here <math><mrow><msub><mi>ν</mi><mn>2</mn></msub><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math> is the
+<a href="https://en.wikipedia.org/wiki/P-adic_valuation">largest <math><mi>j</mi></math> such that <math><msup><mn>2</mn><mi>j</mi></msup></math> divides <math><mi>k</mi></math></a>;
+it is also the number of <em>trailing zeroes</em> in the binary expansion of
+positive <math><mi>k</mi></math>. put <math><mrow><mi>j</mi><mo>=</mo><msub><mi>ν</mi><mn>2</mn></msub><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>. then <math><mrow><mi>k</mi><mo>-</mo><mn>1</mn></mrow></math> ends in exactly <math><mi>j</mi></math> binary ones.
+incrementing replaces those ones by zeroes (read: forces a carry) and changes
+the preceding zero to one. reading the same change in base 3 gives</p>
+<math display="block"><mrow><msup><mn>3</mn><mi>j</mi></msup><mo>-</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>j</mi><mo>-</mo><mn>1</mn></mrow></msubsup><msup><mn>3</mn><mi>i</mi></msup><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><msup><mn>3</mn><mi>j</mi></msup><mo>-</mo><mfrac><mrow><msup><mn>3</mn><mi>j</mi></msup><mo>-</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mfrac><mrow><msup><mn>3</mn><mi>j</mi></msup><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow></math>
+<p>for example,</p>
+<pre><code class="language-text">k-1  = 3   011_2   tau(011_2) =&gt; 011_3 = 4
+k    = 4   100_2   tau(100_2) =&gt; 100_3 = 9  # diff of 5=(3^2 + 1)/2
+</code></pre>
+<p>where <code>_{n}</code> is short-hand for the base and
+the absence of <code>_{n}</code> implies base-10.</p>
+<p>telescoping from <math><mrow><mi>τ</mi><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo><mo>=</mo><mn>0</mn></mrow></math> gives</p>
+<math display="block"><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mfrac><mrow><msup><mn>3</mn><mrow><msub><mi>ν</mi><mn>2</mn></msub><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></msup><mo>+</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow></math>
+<p>Lean records the same identity without natural-number division:</p>
+<div class="gen">
+<pre><code class="language-lean">theorem two_mul_binToTernary_eq_sum (n : ℕ) :
+    2 * binToTernary n =
+      ∑ k ∈ Finset.Icc 1 n, (3 ^ padicValNat 2 k + 1)
+</code></pre>
+</div>
+<p>here <code>padicValNat 2 k</code> is <math><mrow><msub><mi>ν</mi><mn>2</mn></msub><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">)</mo></mrow></math>, and <code>Finset.Icc 1 n</code> is the
+integer interval <math><mrow><mo>{</mo><mn>1</mn><mo>,</mo><mo>…</mo><mo>,</mo><mi>n</mi><mo>}</mo></mrow></math>.</p>
+<h2>the block geometry</h2>
+<p>similarly to my previous post, i just needed to <em>see</em> things:
+not an uncommon feeling in these contexts.</p>
+<p>an explanation for the proof centers around decomposing and
+partitioning the sequence terms into blocks; with that, you
+can make arguments about which subsets belong in which blocks
+and how moving within and between blocks gives the greedy
+sequence by induction.</p>
+<p>so, starting with how we construct the blocks</p>
+<div class="gen">
+<pre><code class="language-text">{1, 2} | 3 | 6 7 | 14 15 17 18 | 36 37 39 40 45 46 48 49 | 98 ...
+        L=0  L=1       L=2                 L=3                L=4
+</code></pre>
+</div>
+<p>let</p>
+<math display="block"><mrow><msub><mi>B</mi><mi>L</mi></msub><mo>=</mo><msup><mn>2</mn><mi>L</mi></msup><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><mn>1</mn></mrow></math>
+<p>and let <math><msub><mi>T</mi><mi>L</mi></msub></math> be the set of <em>offsets</em> (<math><mrow><msub><mi>T</mi><mi>L</mi></msub><mo>⊆</mo><mi>ℕ</mi></mrow></math>)
+below <math><msup><mn>3</mn><mi>L</mi></msup></math> whose ternary digits are all <code>0</code> or <code>1</code>.
+equivalently,</p>
+<math display="block"><mrow><msub><mi>T</mi><mi>L</mi></msub><mo>=</mo><mo>{</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>:</mo><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>r</mi><mo><</mo><msup><mn>2</mn><mi>L</mi></msup><mo>}</mo></mrow></math>
+<p>in the set notation below,</p>
+<math display="block"><mrow><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub><mo>=</mo><mo>{</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>t</mi><mo>:</mo><mi>t</mi><mo>∈</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub><mo>}</mo></mrow></math>
+<p>viewing offsets as length-<math><mi>L</mi></math> ternary strings padded with leading zeroes
+(with the empty string representing <code>0</code> when <math><mrow><mi>L</mi><mo>=</mo><mn>0</mn></mrow></math>), each digit may
+independently be <code>0</code> or <code>1</code>, so</p>
+<math display="block"><mrow><mo>|</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub><mspace width="0.25em"/><mo>|</mo><mo>=</mo><msup><mn>2</mn><mi>L</mi></msup><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mo>max</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub><mo>=</mo><mfrac><mrow><msup><mn>3</mn><mi>L</mi></msup><mo>-</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>2</mn><mi>t</mi><mo><</mo><msup><mn>3</mn><mi>L</mi></msup><mo> </mo><mo stretchy="false">(</mo><mi>t</mi><mo>∈</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub><mo stretchy="false">)</mo></mrow></math>
+<p>splitting by the leading ternary digit also gives</p>
+<math display="block"><mrow><msub><mi>T</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>=</mo><msub><mi>T</mi><mi>L</mi></msub><mo>∪</mo><mo stretchy="false">(</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub><mo stretchy="false">)</mo></mrow></math>
+<p>we then propose the closed form <math><mi>V</mi></math></p>
+<math display="block"><mrow><mi>V</mi><mo>=</mo><mo>{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>}</mo><mo>∪</mo><msub><mo>⋃</mo><mrow><mi>L</mi><mo>≥</mo><mn>0</mn></mrow></msub><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub><mo stretchy="false">)</mo></mrow></math>
+<p>for the first few blocks, we observe</p>
+<div class="gen">
+<table>
+<thead>
+<tr>
+<th align="right"><math><mi>L</mi></math></th>
+<th align="right"><math><msub><mi>B</mi><mi>L</mi></msub></math></th>
+<th><math><msub><mi>T</mi><mi>L</mi></msub></math></th>
+<th><math><mrow><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub></mrow></math></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="right">0</td>
+<td align="right">3</td>
+<td><math><mrow><mo>{</mo><mn>0</mn><mo>}</mo></mrow></math></td>
+<td><math><mrow><mo>{</mo><mn>3</mn><mo>}</mo></mrow></math></td>
+</tr>
+<tr>
+<td align="right">1</td>
+<td align="right">6</td>
+<td><math><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>}</mo></mrow></math></td>
+<td><math><mrow><mo>{</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo>}</mo></mrow></math></td>
+</tr>
+<tr>
+<td align="right">2</td>
+<td align="right">14</td>
+<td><math><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>}</mo></mrow></math></td>
+<td><math><mrow><mo>{</mo><mn>14</mn><mo>,</mo><mn>15</mn><mo>,</mo><mn>17</mn><mo>,</mo><mn>18</mn><mo>}</mo></mrow></math></td>
+</tr>
+<tr>
+<td align="right">3</td>
+<td align="right">36</td>
+<td><math><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>9</mn><mo>,</mo><mn>10</mn><mo>,</mo><mn>12</mn><mo>,</mo><mn>13</mn><mo>}</mo></mrow></math></td>
+<td><math><mrow><mo>{</mo><mn>36</mn><mo>,</mo><mn>37</mn><mo>,</mo><mn>39</mn><mo>,</mo><mn>40</mn><mo>,</mo><mn>45</mn><mo>,</mo><mn>46</mn><mo>,</mo><mn>48</mn><mo>,</mo><mn>49</mn><mo>}</mo></mrow></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>this rewrites the closed form as a block plus an offset within that block.
+for example, take the formula parameter <math><mrow><mi>n</mi><mo>=</mo><mn>6</mn></mrow></math>, which corresponds to the
+sequence term <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>8</mn><mo stretchy="false">)</mo></mrow></math>. then <math><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mn>2</mn></msup><mo>+</mo><mn>2</mn></mrow></math>, so <math><mrow><mi>L</mi><mo>=</mo><mn>2</mn></mrow></math>, <math><mrow><mi>r</mi><mo>=</mo><mn>2</mn></mrow></math>, and
+<math><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>=</mo><msub><mn>10</mn><mn>3</mn></msub><mo>=</mo><mn>3</mn></mrow></math>. the term is</p>
+<math display="block"><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>8</mn><mo stretchy="false">)</mo><mo>=</mo><msub><mi>B</mi><mn>2</mn></msub><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mn>2</mn><mo stretchy="false">)</mo><mo>=</mo><mn>14</mn><mo>+</mo><mn>3</mn><mo>=</mo><mn>17</mn><mo>.</mo></mrow></math>
+<p>every positive <code>n</code> has a unique decomposition</p>
+<math display="block"><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup><mo>+</mo><mi>r</mi><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>r</mi><mo><</mo><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup><mo>.</mo></mrow></math>
+<p>splitting off the leading binary one and reading in base 3 gives</p>
+<math display="block"><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><msup><mn>3</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>therefore</p>
+<math display="block"><mrow><mn>1</mn><mo>+</mo><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mn>1</mn><mo>+</mo><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup><mo>+</mo><msup><mn>3</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><msub><mi>B</mi><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msub><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>as i understand it, this is just the fancy way of saying:
+in base-2, <math><mi>n</mi></math> has a leading <code>1</code> followed by exactly
+<math><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></math> bits: this resolves which block. the values of these
+bits form <math><mi>r</mi></math>. when read in base-2, <math><mi>r</mi></math> is the intra-block
+index; when read in base-3, <math><mrow><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo></mrow></math>, it is the actual
+offset from <math><msub><mi>B</mi><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msub></math>.</p>
+<p>we capture this as <code>closedForm_eq_block</code> in the Lean proof.</p>
+<h2>where the power-of-two term comes from</h2>
+<p><a href="https://oeis.org/A005836"><code>A005836</code></a> sequences a set of
+nonnegative integers such that all base-3 expansions contain
+only <code>0</code> and <code>1</code>. adding one to each term gives <a href="https://oeis.org/A003278"><code>A003278</code></a>,
+the ordinary greedy 3-AP-free sequence beginning at <code>1</code>:</p>
+<pre><code>1, 2, 4, 5, 10, 11, 13, 14, ...
+</code></pre>
+<p>notably,
+<a href="https://arxiv.org/abs/1502.06013">lemma 6.4 of Moy and Rolnick's <em>Novel structures in Stanley sequences</em></a>
+proves that these Stanley numbers (<code>A005836</code>) are <strong>3-AP-free and greedy</strong>:
+no three distinct terms form an arithmetic progression, and every
+omitted number completes one with two earlier terms. (also, yes i linked
+the pre-print on purpose.)</p>
+<p><code>A092482</code> differs in that it  explicitly permits <code>(1,2,3)</code>.</p>
+<p>for an exact comparison, let</p>
+<math display="block"><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>=</mo><mi>A</mi><mn>003278</mn><mo stretchy="false">(</mo><mi>r</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo></mrow></math>
+<math display="block"><mrow><mi>G</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>=</mo><mi>A</mi><mn>092482</mn><mo stretchy="false">(</mo><mi>r</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>
+<p>both with zero-based arguments. in the Lean source these functions are
+<code>stanleyGreedy</code> and <code>greedySeq</code>, respectively. block <math><mi>L</mi></math> begins at
+index <math><msup><mn>2</mn><mi>L</mi></msup></math> in <math><mi>S</mi></math> but at index <math><mrow><msup><mn>2</mn><mi>L</mi></msup><mo>+</mo><mn>1</mn></mrow></math> in <math><mi>G</mi></math>. thus the table below
+compares corresponding block starts, not equal sequence indices.
+subtracting the two block formulas below shows the displacement created
+by accepting the seed rule.</p>
+<div class="gen">
+<pre><code class="language-text">L:                  0       1       2       3       4
+A092482 start:      3       6      14      36      98
+zero-based index:   2       3       5       9      17
+A003278 start:      2       4      10      28      82
+zero-based index:   1       2       4       8      16
+difference:         1       2       4       8      16
+</code></pre>
+</div>
+<p>the difference doubles from one block to the next. formally,</p>
+<math display="block"><mrow><mo>greedySeq</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mi>L</mi></msup><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mo>stanleyGreedy</mo><mo stretchy="false">(</mo><msup><mn>2</mn><mi>L</mi></msup><mo stretchy="false">)</mo><mo>+</mo><msup><mn>2</mn><mi>L</mi></msup><mo>,</mo></mrow></math>
+<div class="gen">
+<p>this is <code>greedySeq_defect</code>. it is the <math><mrow><mi>r</mi><mo>=</mo><mn>0</mn></mrow></math> case of the stronger blockwise
+identity: whenever <math><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mi>L</mi></msup><mo>+</mo><mi>r</mi></mrow></math> with <math><mrow><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>r</mi><mo><</mo><msup><mn>2</mn><mi>L</mi></msup></mrow></math>,</p>
+<math display="block"><mrow><mi>S</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mn>1</mn><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo></mrow></math>
+<math display="block"><mrow><mi>G</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mn>1</mn><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><mi>τ</mi><mo stretchy="false">(</mo><mi>r</mi><mo stretchy="false">)</mo><mo>+</mo><msup><mn>2</mn><mi>L</mi></msup></mrow></math>
+<p>therefore the entire <code>A092482</code> block is the corresponding ordinary Stanley
+block translated by <math><msup><mn>2</mn><mi>L</mi></msup></math>. since <math><mrow><mi>L</mi><mo>=</mo><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></math>, this translation
+is exactly the <math><msup><mn>2</mn><mrow><mo>⌊</mo><msub><mo>log</mo><mn>2</mn></msub><mi>n</mi><mo>⌋</mo></mrow></msup></math> term in the closed form.</p>
+<p>accepting <code>3</code> explains how the displacement begins: <code>4</code> is then blocked by
+<code>(2,3,4)</code> and <code>5</code> by <code>(1,3,5)</code>, so the next term is <code>6</code>. the later
+admissibility and covering arguments prove that the translated blocks continue
+to obey the greedy rule.</p>
+</div>
+<h2>the proof</h2>
+<p>earlier, we constructed <math><mi>V</mi></math> such that</p>
+<math display="block"><mrow><mi>V</mi><mo>=</mo><mo>{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>}</mo><mo>∪</mo><msub><mo>⋃</mo><mrow><mi>L</mi><mo>≥</mo><mn>0</mn></mrow></msub><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>and, in the proof, we claim that enumeration
+of this set (in increasing order) is exactly
+the greedy process that gives us the closed
+form.</p>
+<p>in order to prove this, we need further show:</p>
+<div class="gen">
+<ol>
+<li>
+<p><strong>admissibility:</strong> no three distinct terms of <math><mi>V</mi></math> form an arithmetic
+progression except <code>(1,2,3)</code>;</p>
+</li>
+<li>
+<p><strong>minimality:</strong> every integer greater than <code>2</code> outside <math><mi>V</mi></math> is blocked by two
+smaller terms of <math><mi>V</mi></math>.</p>
+</li>
+</ol>
+<p>induction on the prefix length then forces the greedy process to
+select exactly the increasing enumeration of <math><mi>V</mi></math>.</p>
+</div>
+<h2>admissibility</h2>
+<div class="gen">
+<p>suppose <math><mrow><mi>a</mi><mo><</mo><mi>b</mi><mo><</mo><mi>c</mi></mrow></math> are terms of <math><mi>V</mi></math> and <math><mrow><mi>a</mi><mo>+</mo><mi>c</mi><mo>=</mo><mn>2</mn><mi>b</mi></mrow></math>. if <math><mrow><mi>c</mi><mo>=</mo><mn>3</mn></mrow></math>, the only
+possibility is the permitted progression <code>(1,2,3)</code>. now suppose that <math><mi>c</mi></math> lies
+in block <math><mrow><mi>L</mi><mo>></mo><mn>0</mn></mrow></math>.</p>
+<p>first note that twice any term before block <math><mi>L</mi></math> is at most <math><msub><mi>B</mi><mi>L</mi></msub></math>.</p>
+<p>indeed, the largest such term lies in block <math><mrow><mi>L</mi><mo>-</mo><mn>1</mn></mrow></math>, and</p>
+<math display="block"><mrow><mn>2</mn><mrow><mo>(</mo><mrow><msub><mi>B</mi><mrow><mi>L</mi><mo>-</mo><mn>1</mn></mrow></msub><mo>+</mo><mo>max</mo><mspace width="0.25em"/><msub><mi>T</mi><mrow><mi>L</mi><mo>-</mo><mn>1</mn></mrow></msub></mrow><mo>)</mo></mrow><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mn>2</mn><mrow><mo>(</mo><mrow><msup><mn>2</mn><mrow><mi>L</mi><mo>-</mo><mn>1</mn></mrow></msup><mo>+</mo><msup><mn>3</mn><mrow><mi>L</mi><mo>-</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>1</mn><mo>+</mo><mfrac><mrow><msup><mn>3</mn><mrow><mi>L</mi><mo>-</mo><mn>1</mn></mrow></msup><mo>-</mo><mn>1</mn></mrow><mn>2</mn></mfrac></mrow><mo>)</mo></mrow><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>.</mo></mrow></math>
+<p>if <math><mi>b</mi></math> were in an earlier block, then <math><mrow><mn>2</mn><mi>b</mi><mo>≤</mo><mspace width="0.25em"/><msub><mi>B</mi><mi>L</mi></msub></mrow></math>, whereas</p>
+<math display="block"><mrow><mn>2</mn><mi>b</mi><mo>=</mo><mi>a</mi><mo>+</mo><mi>c</mi><mo>></mo><mi>c</mi><mo>≥</mo><mspace width="0.25em"/><msub><mi>B</mi><mi>L</mi></msub><mo>,</mo></mrow></math>
+<p>a contradiction. hence <math><mi>b</mi></math> and <math><mi>c</mi></math> lie in the same block. write</p>
+<math display="block"><mrow><mi>b</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>s</mi><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mi>c</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>t</mi><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mi>s</mi><mo><</mo><mi>t</mi><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mi>s</mi><mo>,</mo><mi>t</mi><mo>∈</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub><mo>.</mo></mrow></math>
+<p>then</p>
+<math display="block"><mrow><mi>a</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mn>2</mn><mi>s</mi><mo>-</mo><mi>t</mi></mrow></math>
+<p>if <math><mi>a</mi></math> were earlier than block <math><mi>L</mi></math>, the same bound would
+give <math><mrow><mn>2</mn><mi>a</mi><mo>≤</mo><mspace width="0.25em"/><msub><mi>B</mi><mi>L</mi></msub></mrow></math>. but <math><mrow><mn>2</mn><mi>t</mi><mo><</mo><msup><mn>3</mn><mi>L</mi></msup></mrow></math>, so</p>
+<math display="block"><mrow><mn>2</mn><mi>a</mi><mo>=</mo><mn>2</mn><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mn>4</mn><mi>s</mi><mo>-</mo><mn>2</mn><mi>t</mi></mrow></math>
+<math display="block"><mrow><mo>></mo><mn>2</mn><msub><mi>B</mi><mi>L</mi></msub><mo>-</mo><msup><mn>3</mn><mi>L</mi></msup></mrow></math>
+<math display="block"><mrow><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msup><mn>2</mn><mi>L</mi></msup><mo>+</mo><mn>1</mn></mrow></math>
+<math display="block"><mrow><mo>></mo><msub><mi>B</mi><mi>L</mi></msub></mrow></math>
+<p>again a contradiction.</p>
+</div>
+<p>all three terms must lie in block <math><mi>L</mi></math>. subtracting
+<math><msub><mi>B</mi><mi>L</mi></msub></math> produces a nontrivial 3-AP in <math><msub><mi>T</mi><mi>L</mi></msub></math>. but <math><msub><mi>T</mi><mi>L</mi></msub></math>
+consists of the first <math><msup><mn>2</mn><mi>L</mi></msup></math> values of the zero-reindexed
+<code>A005836</code>.</p>
+<p>we saw above that Moy and Rolnick's <code>Lemma 6.4</code> proves
+that this ternary-digit sequence is 3-AP-free. this proves
+admissibility: the Lean theorem is <code>noThreeAPExceptSeed_Vset</code>.</p>
+<h2>minimality: within a block</h2>
+<div class="gen">
+<p>now take a candidate in the <math><mi>L</mi></math>-th digit window,</p>
+<math display="block"><mrow><mi>m</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>u</mi><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>u</mi><mo><</mo><msup><mn>3</mn><mi>L</mi></msup><mo>,</mo></mrow></math>
+<p>but suppose <math><mrow><mi>m</mi><mo>∉</mo><mspace width="0.25em"/><mi>V</mi></mrow></math>. then <math><mrow><mi>u</mi><mo>∉</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub></mrow></math>, so at least one ternary digit of
+<math><mi>u</mi></math> is <code>2</code>. replace every <code>2</code> by <code>0</code> to obtain
+<math><mrow><mo>keepOnes</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo></mrow></math>, and by <code>1</code> to obtain
+<math><mrow><mo>capDigits</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo></mrow></math>. digit by digit,</p>
+<math display="block"><mrow><mo>keepOnes</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mo>+</mo><mi>u</mi><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mn>2</mn><mo>capDigits</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mo>,</mo></mrow></math>
+<p>and the presence of a <code>2</code> gives</p>
+<math display="block"><mrow><mo>keepOnes</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo><</mo><mo>capDigits</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mo><</mo><mi>u</mi><mo>.</mo></mrow></math>
+<p>both replacements lie in <math><msub><mi>T</mi><mi>L</mi></msub></math>. translating by <math><msub><mi>B</mi><mi>L</mi></msub></math> gives</p>
+<math display="block"><mrow><mo fence="true" form="prefix" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mo>keepOnes</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mo fence="true" form="postfix" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo><mo>+</mo><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>u</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mn>2</mn><mo fence="true" form="prefix" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mo>capDigits</mo><mo stretchy="false">(</mo><mi>u</mi><mo stretchy="false">)</mo><mo fence="true" form="postfix" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo><mo>.</mo></mrow></math>
+<p>thus the two smaller block terms block <math><mi>m</mi></math>.</p>
+<p>for example, <math><mrow><msub><mi>B</mi><mn>2</mn></msub><mo>=</mo><mn>14</mn></mrow></math> and the missing offset <math><mrow><mi>u</mi><mo>=</mo><mn>5</mn><mo>=</mo><msub><mn>12</mn><mn>3</mn></msub></mrow></math> gives</p>
+<pre><code class="language-text">keepOnes(12_3) = 10_3 = 3
+capDigits(12_3) = 11_3 = 4
+</code></pre>
+<p>hence</p>
+<math display="block"><mrow><mn>14</mn><mo>+</mo><mn>3</mn><mo>=</mo><mn>17</mn><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>14</mn><mo>+</mo><mn>4</mn><mo>=</mo><mn>18</mn><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>14</mn><mo>+</mo><mn>5</mn><mo>=</mo><mn>19</mn><mo>,</mo></mrow></math>
+<p>with <math><mrow><mn>17</mn><mo>+</mo><mn>19</mn><mo>=</mo><mn>2</mn><mo>⋅</mo><mn>18</mn></mrow></math>. this is the internal branch of <code>exists_blocking</code>.</p>
+</div>
+<h2>minimality: between the blocks</h2>
+<div class="gen">
+<p>the digit argument covers every omitted value in the ambient digit window</p>
+<math display="block"><mrow><mo stretchy="false">[</mo><msub><mi>B</mi><mi>L</mi></msub><mo>,</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>the actual block <math><mrow><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub></mrow></math> is a sparse subset of this window. it remains to
+cover</p>
+<math display="block"><mrow><mo stretchy="false">[</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo>,</mo><msub><mi>B</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mo>,</mo></mrow></math>
+<p>whose length is</p>
+<math display="block"><mrow><msub><mi>B</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>-</mo><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo stretchy="false">)</mo><mo>=</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><msup><mn>2</mn><mi>L</mi></msup><mo>.</mo></mrow></math>
+<p>for example, the block-<math><mn>3</mn></math> digit window is <code>[36,63)</code>, while the next block
+starts at <code>98</code>; the inter-block gap is <code>[63,98)</code>.</p>
+<p>let</p>
+<math display="block"><mrow><mo>Pre</mo><mo stretchy="false">(</mo><mi>L</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo>=</mo><mo>{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>}</mo><mo>∪</mo><msub><mo>⋃</mo><mrow><mi>j</mi><mo><</mo><mi>L</mi></mrow></msub><mo stretchy="false">(</mo><msub><mi>B</mi><mi>j</mi></msub><mo>+</mo><msub><mi>T</mi><mi>j</mi></msub><mo stretchy="false">)</mo><mo>,</mo></mrow></math>
+<p>the terms before block <math><mi>L</mi></math>. the recursive invariant is</p>
+<math display="block"><mrow><msub><mi>Q</mi><mi>L</mi></msub><mo>:</mo><mo> </mo><mspace width="0.25em"/><mn>0</mn><mo>≤</mo><mi>μ</mi><mo><</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><msup><mn>2</mn><mi>L</mi></msup><mspace width="0.25em"/><mo>⟹</mo><mspace width="0.25em"/><mo>∃</mo><mo> </mo><mi>t</mi><mo>∈</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub><mo>,</mo><mspace width="0.25em"/><mi>p</mi><mo>∈</mo><mo>Pre</mo><mo stretchy="false">(</mo><mi>L</mi><mo stretchy="false">)</mo><mo>,</mo><mo> </mo><mspace width="0.25em"/><mi>μ</mi><mo>+</mo><mi>p</mi><mo>=</mo><mn>2</mn><mi>t</mi><mo>+</mo><msup><mn>2</mn><mi>L</mi></msup><mo>+</mo><mn>1</mn></mrow></math>
+<p>for <math><mrow><mi>m</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo>+</mo><mi>μ</mi></mrow></math>, this gives</p>
+<math display="block"><mrow><mi>m</mi><mo>+</mo><mi>p</mi><mo>=</mo><mn>2</mn><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>t</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>both witnesses are earlier: <math><mrow><mi>p</mi><mo><</mo><msub><mi>B</mi><mi>L</mi></msub><mo><</mo><mi>m</mi></mrow></math>, and <math><mrow><mi>t</mi><mo><</mo><msup><mn>3</mn><mi>L</mi></msup></mrow></math> gives
+<math><mrow><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>t</mi><mo><</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><msup><mn>3</mn><mi>L</mi></msup><mo>≤</mo><mspace width="0.25em"/><mi>m</mi></mrow></math>.</p>
+<p>at <math><mrow><mi>L</mi><mo>=</mo><mn>0</mn></mrow></math>, <math><mrow><msub><mi>T</mi><mn>0</mn></msub><mo>=</mo><mo>{</mo><mn>0</mn><mo>}</mo></mrow></math> and <math><mrow><mo>Pre</mo><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo><mo>=</mo><mo>{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>}</mo></mrow></math>. the values
+<math><mrow><mi>μ</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn></mrow></math> use <math><mrow><mo stretchy="false">(</mo><mi>t</mi><mo>,</mo><mi>p</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false">)</mo></mrow></math> and <math><mrow><mo stretchy="false">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>:</p>
+<math display="block"><mrow><mn>4</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>2</mn><mo>⋅</mo><mn>3</mn><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>5</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>2</mn><mo>⋅</mo><mn>3</mn><mo>.</mo></mrow></math>
+<p>for the induction step, abbreviate <math><mrow><mi>a</mi><mo>=</mo><msup><mn>2</mn><mi>L</mi></msup></mrow></math>, <math><mrow><mi>b</mi><mo>=</mo><msup><mn>3</mn><mi>L</mi></msup></mrow></math>, and
+<math><mrow><msub><mi>B</mi><mi>L</mi></msub><mo>=</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>+</mo><mn>1</mn></mrow></math>. the level-<math><mrow><mo stretchy="false">(</mo><mi>L</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math> range is <math><mrow><mo stretchy="false">[</mo><mn>0</mn><mo>,</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>3</mn><mi>b</mi><mo stretchy="false">)</mo></mrow></math>. the following
+inclusions will be used:</p>
+<math display="block"><mrow><msub><mi>T</mi><mi>L</mi></msub><mo>⊆</mo><mspace width="0.25em"/><msub><mi>T</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mi>b</mi><mo>+</mo><msub><mi>T</mi><mi>L</mi></msub><mo>⊆</mo><mspace width="0.25em"/><msub><mi>T</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mo>Pre</mo><mo stretchy="false">(</mo><mi>L</mi><mo stretchy="false">)</mo><mo>⊆</mo><mo>Pre</mo><mo stretchy="false">(</mo><mi>L</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>for any <math><mrow><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>u</mi><mo><</mo><mi>b</mi></mrow></math>, there are also <math><mrow><mi>s</mi><mo>,</mo><mi>s</mi><mo>'</mo><mo>∈</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub></mrow></math> with <math><mrow><mi>u</mi><mo>+</mo><mi>s</mi><mo>'</mo><mo>=</mo><mn>2</mn><mi>s</mi></mrow></math>. if
+<math><mrow><mi>u</mi><mo>∈</mo><mspace width="0.25em"/><msub><mi>T</mi><mi>L</mi></msub></mrow></math>, take <math><mrow><mi>s</mi><mo>=</mo><mi>s</mi><mo>'</mo><mo>=</mo><mi>u</mi></mrow></math>; otherwise the <code>capDigits</code>/<code>keepOnes</code> construction
+from the preceding section supplies the witnesses. the four cases are:</p>
+<table>
+<thead>
+<tr>
+<th>range for <math><mi>μ</mi></math></th>
+<th>reduced parameter</th>
+<th>witnesses at level <math><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></math></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><math><mrow><mo stretchy="false">[</mo><mn>0</mn><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></mrow></math></td>
+<td><math><mrow><mi>u</mi><mo>=</mo><mi>μ</mi><mo>+</mo><mi>b</mi><mo>-</mo><mi>a</mi></mrow></math>, with <math><mrow><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>u</mi><mo><</mo><mi>b</mi></mrow></math></td>
+<td>from <math><mrow><mi>u</mi><mo>+</mo><mi>s</mi><mo>'</mo><mo>=</mo><mn>2</mn><mi>s</mi></mrow></math>, take <math><mrow><mi>t</mi><mo>=</mo><mi>s</mi></mrow></math>, <math><mrow><mi>p</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>s</mi><mo>'</mo></mrow></math></td>
+</tr>
+<tr>
+<td><math><mrow><mo stretchy="false">[</mo><mi>a</mi><mo>,</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo></mrow></math></td>
+<td><math><mrow><mi>μ</mi><mo>'</mo><mo>=</mo><mi>μ</mi><mo>-</mo><mi>a</mi></mrow></math>, with <math><mrow><mn>0</mn><mo>≤</mo><mi>μ</mi><mo>'</mo><mo><</mo><mi>a</mi><mo>+</mo><mi>b</mi></mrow></math></td>
+<td>from <math><mrow><msub><mi>Q</mi><mi>L</mi></msub><mo stretchy="false">(</mo><mi>μ</mi><mo>'</mo><mo stretchy="false">)</mo></mrow></math>, keep <math><mrow><mi>t</mi><mo>=</mo><mi>s</mi></mrow></math>, <math><mi>p</mi></math></td>
+</tr>
+<tr>
+<td><math><mrow><mo stretchy="false">[</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo>,</mo><mi>a</mi><mo>+</mo><mn>2</mn><mi>b</mi><mo stretchy="false">)</mo></mrow></math></td>
+<td><math><mrow><mi>u</mi><mo>=</mo><mi>μ</mi><mo>-</mo><mi>a</mi><mo>-</mo><mi>b</mi></mrow></math>, with <math><mrow><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>u</mi><mo><</mo><mi>b</mi></mrow></math></td>
+<td>from <math><mrow><mi>u</mi><mo>+</mo><mi>s</mi><mo>'</mo><mo>=</mo><mn>2</mn><mi>s</mi></mrow></math>, take <math><mrow><mi>t</mi><mo>=</mo><mi>b</mi><mo>+</mo><mi>s</mi></mrow></math>, <math><mrow><mi>p</mi><mo>=</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>s</mi><mo>'</mo></mrow></math></td>
+</tr>
+<tr>
+<td><math><mrow><mo stretchy="false">[</mo><mi>a</mi><mo>+</mo><mn>2</mn><mi>b</mi><mo>,</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>3</mn><mi>b</mi><mo stretchy="false">)</mo></mrow></math></td>
+<td><math><mrow><mi>μ</mi><mo>'</mo><mo>=</mo><mi>μ</mi><mo>-</mo><mi>a</mi><mo>-</mo><mn>2</mn><mi>b</mi></mrow></math>, with <math><mrow><mn>0</mn><mo>≤</mo><mi>μ</mi><mo>'</mo><mo><</mo><mi>a</mi><mo>+</mo><mi>b</mi></mrow></math></td>
+<td>from <math><mrow><msub><mi>Q</mi><mi>L</mi></msub><mo stretchy="false">(</mo><mi>μ</mi><mo>'</mo><mo stretchy="false">)</mo></mrow></math>, take <math><mrow><mi>t</mi><mo>=</mo><mi>b</mi><mo>+</mo><mi>s</mi></mrow></math>, keep <math><mi>p</mi></math></td>
+</tr>
+</tbody>
+</table>
+<p>here <math><mrow><mi>t</mi><mo>↦</mo><mspace width="0.25em"/><mi>b</mi><mo>+</mo><mi>t</mi></mrow></math> prefixes a leading ternary <code>1</code>, which explains the
+second embedding. the four arithmetic checks are</p>
+<math display="block"><mrow><mi>μ</mi><mo>+</mo><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>s</mi><mo>'</mo><mo stretchy="false">)</mo></mrow></math>
+<math display="block"><mrow><mo>=</mo><mi>u</mi><mo>+</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>1</mn><mo>+</mo><mi>s</mi><mo>'</mo><mo>=</mo><mn>2</mn><mi>s</mi><mo>+</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>1</mn></mrow></math>
+<math display="block"><mrow><mi>μ</mi><mo>+</mo><mi>p</mi></mrow></math>
+<math display="block"><mrow><mo>=</mo><mi>μ</mi><mo>'</mo><mo>+</mo><mi>a</mi><mo>+</mo><mi>p</mi><mo>=</mo><mn>2</mn><mi>s</mi><mo>+</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>1</mn></mrow></math>
+<math display="block"><mrow><mi>μ</mi><mo>+</mo><mo stretchy="false">(</mo><msub><mi>B</mi><mi>L</mi></msub><mo>+</mo><mi>s</mi><mo>'</mo><mo stretchy="false">)</mo></mrow></math>
+<math display="block"><mrow><mo>=</mo><mi>u</mi><mo>+</mo><mi>s</mi><mo>'</mo><mo>+</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>2</mn><mi>b</mi><mo>+</mo><mn>1</mn><mo>=</mo><mn>2</mn><mo stretchy="false">(</mo><mi>b</mi><mo>+</mo><mi>s</mi><mo stretchy="false">)</mo><mo>+</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>1</mn></mrow></math>
+<math display="block"><mrow><mi>μ</mi><mo>+</mo><mi>p</mi></mrow></math>
+<math display="block"><mrow><mo>=</mo><mi>μ</mi><mo>'</mo><mo>+</mo><mi>p</mi><mo>+</mo><mi>a</mi><mo>+</mo><mn>2</mn><mi>b</mi><mo>=</mo><mn>2</mn><mo stretchy="false">(</mo><mi>b</mi><mo>+</mo><mi>s</mi><mo stretchy="false">)</mo><mo>+</mo><mn>2</mn><mi>a</mi><mo>+</mo><mn>1</mn></mrow></math>
+<p>in every case the final expression is <math><mrow><mn>2</mn><mi>t</mi><mo>+</mo><msup><mn>2</mn><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>1</mn></mrow></math>, proving
+<math><msub><mi>Q</mi><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msub></math>. this four-case induction is <code>q_covering</code>. together with internal
+digit blocking, it proves that every nonterm above <code>2</code> is blocked by two
+smaller terms of <math><mi>V</mi></math>.</p>
+</div>
+<h2>some assembly required</h2>
+<div class="gen">
+<p>admissibility is <code>noThreeAPExceptSeed_Vset</code>, and minimality is
+<code>exists_blocking</code>. the formal prefix induction starts from <code>{1}</code>.
+admissibility makes each next closed-form value legal. in the first two
+applications of <code>nextGreedy_key</code>, there is no integer strictly between <code>1</code> and
+<code>2</code>, or between <code>2</code> and <code>3</code>. thereafter every smaller unselected candidate is
+greater than <code>2</code>, so minimality makes it illegal. the least legal next value
+is therefore the next closed-form value, and the induction gives</p>
+<pre><code class="language-lean">theorem greedySeq_eq_closedForm : greedySeq = closedForm
+</code></pre>
+<p>the induction derives the seed prefix <code>{1,2,3}</code>; the formal corollary recording
+this prefix is <code>prefixSet_two</code>.</p>
+</div>
+<p><a href="https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/No3APGreedy.lean"><code>Proofs/Enumerative/No3APGreedy.lean</code></a>
+contains the complete formal proof: it compiles without
+<code>sorry</code>, <code>admit</code>, or non-standard axioms. the proved
+formula also derives the first 57 terms displayed on
+the OEIS entry.</p>
+<h2>literature check</h2>
+<p>a cursory literature check done with my harness did
+not yield anything adjacent or anything that would
+imply a previous formalization exists.</p>
+<h2>closing thoughts</h2>
+<p>i spent <em>hours</em> trying to understand this proof; what
+frustrated me the most, especially of all the proofs
+in my backlog, is that this one seemed to be the one
+that is closest to my understanding of maths as a
+programmer. yet, it took much longer than expected to
+figure out what the argument being made was.</p>
+<p>nonetheless, i found the blockwise visualization
+to be quite coherent in trying to wrap my head around
+the proof: even more, i was surprised by the fidelity
+of the &quot;conversations&quot; i had with my research harness
+when trying to build intuition.</p>
+<p>i will admit: there is something <em>unsatisfying</em> about
+formalizing and proving things in this manner; in part,
+i think it is because these results do not excite me,
+and i would rather be doing other things with my time
+than trying to elucidate a result i do not care about.
+though, that is not to say that this exercise is not
+without material benefit.</p>
+
+</body>
+</html>

@@ -19,6 +19,7 @@ working on Go cryptography and security.
 
 ## words
 
+- [proving `A092482`'s closed form ](./words/proving_a092482_closed_form.html)
 - [llm disclosure on patel.codes](./words/patel_codes_llm_disclosure.html)
 - [what i actually proved about `A051293`](./words/sharpening_my_a051293_results.html)
 - [catching llm-induced laziness](./words/catching_llm_induced_laziness.html)
