@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>drive by proof on `A014701`</title>
+<meta property="og:title" content="drive by proof on `A014701`">
+<meta property="og:url" content="https://patel.codes/words/driveby_proof_on_a014701.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
+  pre code { color: var(--ink); font-size: 15px; }
+  pre code .cm { color: var(--ink-light); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>drive by proof on <code>A014701</code></h1>
+<p>2026-08-23 <span class="home">[<a href="/">home</a>]</span></p>
+<p class="gen-notice">this page contains generated content delineated using <span class="gen-inline">this shadowing style</span>.</p>
+<h2>motivations</h2>
+<p>two of my most persistent obsessions remain
+maths and programming; one finds the former
+often flowing into the latter, but only in
+the recent century or so have we seen the
+latter flowing into the former.</p>
+<p>naturally, formal methods and &quot;auto-research&quot;
+are even more recent developments in this
+space. while my disdain for large language
+models largely lives on, there is virtually
+no sound argument in denying the utility that
+these tools create.</p>
+<h2>the conjecture</h2>
+<p>on 15 May 2025, Jean-Marc Rebert wrote a comment on
+<a href="https://oeis.org/A014701"><code>A014701</code></a> which conjectures:</p>
+<pre><code>Conjecture: a(n+1) is the minimal number of steps to
+go from 0 to n, by choosing before each step, after
+the first step, whether to keep the same step length
+or double it. The initial step length is 1.
+</code></pre>
+<p>i came across this entry while doing some basic
+conjecture mining (tooling in my harness) over
+OEIS. the goal was to find open conjectures that
+an LLM could formalize into theorems. my primary
+motivation was to get familiar with the pitfalls and
+where the human-in-the-loop is required. it later
+evolved into a cohesive workflow that i am still
+refining... a topic for a future post.</p>
+<p><code>A014701</code> counts the number of multiplications in the
+Chandah-sutra method, a form of
+<a href="https://en.wikipedia.org/wiki/Exponentiation_by_squaring">exponentiation by squaring</a>.</p>
+<p>for positive <code>m</code>, the formula recorded on the entry is</p>
+<pre><code>A014701(m) = floor(log m) + popCount(m) - 1
+           = bitLength(m) + popCount(m) - 2
+</code></pre>
+<p>where <code>log</code> is the binary logarithm.</p>
+<p>this distinction matters: bit length alone is
+<a href="https://oeis.org/A070939"><code>A070939</code></a>, while <code>popCount</code> is
+<a href="https://oeis.org/A000120"><code>A000120</code></a>. neither is <code>A014701</code> outright.</p>
+<p><a href="https://oeis.org/A056792"><code>A056792</code></a> is numerically
+related by <code>A014701(m) = A056792(m) - 1</code>, with one
+key difference: it minimizes the steps that either
+add one to the current position or double the current
+position.</p>
+<p>Rebert's walk always advances and chooses whether to
+keep or double the <strong>step length</strong>. the numerical identity
+is useful context, but it is not a rigorous proof that
+the two walks are one in the same.</p>
+<h2>the model and theorem</h2>
+<p>in
+<a href="https://github.com/thatnealpatel/proofs/blob/fa83e94/Proofs/NumberComplexity/StepWalk.lean"><code>StepWalk.lean</code></a>,
+<code>Reach k p s</code> states: after <code>k</code> steps the walk is at position <code>p</code>
+and its current step length is <code>s</code>.</p>
+<p>this captures Rebert's formulation directly:</p>
+<pre><code class="language-lean">Reach 1 1 1
+
+<span class="cm">/- keep -/</span>
+Reach k p s → Reach (k + 1) (p + s) s
+
+<span class="cm">/- double -/</span>
+Reach k p s → Reach (k + 1) (p + 2 * s) (2 * s)
+</code></pre>
+<p><code>Reachable n k</code> means that some current step length <code>s</code>
+makes <code>Reach k n s</code> true. the theorem signature is</p>
+<pre><code class="language-lean">∀ (n k : ℕ), 1 ≤ n → (IsLeast {j | Reachable n j} k ↔ k + 2 = (n + 1).bits.length + popCount (n + 1))
+</code></pre>
+<p>so it proves the conjecture for positive destinations <code>n &gt;= 1</code>.</p>
+<p>it deliberately does not cover <code>n = 0</code>: every modeled walk has
+taken its initial step and is at a positive position, at least
+as far as i understand it.</p>
+<p><code>A014701(1) = 0</code> corresponds to the empty walk.</p>
+<p><code>IsLeast {j | Reachable n j} k</code> give us both halves of the
+&quot;minimality argument:&quot; a walk reaches <code>n</code> in <code>k</code> steps, and
+every other achievable step count is at least <code>k</code>.</p>
+<p>the Lean formulation deliberately avoids truncated subtraction
+in <code>ℕ</code>; by the formula above, its RHS states exactly <code>k = A014701(n + 1)</code>.</p>
+<h2>the geometry of the decision tree</h2>
+<p>i'll be honest: i looked at all that confused and thought
+to myself <em>well, isn't the geometry of this encoded
+in the decision tree? can't i just see it?</em></p>
+<p>thus, i asked my stochastic parrot to produce some nice
+ASCII visualizations with supporting prose that brings the
+thought to life.</p>
+<p>each node in the tree below is <code>(position, step length)</code>
+and <code>K</code> = keep, <code>D</code> = double.</p>
+<div class="gen">
+<pre><code>                                  (1,1)
+                         K       /     \       D
+                                /       \
+                             (2,1)     (3,2)
+                       K    /   \ D   K /   \ D
+                           /     \     /     \
+                        (3,1)  (4,2) (5,2)  (7,4)
+</code></pre>
+</div>
+<p>now, the useful geometry appears when taking the decision
+tree and folding it by <code>(p,s)</code>; consider the following</p>
+<div class="gen">
+<pre><code>                 K             K              D
+(p,s) ------&gt; (p+s,s) ----&gt; (p+2s,s) ----&gt; (p+4s,2s)
+  |                                                   ^
+  | D                                                 |
+  v                                                   |
+(p+2s,2s) -------------------- K ---------------------+
+</code></pre>
+</div>
+<p>the upper route is <code>KKD</code> and the lower route is <code>DK</code>. both
+finish at the same full state, but the lower route uses two
+transitions instead of three. this is binary carrying made
+visible:</p>
+<pre><code>KKD  --&gt;  DK          two keeps of size s become one keep of size 2s
+</code></pre>
+<p>if two keeps occur at the very end (<code>...KK</code>), it can be
+replaced by a single <code>D</code>.</p>
+<p>let's call any arbitrary string of <code>K</code> and <code>D</code> choices
+a <strong>decision word.</strong> since doubles only move down, every
+such word has one block of <code>K</code> at each scale:</p>
+<div class="gen">
+<pre><code>scale 2^0:    K ... K    D
+scale 2^1:    K ... K    D
+   ...
+scale 2^t:    K ... K    stop
+              &lt; c_t &gt;
+</code></pre>
+<p>writing <code>c_i</code> for the number of keeps on row <code>i</code> gives</p>
+<pre><code>p + 1 = 2^(t+1) + c_0 2^0 + c_1 2^1 + ... + c_t 2^t
+
+k     = 1 + t + c_0 + c_1 + ... + c_t.
+</code></pre>
+<p>whenever some <code>c_i &gt;= 2</code>, the carry cell supplies a shorter
+route to the same endpoint. a shortest walk therefore has only
+zero or one keep on each row:</p>
+<pre><code>scale 2^0:    [K if bit 0 is 1]    D
+scale 2^1:    [K if bit 1 is 1]    D
+                 ...
+scale 2^t:    [K if bit t is 1]    stop
+</code></pre>
+<p>these choices are exactly the lower binary digits of <code>p + 1</code>;
+its leading <code>1</code> is the baseline <code>2^(t+1)</code>. the number of rows
+supplies bit length, and the number of horizontal moves
+supplies population count:</p>
+<pre><code>t + 2              = bitLength(p + 1)
+1 + sum of the c_i = popCount(p + 1)
+
+k = bitLength(p + 1) + popCount(p + 1) - 2.
+</code></pre>
+</div>
+<p>so, there you have it: an arbitrary walk acts like a
+binary expansion with uncarried digits, while a shortest
+walk is the unique fully carried word, with at most one
+keep at each scale.</p>
+<p>you may look at these visualizations and and similarly
+be tempted to make the following conjecture:</p>
+<pre><code>for each positive target, there is exactly one shortest decision word.
+</code></pre>
+<p>so, i handed this off to my harness, and about 20
+minutes later, it produced a machine-checked proof
+for this conjecture. i am not convinced it is that
+interesting or useful, but the experience of being
+able to go from writing this post, seeing something
+interesting, and backgrounding the proof whilst not
+giving up focus on writing this post was notable.</p>
+<p>the proof exists nearby at
+<a href="https://github.com/thatnealpatel/proofs/blob/b3386c2e038e4b8f0ae236f79b897d6580f50733/Proofs/NumberComplexity/StepWalk.lean#L690-L708"><code>List WalkDecision</code></a>:</p>
+<div class="gen">
+<pre><code class="language-lean">theorem existsUnique_shortest_decisionWord (n : ℕ) (hn : 1 ≤ n) :
+    ∃! w : List WalkDecision,
+      decisionPosition w = n ∧
+        IsLeast {j : ℕ | Reachable n j} (w.length + 1)
+</code></pre>
+</div>
+<h2>proof kernel</h2>
+<p>for the boring details, the proof contains
+three claims, only two of which are required
+to prove the conjecture as Rebert wrote:</p>
+<ol>
+<li>
+<p>no walk can beat the binary cost</p>
+</li>
+<li>
+<p>a walk built from binary digits attains that cost</p>
+</li>
+<li>
+<p>(extra credit) the attained decicion word is unique</p>
+</li>
+</ol>
+<p>we get (1) and (2) by packaging</p>
+<pre><code class="language-lean">binCost m = m.bits.length + popCount m
+</code></pre>
+<p>and</p>
+<pre><code class="language-lean"><span class="cm">/- q ≠ 0, r &lt; 2^u -/</span>
+binCost (q * 2^u + r) = u + binCost q + popCount r
+</code></pre>
+<p>an induction over a <code>Reach k p s</code> derivation supplies
+the lower bound by maintaining</p>
+<pre><code class="language-lean">s = 2^t ∧ 2^(t+1) ≤ p + 1 ∧ binCost (p + 1) ≤ k + 2
+</code></pre>
+<p>the keep and double cases both reduce to one exchange lemma:</p>
+<pre><code class="language-lean">2^u ≤ P → binCost (P + 2^u) ≤ binCost P + 1
+</code></pre>
+<p>here <code>P = p + 1</code>. the last part of the invariant says that
+every walk of length <code>k</code> reaching <code>n</code> satisfies</p>
+<pre><code class="language-lean">binCost (n + 1) ≤ k + 2
+</code></pre>
+<p>(i have no idea why the agent decided to style it this way.)</p>
+<p>finally, we show the above step count <code>k</code> satisfies</p>
+<pre><code class="language-lean">k + 2 = (n + 1).bits.length + popCount (n + 1)
+</code></pre>
+<div class="gen">
+<p>together, the lower bound and construction prove the formula for the
+minimum.</p>
+<p>the uniqueness theorem needs one further layer because <code>Reach</code> is a proposition,
+not path data. the proof therefore uses <code>List WalkDecision</code> and establishes
+three facts corresponding directly to the geometry:</p>
+<ol>
+<li>every decision word gives a <code>Reach</code> derivation, and every <code>Reach</code> derivation
+has a decision word;</li>
+<li>every shortest word is <code>DecisionNormal</code>, meaning it contains no <code>KK</code>;</li>
+<li>two normal words ending at the same position are equal.</li>
+</ol>
+<p>the second fact is the carry reduction, and the third says that a fully carried
+word is determined by its endpoint. this proves actual uniqueness of the
+keep-or-double choices, rather than the vacuous uniqueness of proofs of a
+proposition.</p>
+</div>
+<p><code>StepWalk.lean</code> compiles without <code>sorry</code>, <code>admit</code>, or <code>native_decide</code>.</p>
+<p><code>#print axioms</code> reports exactly <code>[propext, Classical.choice, Quot.sound]</code>
+for both <code>rebert_conjecture</code> and <code>rebert_conjecture_iInf</code>.</p>
+<p>the file also checks 14 selected OEIS terms in the kernel:
+indices <code>1..8</code>, <code>15</code>, <code>16</code>, <code>31</code>, <code>32</code>, <code>64</code>, and <code>86</code>,
+through <code>a(86) = 9</code>.</p>
+<h2>literature check</h2>
+<p>i have little in the way of understanding
+if this is an obvious exercise that any
+practitioner can otherwise prove trivially.
+after actually reading further into the
+problem, i am fairly confident this is not
+a notable result.</p>
+<div class="gen">
+<ol>
+<li>
+<p>the live <code>A014701</code> entry and its links and cross-references one hop out. the
+entry contains several proved formulas and neighboring characterizations,
+including the different <code>A056792</code> walk, the
+<a href="https://doi.org/10.4230/LIPIcs.MFCS.2021.52">Gruber–Holzer 2021</a>
+max formula, and Cunningham's base-2 digit-sum comment, but not a proof of
+Rebert's walk;</p>
+</li>
+<li>
+<p>the <a href="https://doi.org/10.1098/rsos.260082">RSOS assembly-theory paper published in 2026</a>
+and now linked from the entry. its accessible publisher text identifies
+<code>A014701</code> with the classical depth index and contains no Rebert attribution
+or keep-or-double walk;</p>
+</li>
+<li>
+<p>an exact-phrase and citation probe for <code>A014701</code>, Rebert, and variants of
+the walk description;</p>
+</li>
+<li>
+<p>SeqFan: the old pipermail host was unreachable, its available Wayback index
+predates the conjecture, and site-scoped probes of the current Google Groups
+archive returned nothing, although that indexing is spotty;</p>
+</li>
+<li>
+<p>a full clone and text search of
+<a href="https://github.com/provables/sequencelib"><code>sequencelib</code></a>, associated with
+<a href="https://arxiv.org/abs/2601.11757">arXiv:2601.11757</a>, which returned no
+<code>A014701</code> hit among 25,905 Lean files.</p>
+</li>
+</ol>
+</div>
+<h2>closing thoughts</h2>
+<p>i spent <strong>way more time</strong> than i care to admit trying
+to understand the generated proof and its formulation.
+this blog post is me vicariously lifting my sunk-cost
+fallacy to you.</p>
+<p>it very well could be that i am the first person to
+waste time on this exercise; in any case, it was a
+nearly-free drive-by that was serving other purposes.</p>
+
+</body>
+</html>
