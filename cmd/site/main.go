@@ -330,6 +330,8 @@ var goImportOverrides = map[string]goImport{
 	"fetch":       {repo: "thatnealpatel/mono", subdir: "fetch"},
 	"ghfa":        {repo: "thatnealpatel/mono", subdir: "ghfa"},
 	"retrieval":   {repo: "thatnealpatel/mono", subdir: "retrieval"},
+	"render":      {repo: "thatnealpatel/mono", subdir: "render"},
+	"gocmt":       {repo: "thatnealpatel/mono", subdir: "gocmt"},
 }
 
 // generateGoImports uses a lazy method to derive
