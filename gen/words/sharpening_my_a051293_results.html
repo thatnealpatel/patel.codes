@@ -142,7 +142,7 @@ of nonempty subsets of <code>Finset.Icc 1 n</code> whose cardinality
 divides their sum. its final theorem, <code>target_theorem_0</code>,
 is the limit</p>
 <div class="gen">
-<math display="block"><mrow><mfrac><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>-</mo><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mrow><mo>(</mo><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mo>+</mo><mfrac><mn>3</mn><msup><mi>n</mi><mn>2</mn></msup></mfrac><mo>+</mo><mfrac><mn>13</mn><msup><mi>n</mi><mn>3</mn></msup></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mo>+</mo><mfrac><mn>75</mn><msup><mi>n</mi><mn>4</mn></msup></mfrac><mo>+</mo><mfrac><mn>541</mn><msup><mi>n</mi><mn>5</mn></msup></mfrac></mrow><mo>)</mo></mrow></mrow></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><msup><mi>n</mi><mn>6</mn></msup></mfrac><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><mn>0</mn><mo>.</mo></mrow></math>
+<math display="block"><mrow><mfrac><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>-</mo><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mrow><mo>(</mo><mrow><mn>1</mn><mo>+</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mo>+</mo><mfrac><mn>3</mn><msup><mi>n</mi><mn>2</mn></msup></mfrac><mo>+</mo><mfrac><mn>13</mn><msup><mi>n</mi><mn>3</mn></msup></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mo>+</mo><mfrac><mn>75</mn><msup><mi>n</mi><mn>4</mn></msup></mfrac><mo>+</mo><mfrac><mn>541</mn><msup><mi>n</mi><mn>5</mn></msup></mfrac></mrow><mo>)</mo></mrow></mrow><mfrac><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><msup><mi>n</mi><mn>6</mn></msup></mfrac></mfrac><mspace width="0.25em"/><mo>→</mo><mspace width="0.25em"/><mn>0</mn><mo>.</mo></mrow></math>
 <p>this is exactly the fixed <code>M = 5</code> statement, rather than
 merely a similar asymptotic. <code>cloitre_explicit_tendsto</code>
 has the same normalized limit expression over <code>a_oeis</code>,
@@ -173,7 +173,7 @@ the main <code>2^n/n</code> scale, again leaving <code>S(n)</code> as the domina
 <p>there is also a real difference in how much of the coefficient pattern
 is formalized. AlphaProof proves six exact finite geometric-moment
 identities for</p>
-<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>j</mi><mo><</mo><mi>n</mi></mrow></msub><mfrac><msup><mi>j</mi><mi>m</mi></msup><msup><mn>2</mn><mi>j</mi></msup></mfrac><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>m</mi><mo>≤</mo><mn>5</mn><mo>.</mo></mrow></math>
+<math display="block"><mrow><msub><mo>∑</mo><mrow><mi>j</mi><mo>&lt;</mo><mi>n</mi></mrow></msub><mfrac><msup><mi>j</mi><mi>m</mi></msup><msup><mn>2</mn><mi>j</mi></msup></mfrac><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>m</mi><mo>≤</mo><mn>5</mn><mo>.</mo></mrow></math>
 <p>their explicit correction terms imply the limiting values
 <code>2, 2, 6, 26, 150, 1082</code>. those are twice
 <code>1, 1, 3, 13, 75, 541</code>, so the coefficients are not arbitrary
