@@ -2,9 +2,6 @@ module patel.codes/patel.codes
 
 go 1.27
 
-require rsc.io/markdown v0.0.0-20241212154241-6bf72452917f
+require patel.codes/render v0.0.0-20260831132815-1ca1e51646cf
 
-require (
-	golang.org/x/text v0.28.0 // indirect
-	golang.org/x/tools v0.36.0 // indirect
-)
+require golang.org/x/text v0.3.7 // indirect
