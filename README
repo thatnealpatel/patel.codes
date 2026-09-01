@@ -1,11 +1,7 @@
-Source code for my personal website: https://patel.codes
+Source code for https://patel.codes.
 
-Build and Preview: 
+generate:
   go run ./cmd/site
 
-Deploy:
+deploy:
   git push
-
----
-
-There is no promise anything here will be maintained, will continue compiling, or ever compiled.
