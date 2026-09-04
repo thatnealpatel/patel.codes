@@ -149,6 +149,12 @@ func main() {
 	cp(filepath.Join(staticDir, "favicon.ico"), filepath.Join(gen, "favicon.ico"))
 	fmt.Println("wrote gen/favicon.ico")
 
+	// data/root holds files served verbatim at the site root, e.g. mk.sh.
+	if err := cpdir(filepath.Join(data, "root"), gen); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("wrote gen/ (root files)")
+
 	if err := os.WriteFile(filepath.Join(gen, "robots.txt"), []byte(robotsTxt), 0o644); err != nil {
 		log.Fatal(err)
 	}
