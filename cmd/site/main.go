@@ -306,9 +306,9 @@ type goImport struct {
 	subdir string
 }
 
-// goImportOverrides describes modules that exist
-// on my GitHub that should always be mapped to
-// name import pages.
+// goImportOverrides describes modules that
+// exist on my GitHub that should always be
+// mapped to name import pages.
 var goImportOverrides = map[string]goImport{
 	"proofs":      {repo: "thatnealpatel/proofs"},
 	"patel.codes": {repo: "thatnealpatel/patel.codes"},
@@ -336,9 +336,9 @@ var goImportOverrides = map[string]goImport{
 	"sagedoc":     {repo: "thatnealpatel/mono", subdir: "sagedoc"},
 }
 
-// generateGoImports uses a lazy method to derive
-// any new Go repositories that need their own
-// generated vanity page.
+// generateGoImports uses a lazy method to
+// derive any new Go repositories that need
+// their own generated vanity page.
 func generateGoImports(gen string) error {
 	resp, err := http.Get("https://api.github.com/users/thatnealpatel/repos?per_page=100")
 	if err != nil {

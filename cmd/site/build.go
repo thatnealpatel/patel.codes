@@ -30,8 +30,8 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 
 	bodyHTML := string(body)
 
-	// One-time exception: the disclosure post explains the shadowing
-	// style itself, so the auto-injected notice would be redundant.
+	// One-time exception: the disclosure post explains the shadowing style itself,
+	// so the auto-injected notice would be redundant.
 	skipNotice := strings.Contains(meta.URL, "/words/patel_codes_llm_disclosure.html")
 	bodyHTML = processGenSections(bodyHTML, skipNotice)
 	bodyHTML = highlightComments(bodyHTML)

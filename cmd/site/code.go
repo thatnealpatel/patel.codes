@@ -5,20 +5,24 @@ import (
 	"strings"
 )
 
-// commentSyntax describes the comment delimiters for one language.
-// A multi or doc pair is only used when both its start and end are
-// nonempty; an incomplete pair is silently ignored.
+// commentSyntax describes the comment
+// delimiters for one language. A multi
+// or doc pair is only used when both
+// its start and end are nonempty; an
+// incomplete pair is silently ignored.
 type commentSyntax struct {
 	singleStart          string
 	multiStart, multiEnd string
 	docStart, docEnd     string
 }
 
-// commentTokens is the opt-in allowlist mapping a fenced block's
-// ```<lang> info string to its comment delimiters. Languages not
-// listed get no comment highlighting. The scanner runs over
-// HTML-escaped code text, so any delimiter containing & < > "
-// must be stored pre-escaped.
+// commentTokens is the opt-in allowlist
+// mapping a fenced block's ```<lang> info
+// string to its comment delimiters. Languages
+// not listed get no comment highlighting. The
+// scanner runs over HTML-escaped code text,
+// so any delimiter containing & < > " must be
+// stored pre-escaped.
 var commentTokens = map[string]commentSyntax{
 	"lean": {
 		singleStart: "--",
@@ -31,12 +35,13 @@ var commentTokens = map[string]commentSyntax{
 	},
 }
 
-// The code text is HTML-escaped, so a literal </code></pre> cannot
-// appear inside the block and the non-greedy match is safe.
+// The code text is HTML-escaped, so a literal </code></pre> cannot appear
+// inside the block and the non-greedy match is safe.
 var reCodeBlock = regexp.MustCompile(`(?s)<pre><code class="language-([^"]+)">(.*?)</code></pre>`)
 
-// highlightComments wraps comment runs inside fenced code blocks
-// in <span class="cm"> for languages listed in commentTokens.
+// highlightComments wraps comment runs inside
+// fenced code blocks in <span class="cm"> for
+// languages listed in commentTokens.
 func highlightComments(body string) string {
 	return reCodeBlock.ReplaceAllStringFunc(body, func(m string) string {
 		sub := reCodeBlock.FindStringSubmatch(m)
@@ -49,13 +54,14 @@ func highlightComments(body string) string {
 	})
 }
 
-// spanComments scans HTML-escaped code text and wraps each comment
-// in <span class="cm">. At any position a doc comment wins over a
-// multi comment (its start is a prefix, e.g. Lean /-- vs /-), which
-// wins over a single comment. Single comments run to end of line;
-// multi and doc comments run to their end token, or to the end of
-// the block when unterminated. Nested block comments are not
-// tracked.
+// spanComments scans HTML-escaped code text and wraps
+// each comment in <span class="cm">. At any position
+// a doc comment wins over a multi comment (its start
+// is a prefix, e.g. Lean /-- vs /-), which wins over a
+// single comment. Single comments run to end of line;
+// multi and doc comments run to their end token, or to
+// the end of the block when unterminated. Nested block
+// comments are not tracked.
 func spanComments(code string, cs commentSyntax) string {
 	multiOK := cs.multiStart != "" && cs.multiEnd != ""
 	docOK := cs.docStart != "" && cs.docEnd != ""
