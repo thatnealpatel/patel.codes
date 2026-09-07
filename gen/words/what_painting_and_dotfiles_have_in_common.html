@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<title>What painting and dotfiles have in common</title>
+<meta property="og:title" content="What painting and dotfiles have in common">
+<meta property="og:url" content="https://patel.codes/words/what_painting_and_dotfiles_have_in_common.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
+  pre code { color: var(--ink); font-size: 15px; }
+  pre code .cm { color: var(--ink-light); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>What painting and dotfiles have in common</h1>
+<p>2026-09-07 <span class="home">[<a href="/">home</a>]</span></p>
+<h2>Motivations</h2>
+<p>I have found myself growing more comfortable
+with generating programs intended only for my
+consumption in the <a href="https://blog.exe.dev/devtools-must-be-open-source">age of personalized software</a>.</p>
+<p>I do a lot of maths research in my free time,
+and I grew frustrated with rendering LaTeX in
+my hard when appearing in the terminal. This
+is a monumentally stupid thing to tolerate. I
+extended my TUI program to simply bind a small
+Go server to use another piece of personalized
+software for rendering Markdown+LaTex:
+<a href="/render">patel.codes/render</a>. This is now the
+same library that renders my website. It is a
+completely bespoke LaTeX parser interlaced with
+a fork of <a href="https://rsc.io/markdown">rsc.io/markdown</a>.
+A few years ago, this would be a deeply misguided
+thing to do; however, is that still true today?</p>
+<h2>Slop for me is not slop for thee</h2>
+<p>We have all been there: You setup <code>$SHELL_OF_CHOICE</code>
+and <code>$EDITOR_OF_CHOICE</code>, optionally with your
+<code>$PLUGIN_MANAGER_OF_CHOICE</code> for choice <code>$PLUGINS</code>. Then,
+after <code>$NON_TRIVIAL_AMOUNT_OF_TIME</code>, something triggers
+an upgrade somewhere: You deal with breaking changes,
+confusing errors, and a wasted day of trying to stand
+up your house of cards again.</p>
+<p>Working on Go continues to improve my appreciation for
+the simple solutions. I often find myself asking: <em>Am
+I the only user?</em> If so, the simplest thing is often
+to generate the minimally satisfying program and evolve
+it with use.</p>
+<p>For six years or so earlier in my life, I spent a lot
+of time painting and occasionally sculpting. Nowadays,
+I mainly shoot film photography as my creative outlet;
+however, the feeling of crafting personalized software,
+beholden to none other than yourself, does invoke the
+similar sense of creativity and fulfillment I experienced
+when painting or sculpting.</p>
+<p>For years, I would go back-and-forth with my teacher,
+debating the intersections of maths, programming,
+and art. I wish that he were still around to school
+me about what's what, especially in this day and age.</p>
+<h2>Enter <code>patel.codes/mk.sh</code></h2>
+<p>I never knew or cared about editing my dotfiles. I
+just wanted something that provided the smallest
+surface area for me to work productively. Over time,
+it became obvious to me how primitive my configuration
+was.</p>
+<p>I finally took a step back: <em>Why is my setup not just
+managed by an agent?</em> It exists for my productivity.
+I know what I want and when I want it. So, I had an
+agent completely nuke my previous setup. I spent a few
+hours using the vanilla setup and materializing the
+key programs that I needed for my workflows.</p>
+<p>It was freeing to remove plugin managers for <code>nvim</code>
+and <code>tmux</code> while also removing <code>oh-my-zsh</code>. I was
+left with something pure: What I needed was the same
+as what I wanted.</p>
+<p>This culminated in the following library of bash scripts
+that is invoked by a bootstrapping harness:</p>
+<pre><code class="language-text">05-tailscale.sh     # setup tailscaled, optionally with TS_AUTHKEY
+10-zsh.sh           # no frameworks, just managed ~/.config/zsh
+15-jj.sh            # with fsmonitor
+20-tmux.sh          # with custom fzf-based window tui
+30-go.sh            # download latest go release, bootstrap gotip
+40-go-tools.sh      # everything i want `go install ...` in my system
+50-neovim.sh        # built from stable: simple/bespoke plugins
+</code></pre>
+<p>During tight iteration, I was impressed that the
+agent immediately reached for testing the setup
+in Docker. I could not believe that I had never
+thought about doing that before. After modifying
+the testing harness, it became trivial to drop in
+and iterate.</p>
+<p>Now, I can open any machine and make it uniformly
+mine by simply running:</p>
+<pre><code class="language-shell">curl -fsSL https://patel.codes/mk.sh | bash
+exec zsh
+</code></pre>
+<p>Even better, any machine can indepedently checkout
+the dotfiles2 repo, make changes, and push it to
+the upstream. All other machines simply need to run
+<code>d2sync &amp;&amp; exec zsh</code> to pick up the changes.</p>
+<h2>Closing thoughts</h2>
+<p>In the spirit of the linked exe.dev blog, this setup
+is on my <a href="https://github.com/thatnealpatel/dotfiles2">GitHub</a>.
+However, the beauty here is that you need not copy
+or read my setup; you can simply sculpt your own by
+pointing an agent at your dotfiles.</p>
+
+</body>
+</html>
