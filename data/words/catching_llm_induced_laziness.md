@@ -1,31 +1,31 @@
-# catching llm-induced laziness
+# Catching LLM-induced laziness
 
 2026-06-02
 
-## intro
+## Intro
 
-as i alluded to in
-[an accidentally novel combinatorics proof](/words/an_accidentally_novel_combinatorics_proof_1.html),
-i have found myself increasingly less capable
+As I alluded to in
+[An accidentally novel combinatorics proof](/words/an_accidentally_novel_combinatorics_proof_1.html),
+I have found myself increasingly less capable
 of defending the "it is all slop" stance when
-it comes to generative ai technologies.
+it comes to generative AI technologies.
 
-when it concerns the usage of generative ai tools,
+When it concerns the usage of generative AI tools,
 the aphorism **"replace typing, not thinking"**
-is one that i try to observe daily;
-previously, i did not think there was much cause
-for concern since i was not blatantly shipping
+is one that I try to observe daily;
+previously, I did not think there was much cause
+for concern since I was not blatantly shipping
 slop upstream or destroying the attention of others.
 
-i have since reconsidered the cause for concern
+I have since reconsidered the cause for concern
 after finding myself in a position where, in
-hindsight, i was operating in a "replace thinking"
+hindsight, I was operating in a "replace thinking"
 mode.
 
-i wrote a small quality of (my) life program a
+I wrote a small quality of (my) life program a
 few months ago that simply manages a one-to-many
 fan out of a set of files in a standard filesystem.
-it largely functions as follows:
+It largely functions as follows:
 
 ```shell
 % sync     # dry run
@@ -34,9 +34,9 @@ it largely functions as follows:
 
 where `sync` simply shows a colored list of which
 destination files will be `added`/`updated`/`deleted`.
-in recent weeks, i have added a few more types of
-destination files. this naturally gave rise to the
-desire to see file diffs _sometimes,_ so the api
+In recent weeks, I have added a few more types of
+destination files. This naturally gave rise to the
+desire to see file diffs _sometimes,_ so the API
 evolved:
 
 ```shell
@@ -45,24 +45,24 @@ evolved:
 % sync -w
 ```
 
-## unintentionally brain off
+## Unintentionally brain off
 
-at the time, i found myself multi-tasking; i was
+At the time, I found myself multi-tasking; I was
 switching between the repository which hosts this
-program and another where i was attempting to prove
-some small lemmas that i would later need.
+program and another where I was attempting to prove
+some small lemmas that I would later need.
 
-i thought about adding support for full content
+I thought about adding support for full content
 diffs while my maths harness was spinning on these
-lemmas. i was more interested in what the maths
-harness was doing (or rather, not doing), so i simply
-opened claude code in the `sync` program's directory
+lemmas. I was more interested in what the maths
+harness was doing (or rather, not doing), so I simply
+opened Claude Code in the `sync` program's directory
 in a feeble attempt to multi-task.
 
-### first attempt (fail: >20 min)
+### First attempt (fail: >20 min)
 
-my maths harness was getting close to formalizing
-something interesting, so i quickly wrote and sent:
+My maths harness was getting close to formalizing
+something interesting, so I quickly wrote and sent:
 
 ```
 Add a universal option to 'sync' -v that
@@ -70,27 +70,27 @@ shows the actual content diffs in a git-like
 colored view for added/removed.
 ```
 
-after returning, i noticed that the initial
+After returning, I noticed that the initial
 approach was trying to use an older diff algorithm.
-it was handling newlines extremely incorrectly and
+It was handling newlines extremely incorrectly and
 subsequent prompts to course correct failed.
 
-in total, this took 20 minutes of human and agent
-time costing approximately 85,000 tokens. to be
+In total, this took 20 minutes of human and agent
+time costing approximately 85,000 tokens. To be
 fair, some of this was wall time, but more than
 13 minutes was active human or active agent.
 
-### second attempt (fail: 4 min)
+### Second attempt (fail: 4 min)
 
-the first attempt left me subtly frustrated.
-on one hand, _i did not lose anything in the
-failed transaction._ however, on the other,
+The first attempt left me subtly frustrated.
+On one hand, _I did not lose anything in the
+failed transaction._ However, on the other,
 this was a trivial task... why was the agent
 failing at such trivial work?
 
-i put around 20 seconds of active thought
-into the second attempt, ensuring that i could
-quickly divert my attention back to where i
+I put around 20 seconds of active thought
+into the second attempt, ensuring that I could
+quickly divert my attention back to where I
 wanted:
 
 ```
@@ -105,30 +105,30 @@ sync_test.go before implementing to
 straighten out the idea in your head.
 ```
 
-my thought process was that the agent could
+My thought process was that the agent could
 figure out how to get from naive, unhelpful,
 but correct diffs to a correct, minimal diff
 program.
 
-after 4 minutes and 55,000 tokens, the result
+After 4 minutes and 55,000 tokens, the result
 was semi-correct and unappealing since it did
 not make it further than brute force diffs.
-this time i did not bother to course correct.
-i was clearly frustrated and uttered the
-all-too-expected, "i could just do this myself."
+This time I did not bother to course correct.
+I was clearly frustrated and uttered the
+all-too-expected, "I could just do this myself."
 
-### third attempt (success: <2 min)
+### Third attempt (success: <2 min)
 
-while frustrated, it was in this moment that
-i realized where i erred. i *thought* about
-how i would do this myself. this was a program
+While frustrated, it was in this moment that
+I realized where I erred. I *thought* about
+how I would do this myself. This was a program
 that hardly anyone but me uses, and it was
 not meant to be hardened against adversarial
 inputs in any way.
 
-after spending less than one minute turning
+After spending less than one minute turning
 my brain on and going to the `diff` man page,
-i realized that this is exactly what i wanted:
+I realized that this is exactly what I wanted:
 
 ```
 % diff -u \
@@ -136,10 +136,10 @@ i realized that this is exactly what i wanted:
 <(cat ~/path/to/dst/file)
 ```
 
-all that remained to materialize the program was
+All that remained to materialize the program was
 some **annoying typing** to apply ANSI coloring
 based on the first rune of each line in the `diff`
-output. thus, the final attempt began:
+output. Thus, the final attempt began:
 
 ```
 Add a universally accepted '-v' flag to 'sync'
@@ -160,45 +160,45 @@ output if the ansi colors do not make it through
 the exec.Command buffer.
 ```
 
-shamefully, after 103 seconds and 46,000 tokens,
-i got the functionality that i wanted with tests
+Shamefully, after 103 seconds and 46,000 tokens,
+I got the functionality that I wanted with tests
 that made sense.
 
-from a strictly self-centered perspective,
+From a strictly self-centered perspective,
 prevailing sentiment seems to indicate that these
 tools are powerful when used correctly but still
-mostly good, even when used suboptimally. if we
+mostly good, even when used suboptimally. If we
 define correct usage to be both useful results
 and preservation of the operator's cognition, then
 suboptimal usage seems to produce "mostly good"
 results at the cost of the operator.
 
-## closing thoughts
+## Closing thoughts
 
-while the aphorism **"replace typing, not
+While the aphorism **"replace typing, not
 thinking"** is certainly a nice one, it is
 much harder to abide by in practice than
-i previously thought.
+I previously thought.
 
-on one hand, this ordeal captures about 30 minutes
-of my life that i am likely to completely forget
+On one hand, this ordeal captures about 30 minutes
+of my life that I am likely to completely forget
 about in the next 48 hours; however, it represents
-something that i previously wrote off as "affects
+something that I previously wrote off as "affects
 other people, surely."
 
-it was slightly worrying to notice myself
+It was slightly worrying to notice myself
 replace thinking about programming, especially
-in a context where i was having fun.
+in a context where I was having fun.
 
-without changing anything, i fear that there
-might come a day where i am no longer able
+Without changing anything, I fear that there
+might come a day where I am no longer able
 to tell when this sort of behavior has occurred.
 
-currently, i do not have a convincing argument
+Currently, I do not have a convincing argument
 for any productive behavioral change beyond simply
-using generative ai tooling less frequently. saying
-"but i'll be more careful next time" seems like a
+using generative AI tooling less frequently. Saying
+"but I'll be more careful next time" seems like a
 stone's throw away from lying to myself.
 
-it appears that this slope is indeed more slippery
-than i previously thought.
+It appears that this slope is indeed more slippery
+than I previously thought.

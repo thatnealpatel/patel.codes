@@ -268,17 +268,17 @@ func generateWordsIndex(dataDir string) error {
 		return err
 	}
 
-	header := []byte("## words\n")
+	header := []byte("## Words\n")
 	start := bytes.Index(src, header)
 	if start == -1 {
-		return fmt.Errorf("index.md: missing ## words section")
+		return fmt.Errorf("index.md: missing ## Words section")
 	}
 	start += len(header)
 
 	rest := src[start:]
 	end := bytes.Index(rest, []byte("\n## "))
 	if end == -1 {
-		return fmt.Errorf("index.md: missing section after ## words")
+		return fmt.Errorf("index.md: missing section after ## Words")
 	}
 
 	var buf bytes.Buffer

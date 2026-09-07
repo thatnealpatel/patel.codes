@@ -1,51 +1,51 @@
-# what i actually proved about `A051293`
+# What I actually proved about `A051293`
 
 2026-08-21
 
-## motivations
+## Motivations
 
-in May 2026, i published
-[an accidentally novel combinatorics proof](/words/an_accidentally_novel_combinatorics_proof_1.html).
-the post described a machine-checked proof of the same
+In May 2026, I published
+[An accidentally novel combinatorics proof](/words/an_accidentally_novel_combinatorics_proof_1.html).
+The post described a machine-checked proof of the same
 [`A051293`](https://oeis.org/A051293) asymptotic that
 AlphaProof had formalized.
 
-i claimed a general version of the result, and i also
-wrote that i did not have the time to rigorously vet the
+I claimed a general version of the result, and I also
+wrote that I did not have the time to rigorously vet the
 proof to present it in my own voice.
 
-while that distinction was intentionally unsatisfying,
+While that distinction was intentionally unsatisfying,
 it left some questions on the table:
 
-1. did my lean definition actually describe `A051293`?
+1. Did my Lean definition actually describe `A051293`?
 
-2. how did my theorem compare with AlphaProof's theorem?
+2. How did my theorem compare with AlphaProof's theorem?
 
-3. was the general `M` result necessary to prove the conjecture?
+3. Was the general `M` result necessary to prove the conjecture?
 
-4. which novelty claims were substantiated?
+4. Which novelty claims were substantiated?
 
-let's re-visit the results in this post; i intentionally
+Let's re-visit the results in this post; I intentionally
 elected to keep the original unedited.
 
-## what i said in May
+## What I said in May
 
-for those who have not read the original post, it
+For those who have not read the original post, it
 roughly reduces to:
 
-1. the generated Lean proof appeared to be non-vacuous
+1. The generated Lean proof appeared to be non-vacuous
 
-2. it proved Cloitre's conjecture for every `M`
+2. It proved Cloitre's conjecture for every `M`
 
-3. its route appeared to be different from AlphaProof's route
+3. Its route appeared to be different from AlphaProof's route
 
-4. one intermediate combinatorial identity appeared to be proven for the first time
+4. One intermediate combinatorial identity appeared to be proven for the first time
 
-while none of these claims were/are false, i wanted
+While none of these claims were/are false, I wanted
 to put them to bed once and for all by elucidating
 the topic to the best of my ability.
 
-## the sequence and the conjecture
+## The sequence and the conjecture
 
 `A051293(n)` counts the nonempty subsets of `{1,...,n}`
 whose arithmetic mean is an integer. Cloitre recorded an
@@ -61,13 +61,13 @@ reads as follows:
 > Sum_{k=0..m} A000670(k)/n^k + o(1/n^(m+1))` (`A000670` =
 > preferential arrangements of n labeled elements).
 
-he then gives the fixed statement:
+He then gives the fixed statement:
 
 > In fact I conjecture that `a(n) = 2^(n+1)/n * (1 + 1/n + 3/n^2 + 13/n^3 + 75/n^4 + 541/n^5 + o(1/n^5))`.
 
 :::gen
 
-this explicit sentence ends at `M = 5` and fixes the intended indexing:
+This explicit sentence ends at `M = 5` and fixes the intended indexing:
 
 $$
 a(n) = \frac{2^{n+1}}{n}
@@ -79,22 +79,22 @@ $$
 
 :::
 
-AlphaProof proves this fixed truncation. my development
+AlphaProof proves this fixed truncation. My development
 proves a corrected asymptotic expansion for arbitrary `M`,
 and obtains the displayed `M = 5` statement as a corollary.
 
-formally, general `M` contains the fixed instance. practically,
+Formally, general `M` contains the fixed instance. Practically,
 general `M` was not necessary to settle the explicit conjecture
-AlphaProof proved. it is cool and (maybe) useful because it
+AlphaProof proved. It is cool and (maybe) useful because it
 names the coefficient pattern.
 
-## did i formalize the right sequence?
+## Did I formalize the right sequence?
 
-yes, but not rigorously.
+Yes, but not rigorously.
 
-the original development used `a_comb`, a count over subsets
+The original development used `a_comb`, a count over subsets
 of `{0,...,n-1}` whose elements are shifted by one when their
-mean is tested. that is a convenient Lean representation of
+mean is tested. That is a convenient Lean representation of
 subsets of `{1,...,n}`.
 
 `Proofs/Enumerative/A051293/Cloitre.lean` now adds a literal
@@ -106,20 +106,20 @@ def a_oeis (n : ℕ) : ℕ :=
     S.Nonempty ∧ S.card ∣ S.sum id)).card
 ```
 
-i now also check (by kernel `decide`) the first ten terms
+I now also check (by kernel `decide`) the first ten terms
 of `a_comb` (original) and `a_oeis` (new) in my proof.
-additionally, `a_comb_eq_a_oeis` proves the two counts
+Additionally, `a_comb_eq_a_oeis` proves the two counts
 equal for every `n` by shifting each element by one.
 
-this bijection proves that the previous unsubstantiated
+This bijection proves that the previous unsubstantiated
 use of the convenient internal definition is in fact
 the literal definition given.
 
-## what AlphaProof proved
+## What AlphaProof proved
 
 AlphaProof presents `A051293 n` directly as the number
 of nonempty subsets of `Finset.Icc 1 n` whose cardinality
-divides their sum. its final theorem, `target_theorem_0`,
+divides their sum. Its final theorem, `target_theorem_0`,
 is the limit
 
 :::gen
@@ -132,18 +132,18 @@ $$
 \rightarrow 0.
 $$
 
-this is exactly the fixed `M = 5` statement, rather than
+This is exactly the fixed `M = 5` statement, rather than
 merely a similar asymptotic. `cloitre_explicit_tendsto`
 has the same normalized limit expression over `a_oeis`,
-and follows from `cloitre_conjecture 5`. the two declarations
+and follows from `cloitre_conjecture 5`. The two declarations
 live in separate repositories, but their sequence definitions
 are the same literal `Finset.Icc 1 n` count.
 
 :::
 
-## how my proof differs
+## How my proof differs
 
-the proofs overlap more than my original post
+The proofs overlap more than my original post
 suggested; both use a roots-of-unity filter
 and both eventually reduce the dominant term to
 
@@ -154,9 +154,9 @@ $$
 :::gen
 
 AlphaProof gets there by grouping subsets by their cardinality `k`.
-for each `k`, its roots-of-unity argument separates the principal term
+For each `k`, its roots-of-unity argument separates the principal term
 `choose n k / k` from the nontrivial roots and bounds the latter
-exponentially. summing the principal terms gives
+exponentially. Summing the principal terms gives
 
 $$
 \sum_{k=1}^n \frac{1}{k} \binom{n}{k}=S(n)-H(n).
@@ -164,17 +164,17 @@ $$
 
 :::
 
-my proof takes a different combinatorial bridge. it groups the
+My proof takes a different combinatorial bridge. It groups the
 integer-mean subsets by their maximum and uses the Zumkeller
 identity to reduce the count to a sum involving `b_comb(k)`.
 
-a separate roots-of-unity argument identifies `b_comb(k)` with a
-divisor-sum formula. the divisor `d = 1` contributes `2^k/k`; after
+A separate roots-of-unity argument identifies `b_comb(k)` with a
+divisor-sum formula. The divisor `d = 1` contributes `2^k/k`; after
 summing the remaining odd-divisor terms, the proof obtains a polynomial
-times `2^(n/3)` bound. this is exponentially negligible relative to
+times `2^(n/3)` bound. This is exponentially negligible relative to
 the main `2^n/n` scale, again leaving `S(n)` as the dominant term.
 
-there is also a real difference in how much of the coefficient pattern
+There is also a real difference in how much of the coefficient pattern
 is formalized. AlphaProof proves six exact finite geometric-moment
 identities for
 
@@ -182,113 +182,113 @@ $$
 \sum_{j<n}\frac{j^m}{2^j}, \qquad 0\leq m\leq5.
 $$
 
-their explicit correction terms imply the limiting values
-`2, 2, 6, 26, 150, 1082`. those are twice
+Their explicit correction terms imply the limiting values
+`2, 2, 6, 26, 150, 1082`. Those are twice
 `1, 1, 3, 13, 75, 541`, so the coefficients are not arbitrary
-constants that merely make the final algebra work. my proof
+constants that merely make the final algebra work. My proof
 packages the same phenomenon uniformly as
 
 $$
 \sum_{j\geq0}\frac{j^m}{2^j}=2F(m),
 $$
 
-then carries the expansion through for arbitrary `M`. the
-distinction is therefore not “one proof explains the coefficients
-and the other does not.” it is that AlphaProof verifies the first
+then carries the expansion through for arbitrary `M`. The
+distinction is therefore not “One proof explains the coefficients
+and the other does not.” It is that AlphaProof verifies the first
 six moment formulas individually, while my development proves the
 Fubini pattern uniformly and uses a different combinatorial route
 to reach the same dominant sum.
 
-and, experimentally, this is what i sought to achieve:
-without deep background, i wanted to test my experimental
+And, experimentally, this is what I sought to achieve:
+without deep background, I wanted to test my experimental
 harness to see if it could produce a proof using a
 different route.
 
-## the indexing ambiguity
+## The indexing ambiguity
 
 :::gen
 
 Cloitre's general and explicit sentences do not give the little-`o`
-term the same clear scope. the general sentence writes
+term the same clear scope. The general sentence writes
 `+ o(1/n^(m+1))` after an unparenthesized product, while the explicit
 sentence puts `o(1/n^5)` inside the parenthesized expansion.
 
-rather than treat the informal general sentence as a separate stronger
+Rather than treat the informal general sentence as a separate stronger
 claim, this development follows the unambiguous explicit statement.
 `cloitre_conjecture M` gives an error of
 
 $$o\left(\frac{2^n}{n^{M+1}}\right).$$
 
-after dividing by the prefactor `2^(n+1)/n`, this is
+After dividing by the prefactor `2^(n+1)/n`, this is
 
 $$o\left(\frac{1}{n^M}\right).$$
 
-at `M = 5`, that is exactly the parenthesized `o(1/n^5)` remainder in
-Cloitre's explicit sentence. the Lean theorem follows that convention
+At `M = 5`, that is exactly the parenthesized `o(1/n^5)` remainder in
+Cloitre's explicit sentence. The Lean theorem follows that convention
 without taking a position on how the general OEIS sentence should be
 repunctuated.
 
 :::
 
-## what survived
+## What survived
 
-broadly speaking, the original claims are
+Broadly speaking, the original claims are
 true; however, they are more faithfully
 sharpened:
 
-- generated a machine-checked proof of the corrected general-`M` expansion;
-- the convenient combinatorial count is proved equal to a literal `A051293` count for every `n`;
-- both definitions are checked against the first ten published terms;
-- the explicit `M = 5` result proved by AlphaProof follows from the general theorem;
-- the proof route explains the Fubini coefficients uniformly;
+- Generated a machine-checked proof of the corrected general-`M` expansion;
+- The convenient combinatorial count is proved equal to a literal `A051293` count for every `n`;
+- Both definitions are checked against the first ten published terms;
+- The explicit `M = 5` result proved by AlphaProof follows from the general theorem;
+- The proof route explains the Fubini coefficients uniformly;
 
-the general `M` theorem is cool; it expands six convenient
+The general `M` theorem is cool; it expands six convenient
 coefficients into a pattern and lifts a story as to why they
 appear; however, it is not strictly necessary to prove the
 conjecture.
 
-## literature check
+## Literature check
 
-(i did write some of the prose below, but i have left
-the shadowing to indicate that i merely adopted the
+(I did write some of the prose below, but I have left
+the shadowing to indicate that I merely adopted the
 literature check provided by my research harness.)
 
 :::gen
 
-the exact per-`k` equality is recorded in [A082550](https://oeis.org/A082550)
+The exact per-`k` equality is recorded in [A082550](https://oeis.org/A082550)
 and [A063776](https://oeis.org/A063776) through observations by Papadopoulos in
-2016 and Wiseman in 2019. neither entry supplies a proof.
+2016 and Wiseman in 2019. Neither entry supplies a proof.
 
-a literature sweep found published  neighboring results on
+A literature sweep found published  neighboring results on
 zero-sum subsets and necklaces, but no published proof of this
 exact integer-mean equality and no independent formalization of it.
-the Lean file therefore supplies a formal proof of an OEIS-observed
+The Lean file therefore supplies a formal proof of an OEIS-observed
 identity.
 
-additionally, one OEIS cross-reference is shifted: [A082550](https://oeis.org/A082550)
+Additionally, one OEIS cross-reference is shifted: [A082550](https://oeis.org/A082550)
 prints `A051293(n+1) - A051293(n)`, while the definitions and terms
 give `A051293(n) - A051293(n-1)`.
 
-the `k+1` in the Lean summation is intentional: it converts `Finset.range n`
-from zero-based indices to maxima `1,...,n`. the proof derives the relation
+The `k+1` in the Lean summation is intentional: It converts `Finset.range n`
+from zero-based indices to maxima `1,...,n`. The proof derives the relation
 from the underlying counts, so this does not affect its results.
 
 :::
 
-## closing thoughts
+## Closing thoughts
 
-in general, most of my original hedging was warranted. though,
-in this case, the missing work was small. it has become more
+In general, most of my original hedging was warranted. Though,
+in this case, the missing work was small. It has become more
 obvious to me that writing these posts is going to be the
 bottleneck.
 
-i understand how to audit my proofs more rigorously now, and i
+I understand how to audit my proofs more rigorously now, and I
 have built some substantial tooling in order to continue this
 type of research... however, that is a topic for another post.
 
-## references
+## References
 
-- [arXiv:2605.22763](https://arxiv.org/abs/2605.22763): exact theorem and the paper's description of the conjecture;
-- [`google-deepmind/AlphaProof-nexus-results`](https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/APNOutputs/OEIS/oeis_51293_conjecture_0.lean): exact `target_theorem_0` signature and proof structure;
+- [arXiv:2605.22763](https://arxiv.org/abs/2605.22763): Exact theorem and the paper's description of the conjecture;
+- [`google-deepmind/AlphaProof-nexus-results`](https://github.com/google-deepmind/alphaproof-nexus-results/blob/main/APNOutputs/OEIS/oeis_51293_conjecture_0.lean): Exact `target_theorem_0` signature and proof structure;
 - [`Proofs/Enumerative/A051293/Counting.lean`](https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A051293/Counting.lean): `cloitre_conjecture`;
 - [`Proofs/Enumerative/A051293/Cloitre.lean`](https://github.com/thatnealpatel/proofs/blob/main/Proofs/Enumerative/A051293/Cloitre.lean): `a_oeis`, `a_comb_eq_a_oeis`, and `cloitre_explicit_tendsto`;

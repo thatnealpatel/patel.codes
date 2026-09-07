@@ -1,46 +1,46 @@
-# yet another "final" configuration spec
+# Yet another "final" configuration spec
 
 2025-08-05
 
-## update (2026)
+## Update (2026)
 
-i sunsetted the project that this was particularly central to;
-however, from time of writing (aug 2025) to present (may 2026),
+I sunsetted the project that this was particularly central to;
+however, from time of writing (Aug 2025) to present (May 2026),
 this configuration spec remained unchanged.
 
-## motivations
+## Motivations
 
-i have a large personal project whose central dependency
+I have a large personal project whose central dependency
 is a configuration spec that dictactes events at runtime.
-in this project, it is extremely important that the spec
+In this project, it is extremely important that the spec
 is trivially evolvable to address unknown unknowns.
 
-## config v0 (2021)
+## Config v0 (2021)
 
-the first iteration of my spec was simply json; everything
-was completely adhoc. arguably, this is where one should
-start. there was no need to prematurely optimize.
+The first iteration of my spec was simply JSON; everything
+was completely adhoc. Arguably, this is where one should
+start. There was no need to prematurely optimize.
 
-this quickly become unmanagable; however, being naive
-and without any practical design experience, i doubled
+This quickly become unmanagable; however, being naive
+and without any practical design experience, I doubled
 down and introduced mountains tech debt to compensate.
 
-two years of string parsing and esoteric semantics later,
+Two years of string parsing and esoteric semantics later,
 it was time for a change.
 
-## config v1 (2023)
+## Config v1 (2023)
 
-the second time around, i thought i had such a deep
-understanding of my requirements that i could finally
+The second time around, I thought I had such a deep
+understanding of my requirements that I could finally
 write the "final version" of my configuration spec.
 
-initially, i was very excited by the simplicity in
+Initially, I was very excited by the simplicity in
 using native structs and doing away with messy string
 comparisons and untyped invarants baked into the existing
-json schema.
+JSON schema.
 
-for a while, this sufficed. when i needed new features
-or invariants, i simply extended the configuration;
+For a while, this sufficed. When I needed new features
+or invariants, I simply extended the configuration;
 however, this config became complex, verbose, and
 repetitive: 
 
@@ -77,11 +77,11 @@ type config struct {
 }
 ```
 
-there were many conditions which forced duplications of
+There were many conditions which forced duplications of
 application logic  this also made parsing out the config
 in application logic extremely convoluted.
 
-parsing code eventually took the following form:
+Parsing code eventually took the following form:
 
 ```
 if config.option1a.enabled {
@@ -118,18 +118,18 @@ if len(config.condition2) > 0 {
 }
 ```
 
-## config v2 (2025)
+## Config v2 (2025)
 
-i took a step back and started thinking more deeply
-about my requirements; i had a configuration whose
+I took a step back and started thinking more deeply
+about my requirements; I had a configuration whose
 purpose is to define the invariants over which dynamic
-runtime inputs would be evaluated. it took me nearly 3
-years to realize that i was writing a suboptimal SAT
+runtime inputs would be evaluated. It took me nearly 3
+years to realize that I was writing a suboptimal SAT
 parser.
 
-seeing as how i needed to involve the configuration
+Seeing as how I needed to involve the configuration
 language to be more arbitrarily expressive anyways,
-i realized that a great fit for my use case were m-ary
+I realized that a great fit for my use case were m-ary
 trees with a somewhat odd convention:
 
 
@@ -159,12 +159,12 @@ const(
 )
 ```
 
-conceptually, the left-most node in the tree would be
+Conceptually, the left-most node in the tree would be
 the `and` node; the rest of the nodes, if any, would be
-the `or` nodes. a root `criteria` (present in the `config`)
+the `or` nodes. A root `criteria` (present in the `config`)
 is said to be met iff its tree evalutes to true.
 
-this lends itself to the very nice implementation:
+This lends itself to the very nice implementation:
 
 ```go
 func walk(c *criteria, fn (*critiera) bool) (sat bool) {
@@ -179,10 +179,10 @@ func walk(c *criteria, fn (*critiera) bool) (sat bool) {
 }
 ```
 
-with a little extra thinking, this implementation both reduced
+With a little extra thinking, this implementation both reduced
 the amount of esoteric code in my codebase and made reasoning
-about new changes to my configuration spec extremely easy. the 
-power i found in this design lies in how call-sites neatly
+about new changes to my configuration spec extremely easy. The 
+power I found in this design lies in how call-sites neatly
 call `walk` in the following manner:
 
 ```
@@ -201,9 +201,9 @@ walk(config, func(c *criteria) bool {
 })
 ```
 
-this allowed for call-sites, regardless of their purpose,
+This allowed for call-sites, regardless of their purpose,
 to instrument the logic plainly without additional parsing
-or sematic interpretation. some call-sites actually desire
+or sematic interpretation. Some call-sites actually desire
 to walk the entire tree in which case the original `walk`
 function is modified to contain no invariant tracking:
 
@@ -221,10 +221,10 @@ func walkall(c *criteria, fn (*critiera)) {
 }
 ```
 
-though i found myself saying this in the past, i am slightly
+Though I found myself saying this in the past, I am slightly
 more convinced this time that this design will remain a
-fixture for me. it's already proven to be as ubiquitous
-and extensible as i had hoped. that being said, in writing this
+fixture for me. It's already proven to be as ubiquitous
+and extensible as I had hoped. That being said, in writing this
 it occurred to me that it may be better to simply use `val` 
 with some repetitive, named types instead of shared types
 distingushed by `criteriaT` enums.
@@ -245,9 +245,9 @@ type boundedLVH struct { lo, val, hi float64 }
 type anotherBoundedLVH struct { lo, val, hi float64 }
 ```
 
-## final thoughts
+## Final thoughts
 
-as always, the code you wrote a year ago was written by a fool;
+As always, the code you wrote a year ago was written by a fool;
 it's fun to be able to look back and laugh at the mistakes
 you've made without realizing that you are only setting 
 yourself up for a future punchline.
