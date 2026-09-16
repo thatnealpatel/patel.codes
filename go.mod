@@ -2,6 +2,6 @@ module patel.codes/patel.codes
 
 go 1.27
 
-require patel.codes/render v0.0.0-20260831132815-1ca1e51646cf
+require patel.codes/render v0.0.0-20260912183141-25da9e27138f
 
-require golang.org/x/text v0.3.7 // indirect
+require golang.org/x/text v0.42.0 // indirect
