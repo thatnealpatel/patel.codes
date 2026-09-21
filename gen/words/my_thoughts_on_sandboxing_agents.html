@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>My thoughts on sandboxing agents</title>
+<meta property="og:title" content="My thoughts on sandboxing agents">
+<meta property="og:url" content="https://patel.codes/words/my_thoughts_on_sandboxing_agents.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
+  :root {
+    --paper: #fafafa;
+    --ink: #2c2b28;
+    --ink-light: #6b6963;
+    --ink-faint: #a8a49c;
+    --accent: #f8d551;
+    --code: #2d6a4f;
+    --gen-bg: rgba(248, 213, 81, 0.05);
+    --font-family: "PT Mono", monospace;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  h1 { color: var(--ink); }
+  p, li { color: var(--ink-light); line-height: 1.7; }
+  strong { color: var(--ink); }
+  code { color: var(--code); }
+  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
+  pre code { color: var(--ink); font-size: 15px; }
+  pre code .cm { color: var(--ink-light); }
+  a { color: var(--ink); }
+  table { border-collapse: collapse; margin: 1.5rem 0; }
+  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
+  th { color: var(--ink); }
+  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .gen-notice { color: var(--ink-faint); }
+  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
+  math { font-size: 1.1em; }
+  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+</style>
+</head>
+<body>
+<h1>My thoughts on sandboxing agents</h1>
+<p>2026-09-21 <span class="home">[<a href="/">home</a>]</span></p>
+<h2>Motivations</h2>
+<p>It is beyond clear that LLMs are here to stay
+as a foundational technology. In my mental
+model, <strong>LLMs</strong> are made useful by <strong>agents</strong> which in
+turn are made useful by a <strong>harness</strong>. However, the
+security of these non-deterministic programs
+gives me pause.</p>
+<p>I aim to present a coherent trust model when
+thinking about how to make agents most useful.
+Naturally, this trust model is one that both
+the human operator and the harness agree on.
+I <em>do not aim</em> to provide a comprehensive
+setup guide here: Use cases vary, and what is
+ergonomic for me may not necessarily be what
+is ergonomic for you.</p>
+<h2>Trust model</h2>
+<p>It may seem that how you hold the tool and
+what you use it for matter in the context of
+security, but I assert all use cases are the
+same. <a href="/words/proving_a092482_closed_form.html">From authoring and elucidating proofs</a>
+to <a href="/words/what_painting_and_dotfiles_have_in_common.html">using an agent to customize my dotfiles</a>,
+there is no room for ambiguity in how I define
+and operate inside of my agentic trust model.</p>
+<p>LLMs are fundamentally non-deterministic; any
+attempt to constrain, monitor, or otherwise
+police the program is, in my opinion, theatre.</p>
+<p>I firmly take the stance that agents should
+never run on <strong>trusted machines</strong>, no matter
+what. Here, I define a <strong>trusted machine</strong> as
+a credential-bearing machine or a machine with
+privileged access to other systems, files, or
+what have you.</p>
+<p>I trust agents to do good work, but I do not
+trust them to do it securely.</p>
+<h2>Why?</h2>
+<p>The convenience of using these tools need not
+be a justification for risk-taking behavior.
+Furthermore, it prevents you from exploring the
+world of open weight models.</p>
+<p>While using <code>bubblewrap</code> or other sandboxing
+solutions on your trusted host is certainly an
+option, I ask: Why?</p>
+<p>While admittedly rare, agents may find a way
+to exploit or break out of these boundaries.
+I just do not see the justification for going
+through any efforts to sandbox just to let
+them run on the same silicon. Why not just
+go all the way?</p>
+<p>Aside from the security argument, a coherent
+sandboxing strategy obviates the need for all
+the complexity that both bloats a harness'
+codebase and its system prompt: Rolling any
+safety measure (read: security theatre) becomes
+unnecessary. This allows you to <em>harness</em> the
+raw utility of the underlying LLM more effectively.</p>
+<p>I concede that if your workflow is primarily
+GUI based, it is certainly non-trivial to
+achieve the same level of convenience as a
+TUI user; however, this is a minor detail that
+is largely a one-time setup cost.</p>
+<h2>Sandboxing</h2>
+<p>The advent of <a href="https://tailscale.com">Tailscale</a>
+and <a href="https://exe.dev">exe.dev</a> make sandboxing
+trivial.</p>
+<p>$80/month at exe.dev gives you up to 50
+VMs with up to <code>8 vCPU</code> / <code>32 GiB</code> of peak
+collective usage at any given time. They
+also have $20 and $40 options as well as
+a $160 variant (of which I am a subscriber).</p>
+<p>For individuals, Tailscale is <strong>free.</strong> You
+can even invite up to 6 guest users to your
+Tailnet. The <code>tag</code> feature provides a nice
+interface to instrument security policies.</p>
+<p>For example, imagine a network in which you
+have the following tags:</p>
+<ul>
+<li><code>tag:proxy</code></li>
+<li><code>tag:sandbox</code></li>
+<li><code>tag:privileged</code></li>
+</ul>
+<p>You can tag your personal laptop as <code>privileged</code>,
+stand up a single <code>2 vCPU</code> / <code>8 GiB</code> machine
+with <code>proxy</code>, and finally create a single <code>8 vCPU</code>
+/ <code>16 GiB</code> machine with <code>sandbox</code>.</p>
+<p>You can then apply the following security
+policies:</p>
+<pre><code>{
+	&quot;tagOwners&quot;: { ... },
+	&quot;ssh&quot;: [ ... ],
+	&quot;grants&quot;: [
+		{
+			&quot;src&quot;: [&quot;tag:privileged&quot;],
+			&quot;dst&quot;: [&quot;*&quot;],
+			&quot;ip&quot;:  [&quot;*&quot;],
+		},
+		{
+			&quot;src&quot;: [&quot;tag:proxy&quot;],
+			&quot;dst&quot;: [&quot;tag:sandbox&quot;],
+			&quot;ip&quot;:  [&quot;tcp:22&quot;],
+		},
+		{
+			&quot;src&quot;: [&quot;tag:sandbox&quot;],
+			&quot;dst&quot;: [&quot;tag:proxy&quot;],
+			&quot;ip&quot;:  [&quot;tcp:9001&quot;],
+		},
+		{
+			&quot;src&quot;: [&quot;tag:proxy&quot;],
+			&quot;dst&quot;: [&quot;tag:sandbox&quot;],
+			&quot;ip&quot;:  [&quot;tcp:10000-10099&quot;],
+		},
+	],
+}
+</code></pre>
+<p>And just like that you have a coherent model
+for operating untrusted agents inside of a
+trusted network.</p>
+<p>The <code>proxy</code> holds all secrets: Inferencing
+authentication, GitHub PATs/FGTs, API keys,
+etc. The <code>9001</code> port is an <strong>untrusted</strong>
+ingress point. The proxy can be made aware
+of how to serve on it. Additionally, <code>proxy</code>
+can also serve on <code>9999</code> which we may say
+is the <strong>trusted</strong> ingress point.</p>
+<p>There are different types of <strong>trusted</strong> machines.
+For example, the <code>proxy</code> is trusted, and it also
+contains trusted data. You may wish to roll a
+<strong>trusted</strong> machine whose sole purpose is to store
+<strong>untrusted</strong> data. This is still a machine that
+does not run agents; however, it cleanly isolates
+the two roles:</p>
+<pre><code>{
+	&quot;tagOwners&quot;: { ... },
+	&quot;ssh&quot;: [ ... ],
+	&quot;grants&quot;: [
+		...
+		{
+			&quot;src&quot;: [&quot;tag:proxy&quot;],
+			&quot;dst&quot;: [&quot;tag:library&quot;],
+			&quot;ip&quot;:  [&quot;tcp:9999&quot;, &quot;tcp:9001&quot;],
+		},
+		{
+			&quot;src&quot;: [&quot;tag:sandbox&quot;],
+			&quot;dst&quot;: [&quot;tag:library&quot;],
+			&quot;ip&quot;:  [&quot;tcp:9001&quot;],
+		},
+	],
+}
+</code></pre>
+<p>We have no reason to give <code>library</code> access
+to the <code>proxy</code>. However, we may want all
+logging to ingress on <code>9001</code> and then expose
+a query endpoint on <code>9999</code>.</p>
+<p>This is largely one-time setup and provides
+a reasonable boundary. Now, you can simply
+run any model in any harness to do any task
+without any cause for concern.</p>
+<p>You could, for example, instrument the <code>proxy</code>
+such that it only allows access selectively to
+GitHub: This is what I do. My agent identity on
+GitHub is <a href="https://github.com/notnealpatel"><code>notnealpatel</code></a>.</p>
+<p>You cannot trust agents to be good citizens on
+the internet. Point in case: A recent thread where
+<a href="https://go.dev/issue/81606">agents opened an issue in the Go project</a>
+and just used it as a medium to communicate with
+each other pointlessly.</p>
+<p>I never want my agents assaulting a human's
+attention. My <code>proxy</code> only allows the agent
+to write to an allowlisted set of paths, all
+of which are forks it creates or a narrow set
+of personal GitHub projects I own.</p>
+<p>We are the stewards of what these programs do;
+we owe it to each other to operate them in a
+respectful manner.</p>
+<h2>Sandboxing is... convenient?</h2>
+<p>While it may seem that you trade convenience
+for security, there are material benefits to
+setting things up like this. It makes programs
+you write simple to reason about.</p>
+<p>You do not need to worry about what trusted
+machines send to each other: They're trusted.</p>
+<p>Inside of this model, you needn't even worry
+much about a <code>sandbox</code> DoS'ing or otherwise
+attacking <code>proxy</code> or <code>library</code>. It is in the
+interest of <code>sandbox</code> to keep those machines
+up. Spinning up new <code>sandbox</code> machines is
+trivial. Once Tailscale immutable tags apply,
+the machines have instant access to what
+they should have access to.</p>
+<p>If you had some fun side projects you wanted
+to expose to <strong>trusted users</strong> you can do so
+by creating another <code>sandbox</code> machine and then
+splitting off traffic: A new tag <code>guest</code> might
+be used to route inferencing quota or traffic
+at the trusted <code>proxy</code>.</p>
+<p>The same applies to a website or service
+you want to expose to <strong>untrusted users.</strong>
+exe.dev makes this boundary dead simple
+to instrument using their canonical share
+feature.</p>
+<h2>Closing thoughts</h2>
+<p>Some might call this being <em>paranoid</em> and
+that is perfectly fine: You have a risk
+appetite that I simply do not share.</p>
+<p>To me, the peace I feel each night when I
+go to sleep is worth it. My agents will
+continue goal closing and operating with
+full autonomy. I choose to spend my energy
+reviewing outputs and thinking about what
+to do next, not at the approval prompt.</p>
+
+</body>
+</html>
