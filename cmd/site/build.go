@@ -13,8 +13,8 @@ import (
 var templateFS embed.FS
 
 var (
-	pageTmpl    = template.Must(template.ParseFS(templateFS, "templates/page.html"))
-	galleryTmpl = template.Must(template.ParseFS(templateFS, "templates/gallery.html"))
+	pageTmpl    = template.Must(template.New("page.html").Funcs(template.FuncMap{"stylesheet": render.Stylesheet}).ParseFS(templateFS, "templates/page.html"))
+	galleryTmpl = template.Must(template.New("gallery.html").Funcs(template.FuncMap{"stylesheet": render.Stylesheet}).ParseFS(templateFS, "templates/gallery.html"))
 )
 
 type pageMeta struct {
@@ -34,7 +34,6 @@ func buildPage(src []byte, meta pageMeta) ([]byte, error) {
 	// so the auto-injected notice would be redundant.
 	skipNotice := strings.Contains(meta.URL, "/words/patel_codes_llm_disclosure.html")
 	bodyHTML = processGenSections(bodyHTML, skipNotice)
-	bodyHTML = highlightComments(bodyHTML)
 
 	if meta.URL != "https://patel.codes/" {
 		bodyHTML = strings.Replace(bodyHTML, "</p>", ` <span class="home">[<a href="/">home</a>]</span></p>`, 1)

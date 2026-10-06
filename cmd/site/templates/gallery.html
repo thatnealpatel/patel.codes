@@ -6,33 +6,26 @@
 <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
 <title>{{.Title}} | nealpatel</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
-  :root {
-    --paper: #fafafa;
-    --ink: #2c2b28;
-    --ink-faint: #a8a49c;
-    --accent: #f8d551;
-    --font-family: "PT Mono", monospace;
-    --page-width: 60em;
-  }
-  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: var(--page-width); margin: 3rem auto; padding: 0 1.5rem; }
-  ::selection { color: var(--accent); }
+{{stylesheet}}
+  :root { --page-width: 60em; }
+  body { max-width: var(--page-width); margin: 3rem auto; padding: 0 1.5rem; }
   h1 { margin-bottom: 0; }
   .image-grid { display: grid; grid-template-rows: auto; grid-gap: 1em; grid-template-columns: {{.GridCSSAttr}}; }
-  .image-grid a { border: none; }
   .image-grid img { width: 100%; height: auto; display: block; }
 </style>
 </head>
 <body>
+<main class="markdown">
 <h1>{{.Title}}</h1>
 <p>{{.Date}} <span class="home">[<a href="/">home</a>]</span></p>
 <br>
 <p>intended viewing grid: {{.Grid}}{{if .Zoom}} [<a id="zoomie">zoom</a>]{{end}}</p>
 <div class="image-grid">
-{{range .Images}}<a href="{{.}}" style="border: none;"><img src="{{.}}" width="auto" height="auto" alt="{{.}}"></a>
+{{range .Images}}<a href="{{.}}"><img src="{{.}}" width="auto" height="auto" alt="{{.}}"></a>
 {{end}}</div>
 <br>
 <p>(c) 2025 neal patel</p>
+</main>
 <script>
 var z = document.getElementById("zoomie");
 if (z) z.onclick = function () {

@@ -9,37 +9,16 @@
 <meta property="og:url" content="{{.OG.URL}}">
 <meta property="og:type" content="article">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
-  :root {
-    --paper: #fafafa;
-    --ink: #2c2b28;
-    --ink-light: #6b6963;
-    --ink-faint: #a8a49c;
-    --accent: #f8d551;
-    --code: #2d6a4f;
-    --gen-bg: rgba(248, 213, 81, 0.05);
-    --font-family: "PT Mono", monospace;
-  }
-  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
-  h1 { color: var(--ink); }
-  p, li { color: var(--ink-light); line-height: 1.7; }
-  strong { color: var(--ink); }
-  code { color: var(--code); }
-  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
-  pre code { color: var(--ink); font-size: 15px; }
-  pre code .cm { color: var(--ink-light); }
-  a { color: var(--ink); }
-  table { border-collapse: collapse; margin: 1.5rem 0; }
-  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
-  th { color: var(--ink); }
-  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
-  .gen-notice { color: var(--ink-faint); }
-  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
-  math { font-size: 1.1em; }
-  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+{{stylesheet}}
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(248, 213, 81, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .gen-inline { background: rgba(248, 213, 81, 0.05); padding: 0.1em 0.3em; }
 </style>
 </head>
 <body>
+<main class="markdown">
 {{.Body}}
+</main>
 </body>
 </html>

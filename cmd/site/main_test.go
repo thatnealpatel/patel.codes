@@ -23,7 +23,7 @@ func TestBuildPageUsesRender(t *testing.T) {
 		[]byte("<msup>"),
 		[]byte("<mfrac>"),
 		[]byte("<table>"),
-		[]byte(`x := &quot;$notMath$&quot; <span class="cm">// comment</span>`),
+		[]byte(`x := &quot;$notMath$&quot; // comment`),
 		[]byte(`[<a href="/">home</a>]`),
 	} {
 		if !bytes.Contains(page, want) {
@@ -97,46 +97,28 @@ func TestMarkdownContentRenders(t *testing.T) {
 	}
 }
 
-func TestSpanComments(t *testing.T) {
-	goSyntax := commentTokens["go"]
-	leanSyntax := commentTokens["lean"]
-	tests := []struct {
-		name   string
-		syntax commentSyntax
-		input  string
-		want   string
-	}{
-		{"go single", goSyntax, "x := 1 // half\ny := 2\n", "x := 1 <span class=\"cm\">// half</span>\ny := 2\n"},
-		{"go multi", goSyntax, "a /* one\ntwo */ b", "a <span class=\"cm\">/* one\ntwo */</span> b"},
-		{"go unterminated multi", goSyntax, "a /* open\nrest", "a <span class=\"cm\">/* open\nrest</span>"},
-		{"lean single", leanSyntax, "def f := 0 -- note\n", "def f := 0 <span class=\"cm\">-- note</span>\n"},
-		{"lean doc before multi", leanSyntax, "/-- doc -/\ndef f := 0", "<span class=\"cm\">/-- doc -/</span>\ndef f := 0"},
-		{"lean multi", leanSyntax, "/- block -/ def f := 0", "<span class=\"cm\">/- block -/</span> def f := 0"},
-		{"single at EOF", goSyntax, "x // tail", "x <span class=\"cm\">// tail</span>"},
-		{"incomplete multi syntax", commentSyntax{singleStart: "#", multiStart: "=begin"}, "a =begin\n# hi\n", "a =begin\n<span class=\"cm\"># hi</span>\n"},
-		{"no comments", goSyntax, "x := 1\n", "x := 1\n"},
+func TestTemplatesUseSharedStylesheet(t *testing.T) {
+	page, err := buildPage([]byte("# test\n\n```go\nx := 1 // comment\n```\n"), pageMeta{Title: "test"})
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			if got := spanComments(test.input, test.syntax); got != test.want {
-				t.Fatalf("spanComments(%q):\n got %q\nwant %q", test.input, got, test.want)
+	wall, err := buildGalleryWall(gallery{Title: "test", Images: []string{"test.png"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, output := range map[string]string{"page": string(page), "gallery": wall} {
+		t.Run(name, func(t *testing.T) {
+			if !strings.Contains(output, "<style>\n"+string(render.Stylesheet())+"\n") {
+				t.Error("shared stylesheet is not embedded verbatim in style element")
+			}
+			if !strings.Contains(output, `<main class="markdown">`) || !strings.Contains(output, "</main>") {
+				t.Error("missing markdown main container")
+			}
+			for _, legacy := range []string{"PT Mono", "fonts.googleapis.com", "@import", "--paper", "--ink", "--accent", "--code", "--gen-bg", "--font-family", `class="cm"`, "pre code .cm"} {
+				if strings.Contains(output, legacy) {
+					t.Errorf("output contains legacy style or highlighting %q", legacy)
+				}
 			}
 		})
-	}
-}
-
-func TestHighlightComments(t *testing.T) {
-	input := "<p>hi</p>\n<pre><code class=\"language-go\">x := 1 // c\n</code></pre>\n" +
-		"<pre><code class=\"language-py\"># nope\n</code></pre>\n" +
-		"<pre><code>// bare\n</code></pre>\n"
-	got := highlightComments(input)
-	if !strings.Contains(got, `<span class="cm">// c</span>`) {
-		t.Fatalf("Go comment not highlighted: %s", got)
-	}
-	if strings.Contains(got, `<span class="cm"># nope`) {
-		t.Fatalf("unlisted language highlighted: %s", got)
-	}
-	if strings.Contains(got, `<span class="cm">// bare`) {
-		t.Fatalf("bare block highlighted: %s", got)
 	}
 }
