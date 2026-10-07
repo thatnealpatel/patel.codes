@@ -9,37 +9,88 @@
 <meta property="og:url" content="https://patel.codes/words/rewritingpatelcodes.html">
 <meta property="og:type" content="article">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
-  :root {
-    --paper: #fafafa;
-    --ink: #2c2b28;
-    --ink-light: #6b6963;
-    --ink-faint: #a8a49c;
-    --accent: #f8d551;
-    --code: #2d6a4f;
-    --gen-bg: rgba(248, 213, 81, 0.05);
-    --font-family: "PT Mono", monospace;
-  }
-  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
-  h1 { color: var(--ink); }
-  p, li { color: var(--ink-light); line-height: 1.7; }
-  strong { color: var(--ink); }
-  code { color: var(--code); }
-  pre { border: 1px solid var(--ink-faint); padding: 0.75rem 1rem; overflow-x: auto; }
-  pre code { color: var(--ink); font-size: 15px; }
-  pre code .cm { color: var(--ink-light); }
-  a { color: var(--ink); }
-  table { border-collapse: collapse; margin: 1.5rem 0; }
-  th, td { padding: 0.4rem 1rem; text-align: left; border-bottom: 1px solid var(--ink-faint); color: var(--ink-light); }
-  th { color: var(--ink); }
-  .gen { background: var(--gen-bg); padding: 0.5rem 1rem; margin: 1rem -1rem; }
-  .gen-notice { color: var(--ink-faint); }
-  .gen-inline { background: var(--gen-bg); padding: 0.1em 0.3em; }
-  math { font-size: 1.1em; }
-  math[display="block"] { display: block; text-align: center; margin: 1.5rem 0; font-size: 1.3em; }
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(0, 173, 216, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .gen-inline { background: rgba(0, 173, 216, 0.05); padding: 0.1em 0.3em; }
 </style>
 </head>
 <body>
+<main class="markdown">
 <h1>patel.codes is now <code>&lt;noscript&gt;</code></h1>
 <p>2026-05-10 <span class="home">[<a href="/">home</a>]</span></p>
 <h2>Motivations</h2>
@@ -95,5 +146,6 @@ execution of the Go binary for deployment:</p>
 </ol>
 <p><a href="https://github.com/thatnealpatel/patel.codes">Source code for patel.codes is on my GitHub.</a></p>
 
+</main>
 </body>
 </html>

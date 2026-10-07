@@ -6,41 +6,107 @@
 <link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico">
 <title>human #1 | nealpatel</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=PT+Mono&display=swap');
-  :root {
-    --paper: #fafafa;
-    --ink: #2c2b28;
-    --ink-faint: #a8a49c;
-    --accent: #f8d551;
-    --font-family: "PT Mono", monospace;
-    --page-width: 60em;
-  }
-  body { background: var(--paper); color: var(--ink); font-family: var(--font-family); font-size: 17px; max-width: var(--page-width); margin: 3rem auto; padding: 0 1.5rem; }
-  ::selection { color: var(--accent); }
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+  :root { --page-width: 60em; }
+  body { max-width: var(--page-width); margin: 3rem auto; padding: 0 1.5rem; }
   h1 { margin-bottom: 0; }
   .image-grid { display: grid; grid-template-rows: auto; grid-gap: 1em; grid-template-columns: repeat(auto-fit, minmax(calc(var(--page-width) / 4), 1fr)); }
-  .image-grid a { border: none; }
   .image-grid img { width: 100%; height: auto; display: block; }
 </style>
 </head>
 <body>
+<main class="markdown">
 <h1>human #1</h1>
 <p>2025-10-19 <span class="home">[<a href="/">home</a>]</span></p>
 <br>
 <p>intended viewing grid: 3x3</p>
 <div class="image-grid">
-<a href="l4.jpg" style="border: none;"><img src="l4.jpg" width="auto" height="auto" alt="l4.jpg"></a>
-<a href="l1.jpg" style="border: none;"><img src="l1.jpg" width="auto" height="auto" alt="l1.jpg"></a>
-<a href="l0.jpg" style="border: none;"><img src="l0.jpg" width="auto" height="auto" alt="l0.jpg"></a>
-<a href="l6.jpg" style="border: none;"><img src="l6.jpg" width="auto" height="auto" alt="l6.jpg"></a>
-<a href="l15.jpg" style="border: none;"><img src="l15.jpg" width="auto" height="auto" alt="l15.jpg"></a>
-<a href="l14.jpg" style="border: none;"><img src="l14.jpg" width="auto" height="auto" alt="l14.jpg"></a>
-<a href="l13.jpg" style="border: none;"><img src="l13.jpg" width="auto" height="auto" alt="l13.jpg"></a>
-<a href="l7.jpg" style="border: none;"><img src="l7.jpg" width="auto" height="auto" alt="l7.jpg"></a>
-<a href="l2.jpg" style="border: none;"><img src="l2.jpg" width="auto" height="auto" alt="l2.jpg"></a>
+<a href="l4.jpg"><img src="l4.jpg" width="auto" height="auto" alt="l4.jpg"></a>
+<a href="l1.jpg"><img src="l1.jpg" width="auto" height="auto" alt="l1.jpg"></a>
+<a href="l0.jpg"><img src="l0.jpg" width="auto" height="auto" alt="l0.jpg"></a>
+<a href="l6.jpg"><img src="l6.jpg" width="auto" height="auto" alt="l6.jpg"></a>
+<a href="l15.jpg"><img src="l15.jpg" width="auto" height="auto" alt="l15.jpg"></a>
+<a href="l14.jpg"><img src="l14.jpg" width="auto" height="auto" alt="l14.jpg"></a>
+<a href="l13.jpg"><img src="l13.jpg" width="auto" height="auto" alt="l13.jpg"></a>
+<a href="l7.jpg"><img src="l7.jpg" width="auto" height="auto" alt="l7.jpg"></a>
+<a href="l2.jpg"><img src="l2.jpg" width="auto" height="auto" alt="l2.jpg"></a>
 </div>
 <br>
 <p>(c) 2025 neal patel</p>
+</main>
 <script>
 var z = document.getElementById("zoomie");
 if (z) z.onclick = function () {
