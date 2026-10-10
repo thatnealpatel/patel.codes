@@ -16,7 +16,7 @@ how it has re-framed my thinking and workflows.
 For many months, I drove a single agent in a
 harness to do things, like many others do. In
 particular, the harness I used was Claude Code.
-As time went one, I became annoyed at how it
+As time went on, I became annoyed at how it
 did not quite *fit* me. I wanted to hold a tool
 that *just worked* with how I think.
 
@@ -57,15 +57,15 @@ hours to orchestrate and complete and there was
 no ability to review the intermediate diffs.
 
 I started wanting something simpler, more in
-my control, and purpose-built for what me. So,
+my control, and purpose-built for me. So,
 I used `tf` and Claude Code to bootstrap the
 first 500 commits of own bespoke harness written
 in Go.
 
-Since July, I have since merged 1500 commits
-to my harness project using my harness. It
-is my daily driver harness and continues to
-evolve with me.
+Since July, I have merged 1500 commits to my
+harness project using my harness. It is my
+daily driver harness and continues to evolve
+with me.
 
 ## Evolution of `tf`
 
