@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>Why I stood up a private Gerrit instance</title>
+<meta property="og:title" content="Why I stood up a private Gerrit instance">
+<meta property="og:url" content="https://patel.codes/words/private_gerrit_for_agents.html">
+<meta property="og:type" content="article">
+<style>
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(0, 173, 216, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .gen-inline { background: rgba(0, 173, 216, 0.05); padding: 0.1em 0.3em; }
+</style>
+</head>
+<body>
+<main class="markdown">
+<h1>Why I stood up a private Gerrit instance</h1>
+<p>2026-10-10 <span class="home">[<a href="/">home</a>]</span></p>
+<h2>Motivations</h2>
+<p>Large language models, agents, and the harness
+that binds them all together is presently a
+topic of great importance. As we march through
+an age where personalization is more accessible
+than ever, I want to share some thoughts about
+how it has re-framed my thinking and workflows.</p>
+<h2>Vibe coding determinism</h2>
+<p>For many months, I drove a single agent in a
+harness to do things, like many others do. In
+particular, the harness I used was Claude Code.
+As time went one, I became annoyed at how it
+did not quite <em>fit</em> me. I wanted to hold a tool
+that <em>just worked</em> with how I think.</p>
+<p>With time, subagents and the set of abstractions
+that made LLMs useful became more powerful and
+interesting to use. I found myself in a weird
+place: I think in terms of graphs, and I wanted
+my agents to as well.</p>
+<p>I, like many others, built a small program that
+would allow my agents to manage their lifecycle:
+Planning, coding, and reviewing. The CLI program
+was called <code>tf</code> and managed the <strong>t</strong>ask <strong>f</strong>low in
+the literal sense. A <code>planner</code> agent would use
+<code>tf new card</code> to create managed markdown files
+that specified how a self-contained task should
+be completed. It would then use <code>tf wire</code> with
+a wiring syntax to create a DAG that represented
+the state. The primary benefit here is that you
+had a soft ordering gaurantee when executing. In
+some cases, out-of-order or state confusion would
+occur. However, agents mostly held the tool in
+a sensible manner.</p>
+<p>An <code>orchestrator</code> was allowed to use <code>tf</code> to
+see what work is in-flight, pending, blocked,
+and resolved. There was a small protocol to
+repair the graph if new blockers came up and
+this system largely worked. A good mix of skill
+and <code>tf</code> determinism worked so long as you used
+<code>Fable</code> and <code>Opus</code> class agents.</p>
+<p>However, it felt unstable and prone to breaking
+at the whim of Anthropic and whatever A/B test
+you might be put under. It was also slow in a
+sense: Complex parallel work sometimes took
+hours to orchestrate and complete and there was
+no ability to review the intermediate diffs.</p>
+<p>I started wanting something simpler, more in
+my control, and purpose-built for what me. So,
+I used <code>tf</code> and Claude Code to bootstrap the
+first 500 commits of own bespoke harness written
+in Go.</p>
+<p>Since July, I have since merged 1500 commits
+to my harness project using my harness. It
+is my daily driver harness and continues to
+evolve with me.</p>
+<h2>Evolution of <code>tf</code></h2>
+<p>One of the primary reasons for building my
+own harness was codifying this control flow in
+a more deterministic way. I spent commits 500
+to 750 just observing and collecting data
+for how it functioned such that I could reason
+about what a coherent abstraction might look
+like.</p>
+<p>For me, the key problem I wanted to solve
+was deterministic, parallel agentic development
+such that mechanical blockers, like merge
+conflict resolution, were trivially resolvable
+that I could free my thinking towards harder
+and more complex problems.</p>
+<p>Eventually, I took a look at <code>jj</code>. I discovered
+that <code>jj</code> workspaces were effectively the
+abstraction I was trying to create. With a very
+simple protocol, I created a <code>campaign</code> tool
+for my harness, and it has been brilliant. It is
+by far the most useful tool I have created for
+myself.</p>
+<p>In short, <code>campaign</code> is what allows me to have
+many harnesses open in the same project and
+jump between them with random ideas or long,
+concentrated implementations without any worry
+for how it materalizes later. It would just
+work when it needed to.</p>
+<p>I realized as I was writing and revising this
+post why it is the most important tool I wrote
+for myself: I think about 100 things at a time
+and jump between them often and carelessly. In
+a pre-LLM world, this is what was natural to
+me. I am sure many others relate to this sentiment.</p>
+<p>When LLMs and agents came along, I felt unsatisifed
+because these tools, especially as they became
+viable, <strong>forced</strong> me to <em>serialize my thinking</em>
+in the context of a single agent loop or its
+ability to operate in the project I am also trying
+to hold in my head. For me, this is <em>deeply unnatural.</em>
+<code>campaign</code> is what allowed me to free myself of
+the forced serialization of my thinking process.</p>
+<h2><code>campaign</code> API</h2>
+<p><code>campaign</code> is a <code>jj</code>-backed, deterministic tool
+that is built into my harness for the main agent.
+It is not a CLI program. the harness owns all <code>jj</code>
+state. Agents merely execute read-only <code>jj</code> command.</p>
+<p>Its API is remarkably simple: <code>new</code>, <code>status</code>,
+<code>integrate</code>, and <code>adopt</code> are the only operations.</p>
+<p><code>new</code> creates a workspace for changes made
+by the orchestrating agent. It returns the
+path for which the agent should edit and test.</p>
+<p>By default, using the <code>subagent</code> tool will
+also re-use this same behavior: Subagents
+need not call <code>new</code> or even become aware of
+<code>campaign</code> (it is withheld). Subagents are
+anchored to the workspace directory. When
+they finish, they finalize an intermediate
+commit.</p>
+<p><code>status</code> reports the canonical campaign state.
+With <code>verbose: true</code>, it also includes complete
+attempt and output inventories. The distinction
+between an <strong>output</strong> and an <strong>attempt</strong> is what
+makes this work: An output is a self-contained,
+finalized unit of work. Using <code>integrate</code>, the
+orchestrator can <code>jj describe</code> it against a base
+to produce a change candidate. It <strong>never</strong> can
+move the accepted base/trunk.</p>
+<p>By default, successful <code>integrate</code> implies that
+<code>adopt</code> is ready to advance the trunk. A machine
+wide lockfile is used to synchronize this. The
+simplicity of this lockfile accepts that two
+unrelated projects may block each other for a
+brief amount of time where no synchronization
+would otherwise be required.</p>
+<h2>So, you stand up Gerrit</h2>
+<p>It is increasingly becoming more common to write
+tools for code review: Agents have made writing
+code cheap. For some, code is cheap and also does
+not need to be reviewed.</p>
+<p>For me, I am still of the opinion that I would
+like to review, if only cursory, changes to my
+own projects. For collaborative projects, I always
+want to review the agent's outputs. For the Go
+project, we use <a href="https://www.gerritcodereview.com">Gerrit</a>.
+I found it a natural choice: I already know the
+UI, its easy to set up (using their container),
+and I can slot it directly into my Tailnet under
+<a href="/words/my_thoughts_on_sandboxing_agents.html">my delegated sandboxing strategy</a>.</p>
+<p>The <code>campaign</code> tool described above functions
+slightly differently in projects where I define
+a <code>gerrit</code> remote that points to my private
+Gerrit. After <code>integrate</code>, the change is ready
+to be mailed for human review.</p>
+<p>A small program I wrote allows for agents to
+interact with Gerrit: <a href="https://patel.codes/grfa"><code>patel.codes/grfa</code></a>.
+The delegated authentication by trusted and
+untrusted port ensures that the local project
+cannot advance the trunk unless the remote has
+the merged CL. The Gerrit instance does not allow
+submit operations on the untrusted port. Therefore,
+only I can ensure it submits.</p>
+<p>While there are a few plausible &quot;escapes&quot; an agent
+might discover or attempt, they are largely moot
+since nowadays a few lines of system prompt and
+a simple, deterministic tool will be what an agent
+reaches for each time. In practice, I have never
+encountered bad behavior. Even if it were to happen,
+it is entirely inconsequential and would cause me
+all of 30 seconds of repair and annoyance.</p>
+<h2>Closing thoughts</h2>
+<p>I wonder what else has changed in how I do or think
+about things that I haven't yet realized are similarly
+unnatural. I am curious as to what this might look
+like in others as well.</p>
+
+</main>
+</body>
+</html>
