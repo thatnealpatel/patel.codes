@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>`gocmt` is the formatter you hate</title>
+<meta property="og:title" content="`gocmt` is the formatter you hate">
+<meta property="og:url" content="https://patel.codes/words/gocmt_is_the_formatter_you_hate.html">
+<meta property="og:type" content="article">
+<style>
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(0, 173, 216, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .gen-inline { background: rgba(0, 173, 216, 0.05); padding: 0.1em 0.3em; }
+</style>
+</head>
+<body>
+<main class="markdown">
+<h1><code>gocmt</code> is the formatter you hate</h1>
+<p>2026-10-20 <span class="home">[<a href="/">home</a>]</span></p>
+<h2>Motivations</h2>
+<p>For years, I would manually tidy my own comments
+according to some esoteric spec that lived in my
+head. While I generally avoid doing this in the
+Go standard library, I know there exists a small
+subset of folks who enjoy this, let's call it,
+<em>craft</em>.</p>
+<p>While agents generally <em>suck</em> at writing comments,
+they are getting better. However, in an ever growing
+catalog of personal software, comments-as-a-spec is
+helpful for autonomous development. And, I am
+still of the opinion that I want to look at code
+agents write. The only difference is <strong>how</strong> much
+time I spend. In either case, I loathe looking at
+both vacuous and ugly formatting.</p>
+<p>So, <a href="https://patel.codes/gocmt"><code>gocmt</code></a> and <code>gofmt</code>
+were seperated at birth.</p>
+<h2>The semantics</h2>
+<p>Similarly to <code>gofmt</code>, the interface is simple:</p>
+<pre><code class="language-shell">% gocmt -d main.go  # inspect
+% gocmt -w main.go  # apply
+</code></pre>
+<p>From the program itself:</p>
+<pre><code class="language-go">// process returns src with every eligible comment group
+// rewrapped; bytes outside comments are never modified.
+func process(name string, src []byte) ([]byte, error) {
+</code></pre>
+<p>Standalone <code>//</code> prose gets rewrapped. Package docs,
+comments beginning on line one, trailing comments,
+and block comments are left alone for various reasons.
+We skip generated files; within blocks in scope, we
+similarly passthrough directives, headings, indented
+code examples, etc.</p>
+<p>For example,</p>
+<pre><code class="language-go">package p
+
+// P is tiny but its comment still gets exactly forty columns of width.
+type P struct {
+}
+</code></pre>
+<p>rewrites to</p>
+<pre><code class="language-go">package p
+
+// P is tiny but its comment still gets
+// exactly forty columns of width.
+type P struct {
+}
+</code></pre>
+<p>The next non-blank line anchors the target width,
+clamped to 40–80 columns. There is an optimizer
+that runs a few different configurations and picks
+a local max. Words themselves remain intact.</p>
+<p>Short statements are an exception. Despite overhanging
+its <code>{</code>, the following comment stays put:</p>
+<pre><code class="language-go">// String renders m as its mode name for logs.
+func (m Mode) String() string {
+}
+</code></pre>
+<p>The relevant branch, again from the source:</p>
+<pre><code class="language-go">if joined := strings.Join(ch.words, &quot; &quot;); utf8.RuneCountInString(joined)+pad &lt;= oneLineCols {
+    lines = append(lines, &quot;// &quot;+joined)
+    continue
+}
+</code></pre>
+<p><code>oneLineCols</code> is 60; <code>pad</code> counts indentation and
+<code>// </code>. Otherwise, the program tries widths within
+two columns of the target and minimizes raggedness
+and a penalty for producing a very short final line.</p>
+<p>As documented, this is a rather unserious program
+that I unironically use. I do not care to convince
+you that comments should be written this way: They
+probably shouldn't. But I like them like this.</p>
+<h2>Closing thoughts</h2>
+<p>You can install <code>gocmt</code>:</p>
+<pre><code>go install patel.codes/gocmt@latest
+</code></pre>
+<p>And, <code>gocmt</code>'s package doc proudly reads:</p>
+<pre><code>// Package main implements a program that
+// codifies my idiosyncratic comment prose
+// style that most people surely dislike.
+//
+// I like writing comments that minimize
+// the line length difference in a given
+// comment block while commonly choosing
+// the line length based on the location
+// of the `{` on the following line. An
+// exception is made when a single-line
+// comment can fit in 60 columns or fewer.
+//
+// All non-terminal comment lines must be
+// at least 40 columns wide. The algorithm
+// tries a few local orientations and
+// picks the global block-optimal.
+//
+// `gocmt` is a rather unserious program
+// that I unironically use.
+package main
+</code></pre>
+
+</main>
+</body>
+</html>

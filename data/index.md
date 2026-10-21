@@ -19,8 +19,9 @@ on Go cryptography and security.
 
 ## Words
 
-- [Why I stood up a private Gerrit instance](./words/private_gerrit_for_agents.html)
+- [`gocmt` is the formatter you hate](./words/gocmt_is_the_formatter_you_hate.html)
 - [Read-before-write is harmful?](./words/read_before_write_harmful.html)
+- [Why I stood up a private Gerrit instance](./words/private_gerrit_for_agents.html)
 - [My thoughts on sandboxing agents](./words/my_thoughts_on_sandboxing_agents.html)
 - [What painting and dotfiles have in common](./words/what_painting_and_dotfiles_have_in_common.html)
 - [Drive by proof on `A014701`](./words/driveby_proof_on_a014701.html)
