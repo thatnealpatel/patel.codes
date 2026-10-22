@@ -10,7 +10,7 @@ consumption in the [age of personalized software](https://blog.exe.dev/devtools-
 
 I do a lot of maths research in my free time,
 and I grew frustrated with rendering LaTeX in
-my hard when appearing in the terminal. This
+my head when appearing in the terminal. This
 is a monumentally stupid thing to tolerate. I
 extended my TUI program to simply bind a small
 Go server to use another piece of personalized
