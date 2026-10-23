@@ -20,8 +20,8 @@ on Go cryptography and security.
 ## Words
 
 - [`gocmt` is the formatter you hate](./words/gocmt_is_the_formatter_you_hate.html)
-- [Read-before-write is harmful?](./words/read_before_write_harmful.html)
 - [Why I stood up a private Gerrit instance](./words/private_gerrit_for_agents.html)
+- [Read-before-write is harmful?](./words/read_before_write_harmful.html)
 - [My thoughts on sandboxing agents](./words/my_thoughts_on_sandboxing_agents.html)
 - [What painting and dotfiles have in common](./words/what_painting_and_dotfiles_have_in_common.html)
 - [LLM disclosure on patel.codes](./words/patel_codes_llm_disclosure.html)
@@ -33,8 +33,8 @@ on Go cryptography and security.
 
 ## Proofs
 
-- [Refuting two prime-counting conjectures](./words/prime_counting_counterexamples.html)
 - [Proving last digit conjecture in `A137098`](./words/last_digit_a137098.html)
+- [Refuting two prime-counting conjectures](./words/prime_counting_counterexamples.html)
 - [Drive by proof on `A014701`](./words/driveby_proof_on_a014701.html)
 - [Proving `A092482`'s closed form ](./words/proving_a092482_closed_form.html)
 - [What I actually proved about `A051293`](./words/sharpening_my_a051293_results.html)
