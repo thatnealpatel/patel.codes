@@ -25,8 +25,20 @@ func main() {
 	data = filepath.Join(root, "data")
 	gen = filepath.Join(root, "gen")
 
-	if err := generateWordsIndex(data); err != nil {
+	sections := []articleSection{{name: "words", title: "Words"}, {name: "proofs", title: "Proofs"}}
+	for i := range sections {
+		sections[i].entries, err = os.ReadDir(filepath.Join(data, sections[i].name))
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	if err := validateArticleOutputs(sections); err != nil {
 		log.Fatal(err)
+	}
+	for _, section := range sections {
+		if err := generateSectionIndex(data, section); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	src, err := os.ReadFile(filepath.Join(data, "index.md"))
@@ -48,57 +60,10 @@ func main() {
 
 	fmt.Println("wrote gen/index.html")
 
-	wordsDir := filepath.Join(data, "words")
-	entries, err := os.ReadDir(wordsDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	wordsOutDir := filepath.Join(gen, "words")
-	draftsOutDir := filepath.Join(wordsOutDir, "drafts")
-	if err := os.MkdirAll(wordsOutDir, 0o755); err != nil {
-		log.Fatal(err)
-	}
-	if err := os.MkdirAll(draftsOutDir, 0o755); err != nil {
-		log.Fatal(err)
-	}
-
-	for _, e := range entries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
-			continue
-		}
-		src, err := os.ReadFile(filepath.Join(wordsDir, e.Name()))
-		if err != nil {
+	for _, section := range sections {
+		if err := generateSectionPages(data, gen, section); err != nil {
 			log.Fatal(err)
 		}
-		title, _, err := readTitleAndDate(filepath.Join(wordsDir, e.Name()))
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		draft := strings.HasSuffix(e.Name(), ".draft.md")
-		var outName, outDir, urlPath string
-		if draft {
-			outName = strings.TrimSuffix(e.Name(), ".draft.md") + ".html"
-			outDir = draftsOutDir
-			urlPath = "words/drafts/" + outName
-		} else {
-			outName = strings.TrimSuffix(e.Name(), ".md") + ".html"
-			outDir = wordsOutDir
-			urlPath = "words/" + outName
-		}
-
-		html, err := buildPage(src, pageMeta{
-			Title: title,
-			URL:   "https://patel.codes/" + urlPath,
-		})
-		if err != nil {
-			log.Fatalf("building %s: %v", e.Name(), err)
-		}
-		if err := os.WriteFile(filepath.Join(outDir, outName), html, 0o644); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("wrote gen/%s\n", urlPath)
 	}
 
 	galleriesDataDir := filepath.Join(data, "galleries")
@@ -149,7 +114,8 @@ func main() {
 	cp(filepath.Join(staticDir, "favicon.ico"), filepath.Join(gen, "favicon.ico"))
 	fmt.Println("wrote gen/favicon.ico")
 
-	// data/root holds files served verbatim at the site root, e.g. mk.sh.
+	// data/root holds files served verbatim at the site root,
+	// e.g. mk.sh.
 	if err := cpdir(filepath.Join(data, "root"), gen); err != nil {
 		log.Fatal(err)
 	}
@@ -165,7 +131,7 @@ func main() {
 	}
 	fmt.Println("wrote gen/CNAME")
 
-	sitemap := sitemap(entries, gallerySlugs)
+	sitemap := sitemap(sections, gallerySlugs)
 	if err := os.WriteFile(filepath.Join(gen, "sitemap.xml"), []byte(sitemap), 0o644); err != nil {
 		log.Fatal(err)
 	}
@@ -178,6 +144,80 @@ func main() {
 	const addr = ":9876"
 	fmt.Println("serving on", "http://"+addr)
 	log.Fatal(http.ListenAndServe(addr, http.FileServer(http.Dir(gen))))
+}
+
+type articleSection struct {
+	name    string
+	title   string
+	entries []os.DirEntry
+}
+
+func articleOutputPath(name string) string {
+	if strings.HasSuffix(name, ".draft.md") {
+		return "words/drafts/" + strings.TrimSuffix(name, ".draft.md") + ".html"
+	}
+	return "words/" + strings.TrimSuffix(name, ".md") + ".html"
+}
+
+func validateArticleOutputs(sections []articleSection) error {
+	outputs := make(map[string]string)
+	for _, section := range sections {
+		for _, e := range section.entries {
+			if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+				continue
+			}
+			output := articleOutputPath(e.Name())
+			source := section.name + "/" + e.Name()
+			if previous, ok := outputs[output]; ok {
+				return fmt.Errorf("conflicting article output %s: %s and %s", output, previous, source)
+			}
+			outputs[output] = source
+		}
+	}
+	return nil
+}
+
+func generateSectionPages(data, gen string, section articleSection) error {
+	srcDir := filepath.Join(data, section.name)
+
+	sectionOutDir := filepath.Join(gen, "words")
+	draftsOutDir := filepath.Join(sectionOutDir, "drafts")
+	if err := os.MkdirAll(sectionOutDir, 0o755); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(draftsOutDir, 0o755); err != nil {
+		return err
+	}
+
+	for _, e := range section.entries {
+		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+			continue
+		}
+		src, err := os.ReadFile(filepath.Join(srcDir, e.Name()))
+		if err != nil {
+			return err
+		}
+		title, _, err := readTitleAndDate(filepath.Join(srcDir, e.Name()))
+		if err != nil {
+			return err
+		}
+
+		urlPath := articleOutputPath(e.Name())
+
+		html, err := buildPage(src, pageMeta{
+			Title: title,
+			URL:   "https://patel.codes/" + urlPath,
+		})
+		if err != nil {
+			return fmt.Errorf("building %s/%s: %w", section.name, e.Name(), err)
+		}
+		if err := os.WriteFile(filepath.Join(gen, filepath.FromSlash(urlPath)), html, 0o644); err != nil {
+			return err
+		}
+		fmt.Printf("wrote gen/%s\n", urlPath)
+	}
+
+	return nil
 }
 
 func cp(src, dst string) {
@@ -204,21 +244,22 @@ Disallow:
 Sitemap: https://patel.codes/sitemap.xml
 `
 
-func sitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
+func sitemap(sections []articleSection, gallerySlugs []os.DirEntry) string {
 	var b strings.Builder
 	b.WriteString(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://patel.codes/</loc></url>
 `)
-	for _, e := range blogEntries {
-		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
-			continue
+	for _, section := range sections {
+		for _, e := range section.entries {
+			if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") {
+				continue
+			}
+			if strings.HasSuffix(e.Name(), ".draft.md") {
+				continue
+			}
+			fmt.Fprintf(&b, "<url><loc>https://patel.codes/%s</loc></url>\n", articleOutputPath(e.Name()))
 		}
-		if strings.HasSuffix(e.Name(), ".draft.md") {
-			continue
-		}
-		name := strings.TrimSuffix(e.Name(), ".md") + ".html"
-		fmt.Fprintf(&b, "<url><loc>https://patel.codes/words/%s</loc></url>\n", name)
 	}
 	for _, s := range gallerySlugs {
 		if !s.IsDir() {
@@ -233,33 +274,29 @@ func sitemap(blogEntries []os.DirEntry, gallerySlugs []os.DirEntry) string {
 	return b.String()
 }
 
-type wordEntry struct {
+type articleEntry struct {
 	title string
 	file  string
 	date  string
 }
 
-func generateWordsIndex(dataDir string) error {
-	wordsDir := filepath.Join(dataDir, "words")
-	entries, err := os.ReadDir(wordsDir)
-	if err != nil {
-		return err
-	}
+func generateSectionIndex(dataDir string, section articleSection) error {
+	sectionDir := filepath.Join(dataDir, section.name)
 
-	var words []wordEntry
-	for _, e := range entries {
+	var articles []articleEntry
+	for _, e := range section.entries {
 		if e.IsDir() || !strings.HasSuffix(e.Name(), ".md") || strings.HasSuffix(e.Name(), ".draft.md") {
 			continue
 		}
-		title, date, err := readTitleAndDate(filepath.Join(wordsDir, e.Name()))
+		title, date, err := readTitleAndDate(filepath.Join(sectionDir, e.Name()))
 		if err != nil {
 			return err
 		}
-		words = append(words, wordEntry{title: title, file: e.Name(), date: date})
+		articles = append(articles, articleEntry{title: title, file: e.Name(), date: date})
 	}
 
-	sort.Slice(words, func(i, j int) bool {
-		return words[i].date > words[j].date
+	sort.Slice(articles, func(i, j int) bool {
+		return articles[i].date > articles[j].date
 	})
 
 	indexPath := filepath.Join(dataDir, "index.md")
@@ -268,25 +305,24 @@ func generateWordsIndex(dataDir string) error {
 		return err
 	}
 
-	header := []byte("## Words\n")
+	header := []byte("## " + section.title + "\n")
 	start := bytes.Index(src, header)
 	if start == -1 {
-		return fmt.Errorf("index.md: missing ## Words section")
+		return fmt.Errorf("index.md: missing ## %s section", section.title)
 	}
 	start += len(header)
 
 	rest := src[start:]
 	end := bytes.Index(rest, []byte("\n## "))
 	if end == -1 {
-		return fmt.Errorf("index.md: missing section after ## Words")
+		return fmt.Errorf("index.md: missing section after ## %s", section.title)
 	}
 
 	var buf bytes.Buffer
 	buf.Write(src[:start])
 	buf.WriteByte('\n')
-	for _, w := range words {
-		htmlName := strings.TrimSuffix(w.file, ".md") + ".html"
-		fmt.Fprintf(&buf, "- [%s](./words/%s)\n", w.title, htmlName)
+	for _, w := range articles {
+		fmt.Fprintf(&buf, "- [%s](./%s)\n", w.title, articleOutputPath(w.file))
 	}
 	buf.Write(rest[end:])
 
