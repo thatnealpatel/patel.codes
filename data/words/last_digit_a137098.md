@@ -102,3 +102,9 @@ digit term 5 can end in 5.
 
 The source code for this proof can be found
 [on my GitHub](https://github.com/thatnealpatel/proofs/blob/e0c9810910fd2faa896326257d0a7b95216756cc/Proofs/NumberComplexity/A137098BothUseDecimal.lean).
+
+## AI Disclosure
+
+These results were obtained primarily using a mix
+of Anthropic, OpenAI, and open weight models in a
+private benchmark using a bespoke harness.
