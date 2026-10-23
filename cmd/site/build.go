@@ -104,7 +104,7 @@ func processGenSections(body string, skipNotice bool) string {
 		if at < len(result) && result[at] == '\n' {
 			at++
 		}
-		const notice = "<p class=\"gen-notice\">This page contains generated content delineated using <span class=\"gen-inline\">this shadowing style</span>.</p>\n"
+		const notice = "<p class=\"gen-notice\">This page contains <a href=\"/words/patel_codes_llm_disclosure.html\">generated content</a> delineated using <span class=\"gen-inline\">this shadowing style</span>.</p>\n"
 		result = result[:at] + notice + result[at:]
 	}
 

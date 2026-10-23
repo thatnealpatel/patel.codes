@@ -49,7 +49,8 @@ func TestBuildPageGeneratedSections(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, want := range [][]byte{
-		[]byte(`<p class="gen-notice">`),
+		[]byte(`.markdown .gen-notice a { color: #7b9da5; }`),
+		[]byte(`<p class="gen-notice">This page contains <a href="/words/patel_codes_llm_disclosure.html">generated content</a> delineated`),
 		[]byte("<div class=\"gen\">\n<p>generated</p>\n</div>"),
 	} {
 		if !bytes.Contains(page, want) {
