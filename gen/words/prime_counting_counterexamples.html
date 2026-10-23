@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>Refuting two prime-counting conjectures</title>
+<meta property="og:title" content="Refuting two prime-counting conjectures">
+<meta property="og:url" content="https://patel.codes/words/prime_counting_counterexamples.html">
+<meta property="og:type" content="article">
+<style>
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(0, 173, 216, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .gen-inline { background: rgba(0, 173, 216, 0.05); padding: 0.1em 0.3em; }
+</style>
+</head>
+<body>
+<main class="markdown">
+<h1>Refuting two prime-counting conjectures</h1>
+<p>2026-10-23 <span class="home">[<a href="/">home</a>]</span></p>
+<p class="gen-notice">This page contains generated content delineated using <span class="gen-inline">this shadowing style</span>.</p>
+<p>There exist two conjectures about the number of ways
+you may write an integer as a sum of prime counts.
+The first predicts existence and the second conjectures
+about its uniqueness.</p>
+<p>Here, I present two counterexamples: For <a href="https://oeis.org/A262995">A262995</a>,
+we have <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>241540</mn><mo stretchy="false">)</mo><mo>=</mo><mn>0</mn></mrow></math>. For <a href="https://oeis.org/A263100">A263100</a>, we have
+<math><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>15293</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn></mrow></math>, outside the conjectured list of exceptions.</p>
+<p>Both have machine-checked proofs using only
+<code>propext</code>, <code>Classical.choice</code>, and <code>Quot.sound</code>.</p>
+<p>Here <math><mrow><mi>π</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo></mrow></math> counts the primes less than or equal
+to <math><mi>x</mi></math>. For example, <math><mrow><mi>π</mi><mo stretchy="false">(</mo><mn>10</mn><mo stretchy="false">)</mo><mo>=</mo><mn>4</mn></mrow></math>, counting <math><mrow><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>7</mn></mrow></math>.</p>
+<h2>Representation doesn't always exist</h2>
+<p><a href="https://oeis.org/A262995"><code>A262995</code></a> counts positive
+ordered pairs <math><mrow><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mi>m</mi><mo stretchy="false">)</mo></mrow></math> for which</p>
+<math display="block"><mrow><mi>n</mi><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><msub><mi>T</mi><mi>k</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mi>π</mi><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msub><mi>T</mi><mi>m</mi></msub><mo stretchy="false">)</mo><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><msub><mi>T</mi><mi>j</mi></msub><mo>=</mo><mfrac><mrow><mi>j</mi><mo stretchy="false">(</mo><mi>j</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac><mo>.</mo></mrow></math>
+<p>Here <math><mrow><msub><mi>T</mi><mi>j</mi></msub><mo>=</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mo>⋯</mo><mo>+</mo><mi>j</mi></mrow></math> is the <math><mi>j</mi></math>th triangular
+number: <math><mrow><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>10</mn><mo>,</mo><mo>…</mo></mrow></math>.</p>
+<p>A conjecture from October 2015 states:</p>
+<blockquote>
+<p><math><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>&gt;</mo><mn>0</mn></mrow></math> for every <math><mrow><mi>n</mi><mo>&gt;</mo><mn>0</mn></mrow></math>.</p>
+</blockquote>
+<p>The entry reports verification through <math><mrow><msup><mn>10</mn><mn>5</mn></msup><mo>=</mo><mn>100000</mn></mrow></math>.</p>
+<p><strong>This conjecture is false.</strong> Take <math><mrow><mi>n</mi><mo>=</mo><mn>241540</mn></mrow></math>,
+beyond the reported search range of <math><mn>100000</mn></math>.
+The conjecture predicts <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>241540</mn><mo stretchy="false">)</mo><mo>&gt;</mo><mn>0</mn></mrow></math>, but we
+establish <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>241540</mn><mo stretchy="false">)</mo><mo>=</mo><mn>0</mn></mrow></math>: There is no positive
+pair <math><mrow><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mi>m</mi><mo stretchy="false">)</mo></mrow></math> representing it.</p>
+<p>The argument below certifies this particular
+counterexample.</p>
+<h3>Proof</h3>
+<div class="gen">
+<pre><code class="language-lean">def pairSet (n : ℕ) : Set (ℕ × ℕ) :=
+  {p | 0 &lt; p.1 ∧ 0 &lt; p.2 ∧
+    n = Nat.primeCounting (p.1 * (p.1 + 1) / 2) +
+      Nat.primeCounting (1 + p.2 * (p.2 + 1) / 2)}
+
+noncomputable def a (n : ℕ) : ℕ := (pairSet n).ncard
+
+theorem pairSet_241540 : pairSet 241540 = ∅
+
+theorem a_241540 : a 241540 = 0
+</code></pre>
+</div>
+<p>Here, <code>p.1</code> and <code>p.2</code> are the two coordinates of the
+pair. <code>Nat.primeCounting</code> is the aforementioned <math><mi>π</mi></math>.
+The first theorem states the set of representing pairs
+is empty; the second says its cardinality is zero.</p>
+<p>First, the proof certifies these two prime counts:</p>
+<div class="gen">
+<math display="block"><mrow><mi>π</mi><mo stretchy="false">(</mo><msub><mi>T</mi><mn>2596</mn></msub><mo stretchy="false">)</mo><mo>=</mo><mn>241602</mn><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mi>π</mi><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msub><mi>T</mi><mn>2596</mn></msub><mo stretchy="false">)</mo><mo>=</mo><mn>241603</mn><mo>.</mo></mrow></math>
+<p>Both are larger than <math><mn>241540</mn></math>. If <math><mrow><mi>k</mi><mo>≥</mo><mn>2596</mn></mrow></math>,
+then <math><mrow><msub><mi>T</mi><mi>k</mi></msub><mo>≥</mo><mspace width="0.25em"/><msub><mi>T</mi><mn>2596</mn></msub></mrow></math>, so</p>
+<math display="block"><mrow><mi>π</mi><mo stretchy="false">(</mo><msub><mi>T</mi><mi>k</mi></msub><mo stretchy="false">)</mo><mo>+</mo><mi>π</mi><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msub><mi>T</mi><mi>m</mi></msub><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>≥</mo><mi>π</mi><mo stretchy="false">(</mo><msub><mi>T</mi><mi>k</mi></msub><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>≥</mo><mn>241602</mn><mspace width="0.25em"/><mo>&gt;</mo><mn>241540</mn><mo>.</mo></mrow></math>
+<p>Such a pair cannot work. The same argument excludes
+<math><mrow><mi>m</mi><mo>≥</mo><mn>2596</mn></mrow></math>. Every possible representation must
+therefore satisfy</p>
+<math display="block"><mrow><mn>1</mn><mo>≤</mo><mspace width="0.25em"/><mi>k</mi><mo>≤</mo><mn>2595</mn><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>1</mn><mo>≤</mo><mspace width="0.25em"/><mi>m</mi><mo>≤</mo><mn>2595</mn><mo>.</mo></mrow></math>
+</div>
+<p>Now the problem is finite, but there are still two
+things to establish: The prime counts in the tables
+are correct, and no two relevant counts sum to the
+target.</p>
+<h3>Certifying the prime counts</h3>
+<p>The source uses a <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">sieve of Eratosthenes</a>.
+Every composite integer has a prime divisor no
+larger than its square root, which is why the
+following finite sieve suffices.</p>
+<div class="gen">
+<p>The largest argument needed here is</p>
+<math display="block"><mrow><mn>1</mn><mo>+</mo><msub><mi>T</mi><mn>2596</mn></msub><mo>=</mo><mn>3370907</mn><mo>&lt;</mo><msup><mn>1837</mn><mn>2</mn></msup><mo>.</mo></mrow></math>
+<p>Thus primes below <math><mn>1837</mn></math> suffice to sieve the
+required range. The implementation works in
+finite windows and proves that a surviving bit
+corresponds exactly to a prime. Counting those
+bits gives the number of primes in each interval.
+Adding the interval counts certifies the tables</p>
+<math display="block"><mrow><msub><mi>A</mi><mi>k</mi></msub><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><msub><mi>T</mi><mi>k</mi></msub><mo stretchy="false">)</mo><mo>,</mo><mo>  </mo><mspace width="0.25em"/><msub><mi>B</mi><mi>m</mi></msub><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><mn>1</mn><mo>+</mo><msub><mi>T</mi><mi>m</mi></msub><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>The listed table values are not assumptions:
+The source proves that its table checker returns
+correct prime counts and then evaluates the
+checks in Lean's kernel. The tables include indices
+through <math><mn>2596</mn></math>, covering every possible solution
+and the cutoff values used above.</p>
+</div>
+<h3>Excluding every sum</h3>
+<div class="gen">
+<p>Write <math><mrow><mi>N</mi><mo>=</mo><mn>241540</mn></mrow></math>. For a fixed value <math><mrow><mi>b</mi><mo>=</mo><msub><mi>B</mi><mi>m</mi></msub></mrow></math>, the
+equation we want to rule out is</p>
+<math display="block"><mrow><msub><mi>A</mi><mi>k</mi></msub><mo>+</mo><mi>b</mi><mo>=</mo><mi>N</mi><mo>.</mo></mrow></math>
+<p>If <math><mrow><mi>b</mi><mo>&gt;</mo><mi>N</mi></mrow></math>, it is impossible because <math><mrow><msub><mi>A</mi><mi>k</mi></msub><mo>≥</mo><mn>0</mn></mrow></math>.
+Otherwise it is equivalent to</p>
+<math display="block"><mrow><msub><mi>A</mi><mi>k</mi></msub><mo>=</mo><mi>N</mi><mo>-</mo><mi>b</mi><mo>.</mo></mrow></math>
+<p>So instead of repeatedly adding every pair of
+table entries, we can ask whether the complement
+<math><mrow><mi>N</mi><mo>-</mo><mi>b</mi></mrow></math> occurs anywhere in the first table.</p>
+<p>The source records that first table as a bitmask:
+An integer whose bit at position <math><mi>r</mi></math> is 1 exactly
+when <math><mi>r</mi></math> occurs as an <math><msub><mi>A</mi><mi>k</mi></msub></math> for a positive table
+index <math><mi>k</mi></math>. For example, a table containing
+<math><mrow><mo>{</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>5</mn><mo>}</mo></mrow></math> would set bits 0, 2, and 5, giving</p>
+<math display="block"><mrow><msup><mn>2</mn><mn>0</mn></msup><mo>+</mo><msup><mn>2</mn><mn>2</mn></msup><mo>+</mo><msup><mn>2</mn><mn>5</mn></msup><mo>=</mo><mn>37</mn><mo>.</mo></mrow></math>
+<p>Testing bit 2 would report a match; testing bit 3
+would not. Repeated table values simply set the
+same bit again. That is enough here because we
+are testing existence, not counting how many
+indices produce each value.</p>
+<p>For every positive-index entry <math><mi>b</mi></math> in the second
+table, the check verifies either <math><mrow><mi>b</mi><mo>&gt;</mo><mi>N</mi></mrow></math> or that
+bit <math><mrow><mi>N</mi><mo>-</mo><mi>b</mi></mrow></math> is unset. Every entry passes: No
+complement occurs. The source proves what the
+bitmask lookup means and uses <code>decide +kernel</code>
+to certify that the finite check returns <code>true</code>.</p>
+<p>The bitmask makes the computation efficient; the
+bounds make it exhaustive. This is not merely a
+search that failed to find a pair. The bounds
+exclude every larger pair, and the certified
+calculation excludes every remaining pair. Thus</p>
+<math display="block"><menclose notation="box"><mrow><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>241540</mn><mo stretchy="false">)</mo><mo>=</mo><mn>0</mn><mo>.</mo></mrow></mrow></menclose></math>
+</div>
+<p>I am making no claim that this is the first
+such zero.</p>
+<h2>A unique representation in <code>A263100</code></h2>
+<p><a href="https://oeis.org/A263100"><code>A263100</code></a> counts positive
+ordered pairs <math><mrow><mo stretchy="false">(</mo><mi>k</mi><mo>,</mo><mi>m</mi><mo stretchy="false">)</mo></mrow></math> for which</p>
+<math display="block"><mrow><mi>n</mi><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><msup><mi>k</mi><mn>2</mn></msup><mo stretchy="false">)</mo><mo>+</mo><mi>π</mi><mo stretchy="false">(</mo><mo>⌊</mo><mspace width="0.25em"/><msup><mi>m</mi><mn>2</mn></msup><mo>/</mo><mn>2</mn><mo>⌋</mo><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>Its October 2015 conjecture states:</p>
+<blockquote>
+<p><math><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>&gt;</mo><mn>0</mn></mrow></math> for every <math><mrow><mi>n</mi><mo>&gt;</mo><mn>0</mn></mrow></math>, and <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn></mrow></math> only for
+<math><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>28</mn></mrow></math>.</p>
+</blockquote>
+<p><strong>The uniqueness clause is false.</strong> At <math><mrow><mi>n</mi><mo>=</mo><mn>15293</mn></mrow></math>,
+the only representing pair is <math><mrow><mo stretchy="false">(</mo><mn>339</mn><mo>,</mo><mn>291</mn><mo stretchy="false">)</mo></mrow></math>.
+This does not disprove positivity: This input
+has a representation.</p>
+<h3>Proof</h3>
+<p>This sequence has its own definitions of <code>pairSet</code>
+and <code>a</code>, in a separate Lean namespace:</p>
+<div class="gen">
+<pre><code class="language-lean">def pairSet (n : ℕ) : Set (ℕ × ℕ) :=
+  {p | 0 &lt; p.1 ∧ 0 &lt; p.2 ∧
+    n = Nat.primeCounting (p.1 ^ 2) +
+      Nat.primeCounting (p.2 ^ 2 / 2)}
+
+noncomputable def a (n : ℕ) : ℕ := (pairSet n).ncard
+
+theorem mem_pairSet_15293 (k m : ℕ) :
+    (k, m) ∈ pairSet 15293 ↔ k = 339 ∧ m = 291
+
+theorem a_15293 : a 15293 = 1
+</code></pre>
+<p>Division of natural numbers in Lean rounds down,
+so <code>p.2 ^ 2 / 2</code> is <math><mrow><mo>⌊</mo><mspace width="0.25em"/><msup><mi>m</mi><mn>2</mn></msup><mo>/</mo><mn>2</mn><mo>⌋</mo></mrow></math>.
+The symbol <code>↔</code> means “if and only if”: A pair
+represents <math><mn>15293</mn></math> exactly when its coordinates
+are <math><mn>339</mn></math> and <math><mn>291</mn></math>.</p>
+<p>First, that pair works:</p>
+<math display="block"><mrow><mi>π</mi><mo stretchy="false">(</mo><msup><mn>339</mn><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><mn>114921</mn><mo stretchy="false">)</mo><mo>=</mo><mn>10867</mn><mo>,</mo></mrow></math>
+<math display="block"><mrow><mi>π</mi><mo stretchy="false">(</mo><mo>⌊</mo><msup><mn>291</mn><mn>2</mn></msup><mo>/</mo><mn>2</mn><mo>⌋</mo><mo stretchy="false">)</mo><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><mn>42340</mn><mo stretchy="false">)</mo><mo>=</mo><mn>4426</mn><mo>,</mo></mrow></math>
+<p>and <math><mrow><mn>10867</mn><mo>+</mo><mn>4426</mn><mo>=</mo><mn>15293</mn></mrow></math>.</p>
+<p>But finding one pair is not enough to prove
+uniqueness. We must rule out every other pair.
+As before, two certified prime counts give bounds:</p>
+<math display="block"><mrow><mi>π</mi><mo stretchy="false">(</mo><msup><mn>410</mn><mn>2</mn></msup><mo stretchy="false">)</mo><mo>=</mo><mn>15346</mn><mo>&gt;</mo><mn>15293</mn><mo>,</mo></mrow></math>
+<math display="block"><mrow><mi>π</mi><mo stretchy="false">(</mo><mo>⌊</mo><msup><mn>579</mn><mn>2</mn></msup><mo>/</mo><mn>2</mn><mo>⌋</mo><mo stretchy="false">)</mo><mo>=</mo><mn>15308</mn><mo>&gt;</mo><mn>15293</mn><mo>.</mo></mrow></math>
+<p>If <math><mrow><mi>k</mi><mo>≥</mo><mn>410</mn></mrow></math> or <math><mrow><mi>m</mi><mo>≥</mo><mn>579</mn></mrow></math>, one summand alone
+already exceeds the target. Every solution must
+therefore lie in</p>
+<math display="block"><mrow><mn>1</mn><mo>≤</mo><mspace width="0.25em"/><mi>k</mi><mo>≤</mo><mn>409</mn><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mn>1</mn><mo>≤</mo><mspace width="0.25em"/><mi>m</mi><mo>≤</mo><mn>578</mn><mo>.</mo></mrow></math>
+<p>The kernel-checked table calculation excludes
+every <math><mi>k</mi></math> except <math><mn>339</mn></math>. For that value, the second
+summand must be <math><mrow><mn>15293</mn><mo>-</mo><mn>10867</mn><mo>=</mo><mn>4426</mn></mrow></math>. The table
+then shows that only <math><mrow><mi>m</mi><mo>=</mo><mn>291</mn></mrow></math> gives that count.</p>
+<p>There is exactly one representing pair, so</p>
+<math display="block"><menclose notation="box"><mrow><mrow><mi>a</mi><mo stretchy="false">(</mo><mn>15293</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>.</mo></mrow></mrow></menclose></math>
+</div>
+<p>Since <math><mrow><mn>15293</mn><mo>∉</mo><mo>{</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>28</mn><mo>}</mo></mrow></math>, part (i) of the
+stated conjecture is <strong>false</strong>. This refutes its
+uniqueness clause, not its positivity clause.
+The separate conjectures (ii) and (iii) are not
+addressed here.</p>
+<h2>Related counterexample</h2>
+<p>A related entry <a href="https://oeis.org/A263001"><code>A263001</code></a>
+counts representations of a different form:</p>
+<math display="block"><mrow><mi>n</mi><mo>=</mo><mi>π</mi><mo stretchy="false">(</mo><mi>k</mi><mo stretchy="false">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>+</mo><mi>π</mi><mrow><mo>(</mo><mfrac><mrow><mi>m</mi><mo stretchy="false">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>2</mn></mfrac><mo>)</mo></mrow><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><mi>k</mi><mo>,</mo><mi>m</mi><mo>&gt;</mo><mn>0</mn><mo>.</mo></mrow></math>
+<p>Its conjecture includes the claim that <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn></mrow></math>
+only for <math><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>6</mn></mrow></math>. OEIS also records a counterexample
+to this proposed uniqueness list. Like the <code>A263100</code>
+example above, it refutes the uniqueness clause,
+not positivity.</p>
+<h2>Source</h2>
+<p>The source code for both proofs is on my GitHub: <a href="https://github.com/thatnealpatel/proofs/blob/e0c9810910fd2faa896326257d0a7b95216756cc/Proofs/Sorry/NumberComplexity/A262995Refutation.lean"><code>A262995Refutation.lean</code></a>, <a href="https://github.com/thatnealpatel/proofs/blob/e0c9810910fd2faa896326257d0a7b95216756cc/Proofs/NumberComplexity/A263100Refutation.lean"><code>A263100Refutation.lean</code></a>.</p>
+<p>The former file lives in a <code>Proofs/Sorry</code> <em>directory</em>
+in the project; however, its contents machine check
+in the manner stated at the top of this post. I will
+eventually lift it to the <code>Proofs/</code> module and update
+this post.</p>
+
+</main>
+</body>
+</html>
