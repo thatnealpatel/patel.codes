@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>Proving Kimberling&#39;s harmonic-floor conjecture</title>
+<meta property="og:title" content="Proving Kimberling&#39;s harmonic-floor conjecture">
+<meta property="og:url" content="https://patel.codes/words/proving_a108211_harmonic_floor.html">
+<meta property="og:type" content="article">
+<style>
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(0, 173, 216, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .markdown .gen-notice a { color: #7b9da5; }
+  .gen-inline { background: rgba(0, 173, 216, 0.05); padding: 0.1em 0.3em; }
+</style>
+</head>
+<body>
+<main class="markdown">
+<h1>Proving Kimberling's harmonic-floor conjecture</h1>
+<p>2026-10-25 <span class="home">[<a href="/">home</a>]</span></p>
+<p class="gen-notice">This page contains <a href="/words/patel_codes_llm_disclosure.html">generated content</a> delineated using <span class="gen-inline">this shadowing style</span>.</p>
+<p><a href="https://oeis.org/A108211"><code>A108211</code></a> is the sequence
+<math><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo><mo>=</mo><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></math>, starting at <math><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow></math>:</p>
+<math display="block"><mrow><mn>17</mn><mo>,</mo><mn>65</mn><mo>,</mo><mn>145</mn><mo>,</mo><mn>257</mn><mo>,</mo><mn>401</mn><mo>,</mo><mn>577</mn><mo>,</mo><mo>…</mo><mo>.</mo></mrow></math>
+<p>A conjecture of Clark Kimberling from September
+2014 gives a different way to obtain these integers:</p>
+<blockquote>
+<p>For every <math><mrow><mi>n</mi><mo>≥</mo><mn>1</mn></mrow></math>,</p>
+<math display="block"><mrow><mrow><mo>⌊</mo><mrow><mspace width="0.25em"/><mfrac><mn>1</mn><mrow><mfrac><mn>1</mn><mrow><mn>4</mn><mi>n</mi></mrow></mfrac><mo>-</mo><mo>log</mo><mn>2</mn><mo>+</mo><msub><mi>H</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo>-</mo><msub><mi>H</mi><mi>n</mi></msub></mrow></mfrac><mspace width="0.25em"/></mrow><mo>⌋</mo></mrow><mo>=</mo><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo>.</mo></mrow></math>
+</blockquote>
+<p>Here <math><mrow><msub><mi>H</mi><mi>n</mi></msub><mo>=</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo>/</mo><mn>2</mn><mo>+</mo><mo>⋯</mo><mo>+</mo><mn>1</mn><mo>/</mo><mi>n</mi></mrow></math> is the <math><mi>n</mi></math>th
+<a href="https://en.wikipedia.org/wiki/Harmonic_number">harmonic number</a>, <math><mo>log</mo></math> is the natural logarithm,
+and <math><mrow><mo>⌊</mo><mspace width="0.25em"/><mi>x</mi><mo>⌋</mo></mrow></math> rounds <math><mi>x</mi></math> down to an integer.
+For example, at <math><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow></math> the denominator is
+<math><mrow><mn>3</mn><mo>/</mo><mn>4</mn><mo>-</mo><mo>log</mo><mn>2</mn></mrow></math>, whose reciprocal lies between <math><mn>17</mn></math>
+and <math><mn>18</mn></math>.</p>
+<p><strong>This conjecture is true.</strong> The proof compiles
+using only <code>propext</code>, <code>Classical.choice</code>, and
+<code>Quot.sound</code>.</p>
+<h2>Proof</h2>
+<p>The definition and theorem statement below omit
+the proof body:</p>
+<div class="gen">
+<pre><code class="language-lean">def a (n : ℕ) : ℕ := 16 * n ^ 2 + 1
+
+theorem kimberling_conjecture (n : ℕ) (hn : 1 ≤ n) :
+    ⌊(1 : ℝ) / (1 / (4 * (n : ℝ)) - Real.log 2 +
+      ∑ k ∈ Icc (n + 1) (2 * n), (1 : ℝ) / k)⌋
+      = (a n : ℤ)
+</code></pre>
+</div>
+<p>Here <code>Icc (n + 1) (2 * n)</code> includes both endpoints,
+so the sum is <math><mrow><mn>1</mn><mo>/</mo><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>+</mo><mo>⋯</mo><mo>+</mo><mn>1</mn><mo>/</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo stretchy="false">)</mo></mrow></math>, exactly
+<math><mrow><msub><mi>H</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo>-</mo><msub><mi>H</mi><mi>n</mi></msub></mrow></math>. The index <code>k</code> simply runs through
+those denominators, replacing OEIS's written-out
+sum without changing its value. The divisions take place in the
+real numbers, and the floor is an integer. The
+hypothesis <code>hn</code> restricts the claim to <math><mrow><mi>n</mi><mo>≥</mo><mn>1</mn></mrow></math>,
+matching the sequence's first index.</p>
+<p>Write the denominator as</p>
+<math display="block"><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>4</mn><mi>n</mi></mrow></mfrac><mo>-</mo><mo>log</mo><mn>2</mn><mo>+</mo><msub><mi>H</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo>-</mo><msub><mi>H</mi><mi>n</mi></msub><mo>.</mo></mrow></math>
+<p>It is enough to prove</p>
+<math display="block"><mrow><mfrac><mn>1</mn><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn></mrow></mfrac><mo>&lt;</mo><msub><mi>x</mi><mi>n</mi></msub><mo>&lt;</mo><mfrac><mn>1</mn><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mo>.</mo></mrow></math>
+<p>Taking reciprocals will then put <math><mrow><mn>1</mn><mo>/</mo><msub><mi>x</mi><mi>n</mi></msub></mrow></math> strictly
+between the consecutive integers <math><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></math> and
+<math><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn></mrow></math>.</p>
+<h3>Comparing consecutive terms</h3>
+<div class="gen">
+<p>Subtracting consecutive terms cancels <math><mrow><mo>log</mo><mn>2</mn></mrow></math>
+and almost all of the harmonic sums:</p>
+<math display="block"><mrow><mspace width="0.25em"/><msub><mi>x</mi><mi>n</mi></msub><mo>-</mo><msub><mi>x</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mspace width="0.25em"/><mo>&amp;</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>4</mn><mi>n</mi></mrow></mfrac><mo>-</mo><mfrac><mn>1</mn><mrow><mn>4</mn><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mo>+</mo><mfrac><mn>1</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>-</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>-</mo><mfrac><mn>1</mn><mrow><mn>2</mn><mi>n</mi><mo>+</mo><mn>2</mn></mrow></mfrac><mo>
+</mo><mspace width="0.25em"/><mo>&amp;</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>4</mn><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>.</mo><mspace width="0.25em"/></mrow></math>
+<p>Also, <math><mrow><msub><mi>H</mi><mi>m</mi></msub><mo>-</mo><mo>log</mo><mspace width="0.25em"/><mi>m</mi></mrow></math> converges to the
+<a href="https://en.wikipedia.org/wiki/Euler%27s_constant">Euler–Mascheroni constant</a>. Consequently,</p>
+<math display="block"><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>4</mn><mi>n</mi></mrow></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mo>+</mo><mo stretchy="false">(</mo><msub><mi>H</mi><mrow><mn>2</mn><mi>n</mi></mrow></msub><mo>-</mo><mo>log</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>-</mo><mo stretchy="false">(</mo><msub><mi>H</mi><mi>n</mi></msub><mo>-</mo><mo>log</mo><mspace width="0.25em"/><mi>n</mi><mo stretchy="false">)</mo><mspace width="0.25em"/><mspace width="0.25em"/><mo>⟶</mo><mn>0</mn><mo>.</mo></mrow></math>
+<p>Now introduce the two comparison sequences</p>
+<math display="block"><mrow><msub><mi>L</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn></mrow></mfrac><mo>,</mo><mspace width="0.25em"/><mo>  </mo><mspace width="0.25em"/><msub><mi>U</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mo>.</mo></mrow></math>
+<p>Both tend to zero. Their consecutive differences
+trap the difference of <math><msub><mi>x</mi><mi>n</mi></msub></math>:</p>
+<math display="block"><mrow><msub><mi>L</mi><mi>n</mi></msub><mo>-</mo><msub><mi>L</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>&lt;</mo><msub><mi>x</mi><mi>n</mi></msub><mo>-</mo><msub><mi>x</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>&lt;</mo><msub><mi>U</mi><mi>n</mi></msub><mo>-</mo><msub><mi>U</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mspace width="0.25em"/><mo>  </mo><mo stretchy="false">(</mo><mi>n</mi><mo>≥</mo><mn>1</mn><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>These are exact rational inequalities. To check
+them, put <math><mrow><msub><mi>D</mi><mi>n</mi></msub><mo>=</mo><mn>4</mn><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>. Direct subtraction
+gives</p>
+<math display="block"><mrow><mo stretchy="false">(</mo><msub><mi>U</mi><mi>n</mi></msub><mo>-</mo><msub><mi>U</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mo>-</mo><mfrac><mn>1</mn><msub><mi>D</mi><mi>n</mi></msub></mfrac><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><mrow><mn>32</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>32</mn><mi>n</mi><mo>-</mo><mn>17</mn></mrow><mrow><msub><mi>D</mi><mi>n</mi></msub><mo stretchy="false">(</mo><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>16</mn><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>&gt;</mo><mn>0</mn></mrow></math>
+<p>and</p>
+<math display="block"><mrow><mfrac><mn>1</mn><msub><mi>D</mi><mi>n</mi></msub></mfrac><mo>-</mo><mo stretchy="false">(</mo><msub><mi>L</mi><mi>n</mi></msub><mo>-</mo><msub><mi>L</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false">)</mo><mspace width="0.25em"/><mo>=</mo><mspace width="0.25em"/><mfrac><mn>36</mn><mrow><msub><mi>D</mi><mi>n</mi></msub><mo stretchy="false">(</mo><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>16</mn><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mn>2</mn></msup><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo></mrow></mfrac><mo>&gt;</mo><mn>0</mn><mo>.</mo></mrow></math>
+<p>Every denominator is positive, and both numerators
+are positive for <math><mrow><mi>n</mi><mo>≥</mo><mn>1</mn></mrow></math>.</p>
+</div>
+<h3>From differences to bounds</h3>
+<div class="gen">
+<p>The upper comparison says</p>
+<math display="block"><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>-</mo><msub><mi>U</mi><mi>n</mi></msub><mo>&lt;</mo><msub><mi>x</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>-</mo><msub><mi>U</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>.</mo></mrow></math>
+<p>Thus <math><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>-</mo><msub><mi>U</mi><mi>n</mi></msub></mrow></math> is strictly increasing. Since it
+converges to zero, every term must be negative:
+A nonnegative term would force all later terms
+to stay above some positive value. Hence</p>
+<math display="block"><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>&lt;</mo><msub><mi>U</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn></mrow></mfrac><mo>.</mo></mrow></math>
+<p>Similarly, the lower comparison says</p>
+<math display="block"><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>-</mo><msub><mi>L</mi><mi>n</mi></msub><mo>&gt;</mo><msub><mi>x</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>-</mo><msub><mi>L</mi><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>.</mo></mrow></math>
+<p>This difference is strictly decreasing to zero,
+so every term is positive. Therefore</p>
+<math display="block"><mrow><mfrac><mn>1</mn><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn></mrow></mfrac><mo>=</mo><msub><mi>L</mi><mi>n</mi></msub><mo>&lt;</mo><msub><mi>x</mi><mi>n</mi></msub><mo>.</mo></mrow></math>
+<p>In particular, <math><mrow><msub><mi>x</mi><mi>n</mi></msub><mo>&gt;</mo><mn>0</mn></mrow></math>. Taking reciprocals
+reverses the inequalities and gives</p>
+<math display="block"><mrow><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo>&lt;</mo><mfrac><mn>1</mn><msub><mi>x</mi><mi>n</mi></msub></mfrac><mo>&lt;</mo><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>2</mn><mo>.</mo></mrow></math>
+<p>Rounding down proves</p>
+<math display="block"><menclose notation="box"><mrow><mrow><mrow><mo>⌊</mo><mfrac><mn>1</mn><msub><mi>x</mi><mi>n</mi></msub></mfrac><mo>⌋</mo></mrow><mo>=</mo><mn>16</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>1</mn><mspace width="0.25em"/><mo>  </mo><mo stretchy="false">(</mo><mi>n</mi><mo>≥</mo><mn>1</mn><mo stretchy="false">)</mo><mo>.</mo></mrow></mrow></menclose></math>
+</div>
+<h2>Source</h2>
+<p>The source code for this proof can be found
+<a href="https://github.com/thatnealpatel/proofs/blob/e0c9810910fd2faa896326257d0a7b95216756cc/Proofs/Analysis/A108211HarmonicFloor.lean">on my GitHub</a>.</p>
+<h2>AI Disclosure</h2>
+<p>These results were obtained primarily using a mix
+of Anthropic, OpenAI, and open weight models in a
+private benchmark using a bespoke harness.</p>
+
+</main>
+</body>
+</html>

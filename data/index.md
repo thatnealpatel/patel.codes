@@ -33,6 +33,7 @@ on Go cryptography and security.
 
 ## Proofs
 
+- [Proving Kimberling's harmonic-floor conjecture](./words/proving_a108211_harmonic_floor.html)
 - [Proving last digit conjecture in `A137098`](./words/last_digit_a137098.html)
 - [Refuting two prime-counting conjectures](./words/prime_counting_counterexamples.html)
 - [Drive by proof on `A014701`](./words/driveby_proof_on_a014701.html)
