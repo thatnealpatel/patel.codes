@@ -81,12 +81,10 @@ Subtracting consecutive terms cancels $\log2$
 and almost all of the harmonic sums:
 
 $$
-\begin{aligned}
 x_n-x_{n+1}
-&=\frac1{4n}-\frac1{4(n+1)}
+=\frac1{4n}-\frac1{4(n+1)}
   +\frac1{n+1}-\frac1{2n+1}-\frac1{2n+2}\\
-&=\frac1{4n(n+1)(2n+1)}.
-\end{aligned}
+=\frac1{4n(n+1)(2n+1)}.
 $$
 
 Also, $H_m-\log m$ converges to the
