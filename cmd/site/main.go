@@ -355,6 +355,7 @@ var goImportOverrides = map[string]goImport{
 	"proofs":      {repo: "thatnealpatel/proofs"},
 	"patel.codes": {repo: "thatnealpatel/patel.codes"},
 	"godel":       {repo: "thatnealpatel/godel"},
+	"grh":         {repo: "thatnealpatel/grh"},
 	"jsonldb":     {repo: "thatnealpatel/mono", subdir: "jsonldb"},
 	"ranking":     {repo: "thatnealpatel/mono", subdir: "ranking"},
 	"unsafe":      {repo: "thatnealpatel/mono", subdir: "unsafe"},
