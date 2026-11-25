@@ -33,6 +33,7 @@ on Go cryptography and security.
 
 ## Proofs
 
+- [A logarithmic bound for `A400000`](./words/bounding_the_mean_height_of_a400000.html)
 - [Proving Kimberling's harmonic-floor conjecture](./words/proving_a108211_harmonic_floor.html)
 - [Proving last digit conjecture in `A137098`](./words/last_digit_a137098.html)
 - [Refuting two prime-counting conjectures](./words/prime_counting_counterexamples.html)

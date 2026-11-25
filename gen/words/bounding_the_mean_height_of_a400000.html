@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+<title>A logarithmic bound for `A400000`</title>
+<meta property="og:title" content="A logarithmic bound for `A400000`">
+<meta property="og:url" content="https://patel.codes/words/bounding_the_mean_height_of_a400000.html">
+<meta property="og:type" content="article">
+<style>
+:root {
+  color-scheme: light;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: #2d2d2d;
+  background: #fff;
+  line-height: 1.5;
+}
+.markdown {
+  color: #2d2d2d;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.markdown > :first-child {
+  margin-top: 0;
+}
+.markdown > :last-child {
+  margin-bottom: 0;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  margin: 1.25em 0 0.5em;
+}
+.markdown ol,
+.markdown ul {
+  padding-left: 2rem;
+}
+.markdown blockquote {
+  border-left: 0.25rem solid #8a8a8a;
+  color: #3b3b3b;
+  margin-left: 0;
+  padding-left: 1rem;
+}
+.markdown a {
+  color: #0e7187;
+}
+.markdown code {
+  background: transparent;
+  color: #008000;
+  font-family: inherit;
+  padding: 0.08em 0.25em;
+}
+.markdown pre {
+  background: #ffffe1;
+  color: #000;
+  overflow-x: auto;
+  padding: 0.75rem;
+  white-space: pre;
+}
+.markdown pre code,
+.markdown pre code * {
+  background: transparent;
+  color: #000;
+  padding: 0;
+}
+.markdown table {
+  border-collapse: collapse;
+  display: block;
+  overflow-x: auto;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid #8a8a8a;
+  padding: 0.35rem 0.6rem;
+}
+.markdown math[display="block"] {
+  display: block;
+  margin: 1em 0;
+  overflow-x: auto;
+}
+.markdown mtable.aligned {
+  border-spacing: 0;
+}
+.markdown mtable.aligned > mtr > mtd {
+  padding: 0.28em 0;
+  text-align: right;
+  justify-items: end;
+}
+.markdown mtable.aligned > mtr > mtd:nth-child(2n) {
+  text-align: left;
+  justify-items: start;
+}
+.markdown mtable.aligned > mtr > mtd:nth-child(2n+3) {
+  padding-inline-start: 1em;
+}
+
+  body { max-width: 850px; margin: 3rem auto; padding: 0 1.5rem; }
+  .gen { background: rgba(0, 173, 216, 0.05); padding: 0.5rem 1rem; margin: 1rem -1rem; }
+  .markdown .gen-notice { color: #a8a49c; }
+  .markdown .gen-notice a { color: #7b9da5; }
+  .gen-inline { background: rgba(0, 173, 216, 0.05); padding: 0.1em 0.3em; }
+</style>
+</head>
+<body>
+<main class="markdown">
+<h1>A logarithmic bound for <code>A400000</code></h1>
+<p>2026-11-25 <span class="home">[<a href="/">home</a>]</span></p>
+<p class="gen-notice">This page contains <a href="/words/patel_codes_llm_disclosure.html">generated content</a> delineated using <span class="gen-inline">this shadowing style</span>.</p>
+<h2>Introduction</h2>
+<p>In Eric Fox's <a href="https://oeis.org/A400000">city-building sequence (<code>A400000</code>)</a>,
+the first building has height zero. Each new building takes the
+<em>least</em> nonnegative integer height <math><mi>h</mi></math> from which it sees exactly
+<math><mi>h</mi></math> earlier rooftops. A rooftop blocks the view only if it lies
+strictly above the line of sight. Collinear rooftops all count.</p>
+<p>The sequence starts <math><mrow><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>3</mn></mrow></math>. Write <math><mrow><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow></math> for the height of the
+<math><mi>n</mi></math>th building and let <math><mrow><msub><mi>S</mi><mi>N</mi></msub><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><mi>a</mi><mo stretchy="false">(</mo><mi>n</mi><mo stretchy="false">)</mo></mrow></math>. Then <math><mrow><msub><mi>S</mi><mi>N</mi></msub><mo>/</mo><mi>N</mi></mrow></math> is the
+mean height of the first <math><mi>N</mi></math> buildings. The partial sums are listed in
+<a href="https://oeis.org/A397740"><code>A397740</code></a>, along with the following conjecture:</p>
+<math display="block"><mrow><munder accentunder="false"><mo form="prefix" largeop="false" movablelimits="true" lspace="0em" rspace="0em">lim sup</mo><mrow><mi>N</mi><mo>→</mo><mo>∞</mo></mrow></munder><mspace width="0.1667em"/><mfrac><msub><mi>S</mi><mi>N</mi></msub><mi>N</mi></mfrac><mo>≤</mo><mspace width="0.25em"/><mn>3</mn><mo>.</mo></mrow></math>
+<p>In this post, I present a logarithmic upper bound that I
+obtained on Nov 7, 2026 and attempted to improve before
+running out of time to do so. My
+<a href="https://github.com/thatnealpatel/grh">recent efforts</a>
+to help formalize and repair
+<a href="https://math216.wordpress.com/wp-content/uploads/2026/11/the-music-of-the-primes.pdf">Masullo's <em>The Music of the Primes</em></a>
+is likely going to backlog this further. As such, I figured
+writing up the bound is interesting enough.</p>
+<p>For every <math><mrow><mi>N</mi><mo>≥</mo><mspace width="0.25em"/><mn>1</mn></mrow></math>, we obtain the bound</p>
+<math display="block"><mrow><msub><mi>S</mi><mi>N</mi></msub><mo>≤</mo><mspace width="0.25em"/><mn>100</mn><mi>N</mi><mo fence="true" form="prefix" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><mo>⌊</mo><msub><mo>log</mo><mn>3</mn></msub><mspace width="0.25em"/><mi>N</mi><mo>⌋</mo><mo>+</mo><mn>2</mn><mo fence="true" form="postfix" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo><mo>.</mo></mrow></math>
+<p>The previous statement is machine-checked in Lean 4 and uses
+only <code>propext</code>, <code>Classical.choice</code>, and <code>Quot.sound</code>:</p>
+<pre><code class="language-lean">theorem term_partialSum_log_bound (N : ℕ) :
+    (∑ i ∈ Finset.range N, term i) ≤ 100 * N * (Nat.log 3 N + 2)
+</code></pre>
+<p>The full conjecture remains <strong>open</strong> for <math><mrow><mo>≤</mo><mspace width="0.25em"/><mn>3</mn></mrow></math>.</p>
+<p>On a personal note, I hope to revise this more in my own voice.</p>
+<h2>Looking back from a lower roof</h2>
+<div class="gen">
+<p>Picture the first three rooftops one unit apart, at heights zero, one,
+and one. Stand at the fourth site and look left. From ground level you
+see only the nearest roof. At height one you see both height-one roofs:
+The nearer roof lies on the horizontal sightline, not above it.</p>
+<p>At height two you still see just those two roofs, so two is the first
+height that matches the count. The proof uses the same idea in reverse:
+Given a tall building, what would you see from a lower roof at its site?</p>
+<p>Number the positions from zero, as in Lean, and write <math><msub><mi>x</mi><mi>n</mi></msub></math> for
+the height at position <math><mi>n</mi></math>. Suppose <math><mrow><mi>i</mi><mo>&lt;</mo><mi>n</mi></mrow></math> are both of height at
+least <math><mrow><mi>B</mi><mo>≥</mo><mn>4</mn></mrow></math>, but their distance <math><mrow><mi>d</mi><mo>=</mo><mi>n</mi><mo>-</mo><mi>i</mi></mrow></math> satisfies <math><mrow><mn>4</mn><mi>d</mi><mo>≤</mo><mspace width="0.25em"/><mi>B</mi></mrow></math>.
+At <math><mi>n</mi></math>, try a roof of height <math><mrow><mi>h</mi><mo>=</mo><mo>⌊</mo><mspace width="0.25em"/><mi>B</mi><mo>/</mo><mn>2</mn><mo>⌋</mo></mrow></math> instead of
+<math><msub><mi>x</mi><mi>n</mi></msub></math>. Two things happen:</p>
+<ol>
+<li><strong>The trial sees too many roofs.</strong> Raising the trial roof can
+only add views. Thus the visible count minus the trial height
+drops by at most one per unit step. It starts positive (the
+immediate predecessor is visible even from the ground) and
+cannot become negative without first hitting zero. Since <math><mi>h</mi></math>
+is below the <em>least</em> fixed point, the trial sees at least <math><mrow><mi>h</mi><mo>+</mo><mn>1</mn></mrow></math>
+roofs. At most <math><mi>d</mi></math> are at or after <math><mi>i</mi></math>, so at least <math><mrow><mi>h</mi><mo>+</mo><mn>1</mn><mo>-</mo><mi>d</mi></mrow></math>
+lie strictly before <math><mi>i</mi></math>.</li>
+<li><strong>Those earlier roofs are tall.</strong> The sightline to any such
+roof <math><mi>p</mi></math> must clear building <math><mi>i</mi></math>, which stands at least
+<math><mrow><mi>B</mi><mo>-</mo><mi>h</mi><mo>≥</mo><mspace width="0.25em"/><mn>2</mn><mi>d</mi></mrow></math> above the trial. Going left from <math><mi>n</mi></math>, the line
+must therefore rise at least two units per position:
+<math display="block"><mrow><msub><mi>x</mi><mi>p</mi></msub><mo>≥</mo><mspace width="0.25em"/><mi>h</mi><mo>+</mo><mn>2</mn><mo stretchy="false">(</mo><mi>n</mi><mo>-</mo><mi>p</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+</li>
+</ol>
+<p>The second observation gives a <em>lower</em> bound on each visible
+height. For the upper bound, ask what that building could see
+when it was built.</p>
+</div>
+<h2>Passing a sightline from one building to another</h2>
+<div class="gen">
+<p>List all the roofs visible from the trial that are strictly taller
+than <math><mi>h</mi></math>, from left to right. Take two successive ones, <math><mrow><mi>p</mi><mo>&lt;</mo><mi>q</mi></mrow></math>,
+with <math><mi>r</mi></math> roofs before <math><mi>p</mi></math> in the list. Then</p>
+<math display="block"><mrow><msub><mi>x</mi><mi>q</mi></msub><mo>≤</mo><mspace width="0.25em"/><mi>r</mi><mo>+</mo><mo stretchy="false">(</mo><mi>q</mi><mo>-</mo><mi>p</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>Here's why. Building <math><mi>q</mi></math> sees exactly <math><msub><mi>x</mi><mi>q</mi></msub></math> earlier roofs at its
+actual height. At most <math><mrow><mi>q</mi><mo>-</mo><mi>p</mi></mrow></math> of them lie at or after <math><mi>p</mi></math>. I claim
+that every roof <math><mrow><mi>t</mi><mo>&lt;</mo><mi>p</mi></mrow></math> seen by <math><mi>q</mi></math> is also in the trial's list.</p>
+<p>Draw the two known sightlines: From <math><mi>t</mi></math> to <math><mi>q</mi></math>, and from <math><mi>p</mi></math> to
+the trial point at <math><mi>n</mi></math>. The first passes on or above <math><mi>p</mi></math>, and the
+second passes on or above <math><mi>q</mi></math>. In slope notation this gives</p>
+<math display="block"><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>t</mi><mo>,</mo><mi>q</mi><mo stretchy="false">)</mo><mo>≤</mo><mspace width="0.25em"/><mi>s</mi><mo stretchy="false">(</mo><mi>p</mi><mo>,</mo><mi>q</mi><mo stretchy="false">)</mo><mo>≤</mo><mspace width="0.25em"/><mi>s</mi><mo stretchy="false">(</mo><mi>q</mi><mo>,</mo><mi>n</mi><mo stretchy="false">)</mo><mo>,</mo></mrow></math>
+<p>where <math><mi>n</mi></math> denotes the trial point. Hence the chord from <math><mi>t</mi></math> to <math><mi>n</mi></math>
+lies on or above <math><mi>q</mi></math>. It dominates the clear chord <math><mrow><mi>t</mi><mi>q</mi></mrow></math> from <math><mi>t</mi></math>
+to <math><mi>q</mi></math>, and, since it also clears <math><mi>p</mi></math>, it dominates the clear
+chord <math><mrow><mi>p</mi><mi>n</mi></mrow></math> from <math><mi>p</mi></math> to <math><mi>n</mi></math>. These intervals cover every possible
+blocker. So the trial sees <math><mi>t</mi></math>. Moreover, <math><mrow><msub><mi>x</mi><mi>p</mi></msub><mo>&gt;</mo><msub><mi>x</mi><mi>q</mi></msub></mrow></math>: The chord
+from <math><mi>p</mi></math> to the lower trial roof clears <math><mi>q</mi></math>, whose height exceeds
+<math><mi>h</mi></math>. Thus <math><mrow><mi>s</mi><mo stretchy="false">(</mo><mi>t</mi><mo>,</mo><mi>q</mi><mo stretchy="false">)</mo><mo>≤</mo><mspace width="0.25em"/><mi>s</mi><mo stretchy="false">(</mo><mi>p</mi><mo>,</mo><mi>q</mi><mo stretchy="false">)</mo><mo>&lt;</mo><mn>0</mn></mrow></math>, and <math><mrow><msub><mi>x</mi><mi>t</mi></msub><mo>&gt;</mo><msub><mi>x</mi><mi>q</mi></msub><mo>&gt;</mo><mi>h</mi></mrow></math>. This puts <math><mi>t</mi></math>
+among the <math><mi>r</mi></math> listed roofs before <math><mi>p</mi></math>, as claimed.</p>
+</div>
+<h2>Where the logarithm comes from</h2>
+<div class="gen">
+<p>Put <math><mrow><mi>k</mi><mo>=</mo><mi>h</mi><mo>-</mo><mi>d</mi></mrow></math>. By the trial count, the first <math><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></math> roofs in the
+list all lie before <math><mi>i</mi></math>. Take consecutive roofs <math><mrow><mi>p</mi><mo>,</mo><mi>q</mi></mrow></math> among them,
+so that the rank <math><mi>r</mi></math> of <math><mi>p</mi></math> satisfies <math><mrow><mi>r</mi><mo>&lt;</mo><mi>k</mi><mo>≤</mo><mspace width="0.25em"/><mi>h</mi></mrow></math>. Our two bounds
+on <math><msub><mi>x</mi><mi>q</mi></msub></math> give</p>
+<math display="block"><mrow><mi>h</mi><mo>+</mo><mn>2</mn><mo stretchy="false">(</mo><mi>n</mi><mo>-</mo><mi>q</mi><mo stretchy="false">)</mo><mo>≤</mo><mspace width="0.25em"/><msub><mi>x</mi><mi>q</mi></msub><mo>≤</mo><mspace width="0.25em"/><mi>r</mi><mo>+</mo><mo stretchy="false">(</mo><mi>q</mi><mo>-</mo><mi>p</mi><mo stretchy="false">)</mo><mo>.</mo></mrow></math>
+<p>In particular <math><mrow><mi>q</mi><mo>-</mo><mi>p</mi><mo>≥</mo><mspace width="0.25em"/><mn>2</mn><mo stretchy="false">(</mo><mi>n</mi><mo>-</mo><mi>q</mi><mo stretchy="false">)</mo></mrow></math>, or <math><mrow><mi>n</mi><mo>-</mo><mi>p</mi><mo>≥</mo><mspace width="0.25em"/><mn>3</mn><mo stretchy="false">(</mo><mi>n</mi><mo>-</mo><mi>q</mi><mo stretchy="false">)</mo></mrow></math>.
+Read the list backwards: <strong>Each step at least triples the distance
+to the trial roof.</strong> There are <math><mi>k</mi></math> steps, the nearest distance is
+at least one, and the farthest is at most <math><mi>n</mi></math>. Consequently</p>
+<math display="block"><mrow><msup><mn>3</mn><mrow><mo>⌊</mo><mspace width="0.25em"/><mi>B</mi><mo>/</mo><mn>2</mn><mo>⌋</mo><mo>-</mo><mi>d</mi></mrow></msup><mo>≤</mo><mspace width="0.25em"/><mi>n</mi><mo>.</mo></mrow></math>
+<p>Now let <math><mrow><mi>L</mi><mo>=</mo><mo>⌊</mo><msub><mo>log</mo><mn>3</mn></msub><mspace width="0.25em"/><mi>N</mi><mo>⌋</mo></mrow></math>. If <math><mrow><mi>n</mi><mo>&lt;</mo><mi>N</mi></mrow></math> and <math><mrow><mi>B</mi><mo>&gt;</mo><mn>4</mn><mo stretchy="false">(</mo><mi>L</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math>,
+then <math><mrow><mn>4</mn><mi>d</mi><mo>≤</mo><mspace width="0.25em"/><mi>B</mi></mrow></math> would give <math><mrow><mo>⌊</mo><mspace width="0.25em"/><mi>B</mi><mo>/</mo><mn>2</mn><mo>⌋</mo><mo>-</mo><mi>d</mi><mo>≥</mo><mspace width="0.25em"/><mi>L</mi><mo>+</mo><mn>1</mn></mrow></math>.
+There isn't room: <math><mrow><msup><mn>3</mn><mrow><mi>L</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>&gt;</mo><mi>N</mi></mrow></math>. This proves the spacing result.</p>
+<p>To finish, count the sum one floor at a time. Write <math><msub><mi>T</mi><mi>B</mi></msub></math> for
+the number of buildings of height at least <math><mi>B</mi></math> in the prefix.
+Then <math><mrow><msub><mi>S</mi><mi>N</mi></msub><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>B</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><msub><mi>T</mi><mi>B</mi></msub></mrow></math>, since a building cannot see more
+roofs than there are predecessors. Up to <math><mrow><mi>b</mi><mo>=</mo><mn>4</mn><mo stretchy="false">(</mo><mi>L</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow></math> use <math><mrow><msub><mi>T</mi><mi>B</mi></msub><mo>≤</mo><mspace width="0.25em"/><mi>N</mi></mrow></math>;
+above <math><mi>b</mi></math> the spacing gives <math><mrow><msub><mi>T</mi><mi>B</mi></msub><mo>≤</mo><mspace width="0.25em"/><mn>1</mn><mo>+</mo><mn>4</mn><mi>N</mi><mo>/</mo><mi>B</mi></mrow></math>. Therefore</p>
+<math display="block"><mrow><msub><mi>S</mi><mi>N</mi></msub><mo>≤</mo><mspace width="0.25em"/><mi>b</mi><mi>N</mi><mo>+</mo><mi>N</mi><mo>+</mo><mn>4</mn><mi>N</mi><msub><mo>∑</mo><mrow><mi>b</mi><mo>&lt;</mo><mi>B</mi><mo>≤</mo><mspace width="0.25em"/><mi>N</mi></mrow></msub><mfrac><mn>1</mn><mi>B</mi></mfrac><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mspace width="0.25em"/><mo>≤</mo><mspace width="0.25em"/><mi>N</mi><mo fence="true" form="prefix" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><mi>b</mi><mo>+</mo><mn>1</mn><mo>+</mo><mn>4</mn><mo>ln</mo><mspace width="0.25em"/><mi>N</mi><mo fence="true" form="postfix" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo><mo>.</mo></mrow></math>
+<p>This implies the stated bound. The Lean proof counts the same
+tail in geometric bands rather than summing the harmonic series.</p>
+</div>
+<h2>Why this doesn't give a bounded mean</h2>
+<div class="gen">
+<p>For comparison, write down the largest power of two dividing each
+positive integer: <math><mrow><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>8</mn><mo>,</mo><mo>…</mo></mrow></math>. Terms at least <math><mi>B</mi></math>
+are spaced at least <math><mi>B</mi></math> apart, <em>better</em> than the spacing above.
+Yet among positions <math><mn>1</mn></math> through <math><mrow><msup><mn>2</mn><mi>m</mi></msup><mo>-</mo><mn>1</mn></mrow></math>, each height <math><msup><mn>2</mn><mi>j</mi></msup></math> for
+<math><mrow><mn>0</mn><mo>≤</mo><mspace width="0.25em"/><mi>j</mi><mo>&lt;</mo><mi>m</mi></mrow></math> occurs <math><msup><mn>2</mn><mrow><mi>m</mi><mo>-</mo><mi>j</mi><mo>-</mo><mn>1</mn></mrow></msup></math> times. Each of the <math><mi>m</mi></math> height
+classes contributes the same <math><msup><mn>2</mn><mrow><mi>m</mi><mo>-</mo><mn>1</mn></mrow></msup></math> to the sum. The mean grows
+like <math><mrow><mi>m</mi><mo>/</mo><mn>2</mn></mrow></math>, not like a constant. This isn't a city-building
+sequence; it shows exactly what is lost by keeping only the
+spacing information.</p>
+</div>
+<h2>Source</h2>
+<p>The <a href="https://github.com/thatnealpatel/proofs/blob/6a52b1f276f81a150e279e03cbad2e9c1daf89f6/Proofs/Sorry/Combinatorics/A400000LogBound.lean">Lean proof</a> was checked on November 7, 2026.
+I still need to lift this out of the <code>Proofs/Sorry</code> directory.</p>
+<h2>AI Disclosure</h2>
+<p>These results were obtained primarily using a mix
+of Anthropic, OpenAI, and open weight models in a
+private benchmark using a bespoke harness.</p>
+
+</main>
+</body>
+</html>
