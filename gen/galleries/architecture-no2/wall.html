@@ -79,6 +79,21 @@
   margin: 1em 0;
   overflow-x: auto;
 }
+.markdown mtable.aligned {
+  border-spacing: 0;
+}
+.markdown mtable.aligned > mtr > mtd {
+  padding: 0.28em 0;
+  text-align: right;
+  justify-items: end;
+}
+.markdown mtable.aligned > mtr > mtd:nth-child(2n) {
+  text-align: left;
+  justify-items: start;
+}
+.markdown mtable.aligned > mtr > mtd:nth-child(2n+3) {
+  padding-inline-start: 1em;
+}
 
   :root { --page-width: 60em; }
   body { max-width: var(--page-width); margin: 3rem auto; padding: 0 1.5rem; }
